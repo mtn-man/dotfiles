@@ -1,0 +1,11 @@
+.DS_Store
+**/.DS_Store
+
+# fish generated state (usually not worth tracking)
+config/fish/fish_variables
+config/fish/fish_history
+
+# editor swap/backup files
+*~
+*.swp
+*.swo
