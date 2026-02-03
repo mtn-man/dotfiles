@@ -1,6 +1,5 @@
 map o $open "$fx"
 map <enter> $open "$fx"
-set hidden
 map . set hidden!
 map d $trash "$fx"
 map <backspace2> $trash "$fx"
