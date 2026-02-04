@@ -16,7 +16,7 @@ function media-on --description 'Bring up Tailscale and mount homelab media shar
     set -l max_tries 10
 
     while test $tries -lt $max_tries
-        if ping -c1 -W100 $host >/dev/null 2>&1
+        if ping -c1 -W500 $host >/dev/null 2>&1
             break
         end
         sleep 0.5
