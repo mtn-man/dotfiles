@@ -1,19 +1,32 @@
 function nord-up
-    scutil --nc start "NordVPN NordLynx"
-    echo "Connecting to NordVPN..."
+    set -l svc (set -q NORD_SVC; and echo $NORD_SVC; or echo "NordVPN NordLynx")
 
-    # Poll vpn_status until "Connected" or timeout
+    if not scutil --nc list | grep -q -- "$svc"
+        echo "nord-up: error: VPN service '$svc' not found. Check NordVPN app configuration." >&2
+        return 1
+    end
+
+    if test (scutil --nc status "$svc" | head -n 1) = "Connected"
+        echo "nord-up: $svc is already connected."
+        return 0
+    end
+
+    scutil --nc start "$svc"; or begin
+        echo "nord-up: error: failed to start $svc" >&2
+        return 1
+    end
+    echo "nord-up: connecting to NordVPN..."
+
     set -l timeout 15
     set -l elapsed 0
 
     while test $elapsed -lt $timeout
-        # Renamed variable from 'status' to 'vpn_status'
-        set -l vpn_status (scutil --nc status "NordVPN NordLynx" | head -n 1)
-        
+        set -l vpn_status (scutil --nc status "$svc" | head -n 1)
+
         if test "$vpn_status" = "Connected"
-            echo "Success: NordVPN NordLynx is now active."
-            set -l public_ip (curl -s https://ifconfig.me)
-            echo "Public IP: $public_ip"
+            echo "nord-up: success — $svc is now active."
+            set -l public_ip (curl -fsS --max-time 5 https://ifconfig.co 2>/dev/null; or echo "unknown")
+            echo "nord-up: public IP: $public_ip"
             return 0
         end
 
@@ -21,6 +34,6 @@ function nord-up
         set elapsed (math $elapsed + 1)
     end
 
-    echo "Error: Connection timed out after $timeout seconds."
+    echo "nord-up: error — connection timed out after $timeout seconds." >&2
     return 1
 end
