@@ -122,6 +122,9 @@ function yt --description 'Download YouTube videos with options'
         return 1
     end
 
+    # Play a sound only on success
+    command -q afplay; and afplay /System/Library/Sounds/Glass.aiff >/dev/null 2>&1 &
+    
     # Context-aware completion message
     if set -q _flag_open
         echo "✓ Downloaded and opened"
