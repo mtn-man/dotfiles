@@ -4,26 +4,32 @@ function media-off --description 'Unmount homelab media share, stop Tailscale, a
         if diskutil unmount "/Volumes/media" >/dev/null 2>&1
             echo "media-off: media share unmounted from /Volumes/media"
         else
-            echo "media-off: failed to unmount /Volumes/media (disk may be busy)"
+            echo "media-off: failed to unmount /Volumes/media (disk may be busy)" >&2
+            echo "media-off: diskutil says:" >&2
+            diskutil unmount "/Volumes/media" 2>&1 | sed 's/^/  /' >&2
             return 1
         end
     else
         echo "media-off: /Volumes/media is not mounted"
     end
 
-    # 2. Disconnect Tailscale
-    if command -q tailscale
-        if tailscale down >/dev/null 2>&1
-            echo "media-off: Tailscale disconnected"
-            
-            # 3. Trigger NordVPN on success
-            nord-up
-        else
-            echo "media-off: Failed to disconnect Tailscale"
-            return 1
-        end
-    else
-        # If Tailscale is not found, proceed to NordVPN as a fallback
+    # 2. Disconnect Tailscale (quiet on success, verbose on failure)
+    if not command -q tailscale
+        echo "media-off: tailscale not found in PATH; skipping tailscale down" >&2
         nord-up
+        return 0
     end
+
+    if tailscale down >/dev/null 2>&1
+        echo "media-off: Tailscale disconnected"
+    else
+        echo "media-off: tailscale down failed:" >&2
+        tailscale down 2>&1 | sed 's/^/  /' >&2
+        echo "media-off: tailscale status:" >&2
+        tailscale status 2>&1 | sed 's/^/  /' >&2
+        return 1
+    end
+
+    # 3. Trigger NordVPN on success
+    nord-up
 end
