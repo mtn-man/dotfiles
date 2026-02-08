@@ -1,18 +1,1 @@
-map o $open "$fx"
-map <enter> $open "$fx"
-map . set hidden!
-map d $trash "$fx"
-map <backspace2> $trash "$fx"
-set shell /opt/homebrew/bin/fish
-map S shell
-map R reload
-map e $micro "$fx"
-map c copy
-map v paste
-map <esc> quit
-map D delete
-map H cd /Users/user
-map x cut
-map C clear
-set previewer /Users/user/.config/lf/pv.sh
-set cleaner /Users/user/.config/lf/clean.sh
+/Users/user/.config/lf/lfrc
