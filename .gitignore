@@ -2,8 +2,9 @@
 **/.DS_Store
 
 # fish generated state (usually not worth tracking)
-config/fish/fish_variables
-config/fish/fish_history
+fish/.config/fish/fish_variables
+fish/.config/fish/fish_history
+fish/.config/fish/conf.d/
 
 # editor swap/backup files
 *~
