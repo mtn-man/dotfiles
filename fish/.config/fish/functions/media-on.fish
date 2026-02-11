@@ -1,7 +1,7 @@
 function media-on --description 'Bring up Tailscale and mount homelab media share'
     # 0. Ensure NordVPN is disconnected to prevent routing conflicts
+    tm-off
     nord-down
-
     # 1. Ensure Tailscale is up (no-op if already connected)
     if not command -q tailscale
         echo "media-on: tailscale not found in PATH" >&2

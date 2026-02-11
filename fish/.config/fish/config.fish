@@ -38,6 +38,7 @@ if status is-interactive
     alias yti='yt -i'
     alias tm-on='brew services start transmission-cli'
     alias tm-off='brew services stop transmission-cli'
+    alias tm-re 'brew services restart transmission-cli'
 end
 
 # 5. Functions
