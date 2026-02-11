@@ -6,7 +6,7 @@ function gcp --description "Stage all changes, commit in editor, push"
     end
 
     # Stage all changes (including new files and deletions)
-    git add -u; or return 1
+    git add .; or return 1
 
     # Abort cleanly if nothing is staged
     git diff --cached --quiet; and begin
