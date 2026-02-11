@@ -41,6 +41,7 @@ if status is-interactive
     alias tm-re='brew services restart transmission-cli'
     alias z='cd'
     alias speed='networkQuality'
+    alias lg='lazygit'
 end
 
 # 5. Functions

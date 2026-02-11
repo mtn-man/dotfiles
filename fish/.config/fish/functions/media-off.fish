@@ -34,5 +34,5 @@ function media-off --description 'Unmount homelab media share, stop Tailscale, a
     nord-up
 
     # 4. Retart Transmission Service
-    brew services restart transmission-cli
+    tm-on
 end
