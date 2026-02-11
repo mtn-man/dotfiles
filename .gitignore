@@ -6,6 +6,8 @@ fish/.config/fish/fish_variables
 fish/.config/fish/fish_history
 fish/.config/fish/conf.d/
 
+# micro generated state
+micro/.config/micro/buffers/
 # editor swap/backup files
 *~
 *.swp
