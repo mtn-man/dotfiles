@@ -1,6 +1,5 @@
 {
     "colorscheme": "solarized",
     "autosave": false,
-    "clipboard": "external",
-    "termclose": true
+    "clipboard": "external"
 }
