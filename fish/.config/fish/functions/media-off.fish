@@ -33,6 +33,6 @@ function media-off --description 'Unmount homelab media share, stop Tailscale, a
     # 3. Trigger NordVPN on success
     nord-up
 
-    # 4. Retart Transmission Service
-    tm-on
+    # 4. Restart Transmission Service
+    brew services start transmission-cli
 end
