@@ -3,4 +3,5 @@
     "CtrlUnderscore": "lua:comment.comment",
     "Alt-s": "Save,Quit",
     "Alt-g": "command:term fish -c 'gcp; exit'"
+    //this comment is a test
 }
