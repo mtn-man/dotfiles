@@ -39,6 +39,7 @@ if status is-interactive
     alias tm-on='brew services start transmission-cli'
     alias tm-off='brew services stop transmission-cli'
     alias tm-re='brew services restart transmission-cli'
+    alias z='cd'
 end
 
 # 5. Functions
