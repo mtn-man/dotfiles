@@ -2,5 +2,5 @@
     "Alt-/": "lua:comment.comment",
     "CtrlUnderscore": "lua:comment.comment",
     "Alt-s": "Save,Quit",
-    "Alt-g": "command:term fish -c gcp"
+    "Alt-g": "command:term fish -c 'gcp; exit'"
 }
