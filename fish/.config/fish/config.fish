@@ -6,10 +6,16 @@ set -gx HOMEBREW_NO_ENV_HINTS 1
 set -gx HOMEBREW_NO_INSTALL_CLEANUP 1
 
 # 2. Homebrew Initialization 
-# Using eval is the most reliable way to ensure all Homebrew variables (PATH, MANPATH, etc.) are set correctly.
-if test -d /opt/homebrew
-    eval (/opt/homebrew/bin/brew shellenv)
-end
+# Homebrew (Apple Silicon)
+set -gx HOMEBREW_PREFIX /opt/homebrew
+set -gx HOMEBREW_CELLAR /opt/homebrew/Cellar
+set -gx HOMEBREW_REPOSITORY /opt/homebrew
+
+fish_add_path -gP /opt/homebrew/bin
+fish_add_path -gP /opt/homebrew/sbin
+
+set -gx MANPATH /opt/homebrew/share/man $MANPATH
+set -gx INFOPATH /opt/homebrew/share/info $INFOPATH
 
 # 3. Go Binary Path
 fish_add_path -gP ~/go/bin
