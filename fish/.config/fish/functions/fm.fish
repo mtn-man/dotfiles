@@ -6,7 +6,12 @@ function fm --description 'Open file in micro via fd search (fzf when multiple m
 
     # Find matches under ~/dev (follow symlinks, include hidden)
     set -l matches (fd -L -H -t f -g "*$argv[1]*" ~/dev)
-
+    
+    # Fallback: if nothing found, search current working directory
+    if test (count $matches) -eq 0
+        set matches (fd -L -H -t f -g "*$argv[1]*" .)
+    end
+    
     switch (count $matches)
         case 0
             echo "fm: no matches found"
