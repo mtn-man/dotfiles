@@ -17,15 +17,17 @@ function fm --description 'Open file in micro via fd search (fzf when multiple m
             return 0
 
         case '*'
-            # Pick one interactively
-            set -l chosen (printf '%s\n' $matches | fzf -i --prompt='fm> ')
+            # Pick one interactively with preview
+            set -l chosen (printf '%s\n' $matches | fzf -i \
+                 --prompt='fm> ' \
+                 --preview='bat --color=always --style=plain --theme="ansi" {}' \
+                 --preview-window='right:60%:wrap')
 
             if test (count $chosen) -eq 0
                 echo "fm: cancelled"
                 return 1
             end
 
-            # fzf returns newline-separated paths; fish splits them into a list automatically
             micro $chosen
     end
 end
