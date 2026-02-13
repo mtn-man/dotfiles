@@ -2,5 +2,7 @@
     "colorscheme": "solarized",
     "autosave": false,
     "clipboard": "external",
-    "autoreload": true
+    "autoreload": true,
+    "scrollbar": true,
+    "tabstospaces": false
 }
