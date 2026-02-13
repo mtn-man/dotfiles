@@ -24,5 +24,7 @@ fish_add_path -gP ~/go/bin
 if status is-interactive
     source ~/.config/fish/aliases.fish
     # alias zoxide to cd 
-    zoxide init fish --cmd cd | source
+    if type -q zoxide
+        zoxide init fish --cmd cd | source
+    end
 end
