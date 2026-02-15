@@ -1,30 +1,46 @@
-function media-on --description 'Bring up Tailscale and mount homelab media share'
-    # 1. Bring down Transmission so torrents don't leak from VPN
+function media-on --description 'Stop transmission-cli, disconnect NordVPN, ensure Tailscale is running, then mount homelab media share'
+    # 1. Bring down Transmission so torrent traffic doesn't leak outside VPN
     if command -q brew
-        brew services stop transmission-cli >/dev/null 2>&1
+        brew services stop transmission-cli >/dev/null; or begin
+            echo "media-on: failed to stop transmission-cli via brew; aborting." >&2
+            return 1
+        end
+    else
+        echo "media-on: required command 'brew' not found in PATH; aborting." >&2
+        return 127
     end
 
-    # 2. Ensure NordVPN is disconnected to prevent routing conflicts
-    if functions -q nord-down
-        nord-down
+    # 2. NordVPN must disconnect to prevent routing conflicts
+    if not functions -q nord-down
+        echo "media-on: nord-down function not found; aborting." >&2
+        return 127
     end
 
-    # 3. Ensure required commands exist
-    for cmd in tailscale nc osascript diskutil
+    nord-down; or begin
+        echo "media-on: nord-down failed; aborting to avoid routing conflicts." >&2
+        return 1
+    end
+
+    # 3. Ensure required commands exist or exit
+    for cmd in tailscale nc osascript diskutil jq
         if not command -q $cmd
             echo "media-on: required command '$cmd' not found in PATH; aborting." >&2
             return 127
         end
     end
 
-    # 4. Ensure Tailscale is up (no-op if already connected)
-    if not tailscale status >/dev/null 2>&1
+    # 4. Ensure Tailscale is up (check BackendState via JSON for accuracy)
+    set -l state (tailscale status --json 2>/dev/null | jq -r .BackendState)
+
+    if test "$state" = "Running"
+        echo "media-on: Tailscale already connected"
+    else
         if not tailscale up >/dev/null 2>&1
             echo "media-on: tailscale up failed; attempting verbose output:" >&2
             tailscale up 2>&1 | sed 's/^/  /' >&2
             return 1
         end
-        echo "media-on: Tailscale started..."
+        echo "media-on: Tailscale started"
     end
 
     # 5. Wait until we can actually reach the SMB server over Tailscale
@@ -66,7 +82,7 @@ function media-on --description 'Bring up Tailscale and mount homelab media shar
 
     # 7. Friendly success / failure message
     if test -d /Volumes/media
-        echo "media-on: media share mounted at /Volumes/media"
+        echo "media-on: media mounted at /Volumes/media"
         return 0
     else
         echo "media-on: mount command ran, but /Volumes/media not found" >&2
