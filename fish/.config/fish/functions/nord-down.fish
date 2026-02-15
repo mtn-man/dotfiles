@@ -21,7 +21,7 @@ function nord-down
         set -l vpn_status (scutil --nc status "$svc" | head -n 1)
 
         if test "$vpn_status" = "Disconnected"
-            echo "nord-down: success — $svc is now offline."
+            echo "nord-down: success — $svc is now offline"
             return 0
         end
 
