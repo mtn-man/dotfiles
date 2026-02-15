@@ -4,7 +4,6 @@ brew "delve"
 brew "dua-cli"
 brew "duti"
 brew "eza"
-brew "exiftool"
 brew "fastfetch"
 brew "fd"
 brew "ffmpeg"
@@ -14,7 +13,6 @@ brew "git"
 brew "go"
 brew "golangci-lint"
 brew "imagemagick"
-brew "jdupes"
 brew "jq"
 brew "lazygit"
 brew "lf"
@@ -24,7 +22,7 @@ brew "ripgrep"
 brew "rsync"
 brew "stow"
 brew "tealdeer"
-brew "transmission-cli", restart_service: :changed
+brew "transmission-cli"
 brew "trash"
 brew "unar"
 brew "yq"
@@ -39,3 +37,14 @@ cask "kitty"
 cask "macdown-3000"
 cask "raycast"
 cask "tailscale-app"
+mas "Developer", id: 640199958
+mas "Folder Peek", id: 1615988943
+mas "Hush", id: 1544743900
+mas "Infuse", id: 1136220934
+mas "NordVPN", id: 905953485
+mas "uBlock Origin Lite", id: 6745342698
+mas "Xcode", id: 497799835
+go "golang.org/x/tools/gopls"
+go "github.com/Mtn-Man/mintmedia/cmd/mintmedia"
+go "honnef.co/go/tools/cmd/staticcheck"
+go "github.com/Mtn-Man/timer"
