@@ -1,4 +1,4 @@
-function gcp --description "Stage all changes, commit in editor, push"
+function gcp --description "Stage all changes, commit (message or editor), push"
     # Ensure we are inside a git repository
     git rev-parse --is-inside-work-tree >/dev/null 2>&1; or begin
         echo "gcp: not inside a git repository" >&2
@@ -6,7 +6,7 @@ function gcp --description "Stage all changes, commit in editor, push"
     end
 
     # Stage all changes (including new files and deletions)
-    git add .; or return 1
+    git add -A; or return 1
 
     # Abort cleanly if nothing is staged
     git diff --cached --quiet; and begin
@@ -14,8 +14,12 @@ function gcp --description "Stage all changes, commit in editor, push"
         return 0
     end
 
-    # Open commit editor (micro via core.editor)
-    git commit; or return 1
+    # Commit: use message if provided, otherwise open editor
+    if test (count $argv) -gt 0
+        git commit -m (string join " " -- $argv); or return 1
+    else
+        git commit; or return 1
+    end
 
     # Push to upstream
     git push
