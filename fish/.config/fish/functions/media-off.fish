@@ -50,5 +50,5 @@ function media-off --description 'Unmount media share, disconnect Tailscale, con
         echo "media-off: failed to start transmission-cli via brew" >&2
         return 1
     end
-    echo "media-off: transmission-cli started @ http://localhost:9091/transmission/web/"
+    echo "media-off: transmission-daemon started @ http://localhost:9091/transmission/web/"
 end
