@@ -23,8 +23,9 @@ fish_add_path -gP ~/go/bin
 # 4. Interactive Session Configuration
 if status is-interactive
     source ~/.config/fish/aliases.fish
-    # alias zoxide to cd 
+    # zoxide init 
     if type -q zoxide
-        zoxide init fish --cmd cd | source
+      # zoxide init fish --cmd cd | source
+        zoxide init fish | source
     end
 end
