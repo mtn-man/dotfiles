@@ -52,4 +52,6 @@ function gcp --description "Review changes, stage all, commit (message or editor
 
     # 7. Push: Send to upstream
     git push
+
+    # This comment is a test
 end
