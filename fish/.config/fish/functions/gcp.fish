@@ -1,26 +1,55 @@
-function gcp --description "Stage all changes, commit (message or editor), push"
-    # Ensure we are inside a git repository
+function gcp --description "Review changes, stage all, commit (message or editor), push"
+    # 1. Pre-flight: Ensure we are inside a git repository
     git rev-parse --is-inside-work-tree >/dev/null 2>&1; or begin
         echo "gcp: not inside a git repository" >&2
         return 1
     end
 
-    # Stage all changes (including new files and deletions)
+    # 2. Observability: Show what will be staged
+    echo (set_color yellow)"==> Pending Changes (git status -sb):"(set_color normal)
+    git status -sb
+
+    printf "\n"
+    echo (set_color yellow)"==> Impact Analysis (git diff --stat):"(set_color normal)
+    git diff --stat
+
+    # Also show untracked files (diff --stat won't include them)
+    set -l untracked (git ls-files --others --exclude-standard)
+    if test (count $untracked) -gt 0
+        printf "\n"
+        echo (set_color yellow)"==> Untracked Files (will be added):"(set_color normal)
+        printf '%s\n' $untracked
+    end
+
+    # 3. Guardrail: Pause for awareness (abort only on explicit 'n')
+    if status is-interactive
+        printf "\n"
+        read -n 1 -P "Proceed with stage, commit, and push? [Y/n] " confirm
+        printf "\n"
+
+        # Abort ONLY if user presses n or N
+        if string match -qr '^[Nn]$' -- "$confirm"
+            echo "gcp: aborted by user." >&2
+            return 1
+        end
+    end
+
+    # 4. Execution: Stage all changes (repo-wide)
     git add -A; or return 1
 
-    # Abort cleanly if nothing is staged
+    # 5. Verification: Abort cleanly if nothing resulted from the add
     git diff --cached --quiet; and begin
         echo "gcp: nothing staged to commit"
         return 0
     end
 
-    # Commit: use message if provided, otherwise open editor
+    # 6. Commit: Use message if provided, otherwise open editor
     if test (count $argv) -gt 0
         git commit -m (string join " " -- $argv); or return 1
     else
         git commit; or return 1
     end
 
-    # Push to upstream
+    # 7. Push: Send to upstream
     git push
 end
