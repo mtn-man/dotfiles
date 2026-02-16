@@ -39,13 +39,6 @@ cask "macdown-3000"
 cask "raycast"
 cask "spotify"
 cask "tailscale-app"
-mas "Developer", id: 640199958
-mas "Folder Peek", id: 1615988943
-mas "Hush", id: 1544743900
-mas "Infuse", id: 1136220934
-mas "NordVPN", id: 905953485
-mas "uBlock Origin Lite", id: 6745342698
-mas "Xcode", id: 497799835
 go "golang.org/x/tools/gopls"
 go "github.com/Mtn-Man/mintmedia/cmd/mintmedia"
 go "honnef.co/go/tools/cmd/staticcheck"
