@@ -29,7 +29,7 @@ function gcp --description "Review changes, stage all, commit (message or editor
 
         # Abort ONLY if user presses n or N
         if string match -qr '^[Nn]$' -- "$confirm"
-            echo "gcp: aborted by user." >&2
+            echo "gcp: aborted" >&2
             return 1
         end
     end
@@ -52,6 +52,4 @@ function gcp --description "Review changes, stage all, commit (message or editor
 
     # 7. Push: Send to upstream
     git push
-
-    # This comment is a test
 end
