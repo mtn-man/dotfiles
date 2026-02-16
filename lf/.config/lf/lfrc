@@ -16,3 +16,34 @@ map x cut
 map C clear
 set previewer /Users/user/.config/lf/pv.sh
 set cleaner /Users/user/.config/lf/clean.sh
+
+# --- zoxide integration (fish-compatible) ---
+
+# Teach zoxide about directories visited in lf
+cmd cd ${{
+    command cd -- $argv
+    if type -q zoxide
+        zoxide add -- $PWD >/dev/null 2>&1
+    end
+}}
+
+cmd z ${{
+    if not type -q zoxide
+        exit 0
+    end
+
+    set -l dir
+
+    if test (count $argv) -gt 0
+        set dir (zoxide query -- $argv)
+    else
+        set dir (zoxide query -i)
+    end
+
+    if test -n "$dir"
+        # Quote for lf: wrap in single quotes and escape any single quotes inside
+        set -l q (string replace -a "'" "'\\''" -- "$dir")
+        lf -remote "send $id cd '$q'"
+    end
+}}
+map z z
