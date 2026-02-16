@@ -20,26 +20,50 @@ case "$mimetype" in
         bat --color=always --style=plain --terminal-width="$w" "$file"
         ;;
 
-    image/heic|image/heif)
-        # lf passes w/h in terminal *cells*, but ImageMagick wants *pixels*.
-        # Approximate px per cell (kitty typical): ~9x18. Bump a bit for clarity.
-        cell_w_px=8
-        cell_h_px=16
+	image/heic|image/heif)
+	    # Convert terminal cell dimensions to approximate pixels
+	    cell_w_px=10
+	    cell_h_px=18
 
-        px_w=$(( w * cell_w_px ))
-        px_h=$(( h * cell_h_px ))
+	    px_w=$(( w * cell_w_px ))
+	    px_h=$(( h * cell_h_px ))
 
-        magick "$file"[0] \
-            -auto-orient \
-            -colorspace sRGB \
-            -depth 8 \
-            -resize "${px_w}x${px_h}>" \
-            -strip \
-            jpg:- 2>/dev/null | \
-          kitty +kitten icat --silent --stdin=yes --transfer-mode=stream --place "$geometry" > /dev/tty && exit 1
-        ;;
+	    # Ensure user cache directory exists
+	    cache_dir="$HOME/Library/Caches/lf"
+	    mkdir -p "$cache_dir"
 
+	    # Create a temporary JPEG output file
+	    tmpfile=$(mktemp "$cache_dir/preview-XXXXXX.jpg")
 
+	    # Convert HEIC → JPEG using macOS-native sips
+		sips -s format jpeg \
+		     -s formatOptions 80 \
+		     -s profile "/System/Library/ColorSync/Profiles/sRGB Profile.icc" \
+		     --resampleWidth "$px_w" \
+		     --resampleHeight "$px_h" \
+		     "$file" \
+		     --out "$tmpfile" \
+		     >/dev/null 2>&1
+
+	    # If conversion succeeded, stream the JPEG to kitty icat
+	    if [ -s "$tmpfile" ]; then
+	        cat "$tmpfile" | \
+	            kitty +kitten icat \
+	                --silent \
+	                --stdin=yes \
+	                --transfer-mode=stream \
+	                --place "$geometry" \
+	                > /dev/tty
+
+	        rm -f "$tmpfile"
+	        exit 1
+	    fi
+
+	    # Cleanup on failure
+	    rm -f "$tmpfile"
+	    exit 0
+	    ;;
+        
     image/*)
         # We use < /dev/null here because icat is reading directly from the $file path.
         # This prevents it from trying to read from lf's standard input.
