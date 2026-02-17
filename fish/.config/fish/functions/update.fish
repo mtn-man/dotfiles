@@ -8,5 +8,5 @@ function update --description 'Update Homebrew formulae/casks and cleanup'
     brew upgrade; or return 1
     brew cleanup
 
-    echo (set_color normal --bold)"Update complete 🎉"(set_color normal)
+    echo (set_color normal --bold)"update complete"(set_color normal)
 end
