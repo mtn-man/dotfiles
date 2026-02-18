@@ -44,7 +44,7 @@ function media-on --description 'Stop transmission-cli, disconnect NordVPN, ensu
     end
 
     # 5. Wait until we can actually reach the SMB server over Tailscale
-    set -l host 100.106.45.25
+    set -l host centos.tail586311.ts.net
     set -l tries 0
     set -l max_tries 10
 
