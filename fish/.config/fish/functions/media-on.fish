@@ -22,7 +22,7 @@ function media-on --description 'Stop transmission-cli, disconnect NordVPN, ensu
     end
 
     # 3. Ensure required commands exist or exit
-    for cmd in tailscale nc osascript diskutil jq
+    for cmd in tailscale nc osascript jq
         if not command -q $cmd
             echo "media-on: required command '$cmd' not found in PATH; aborting." >&2
             return 127
