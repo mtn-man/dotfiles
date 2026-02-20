@@ -105,7 +105,7 @@ function yt --description 'Download YouTube videos with options'
                 set codec_name (string upper $codec_pref)
         end
 
-        echo "Downloading: {$max_h}p / $codec_name / MP4"
+        echo "Downloading: "$max_h"p / $codec_name / MP4"
         echo ""
     end
 
