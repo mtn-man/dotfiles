@@ -28,6 +28,11 @@ function yt --description 'Download YouTube videos with options'
         set url (pbpaste | string trim)
     end
 
+    if test -z "$url"
+        echo "yt: no URL provided and clipboard is empty" >&2
+        return 1
+    end
+    
     # Check dependencies
     if not command -q yt-dlp
         echo "yt: yt-dlp not found. Install with: brew install yt-dlp ffmpeg" >&2
@@ -115,12 +120,12 @@ function yt --description 'Download YouTube videos with options'
     # Sorting:
     # - Keep sorting focused on resolution/fps; codec preference is handled by -f fallbacks
     set -l format_sel \
-"bestvideo[height<=$max_h][height>=$min_h][vcodec^=$codec_pref]+bestaudio/"\
-"bestvideo[height<=$max_h][height>=$min_h]+bestaudio/"\
-"best[height<=$max_h][height>=$min_h]/"\
-"bestvideo[height<=$max_h][vcodec^=$codec_pref]+bestaudio/"\
-"bestvideo[height<=$max_h]+bestaudio/"\
-"best[height<=$max_h]"
+    "bestvideo[height<=$max_h][height>=$min_h][vcodec^=$codec_pref]+bestaudio/"\
+    "bestvideo[height<=$max_h][height>=$min_h]+bestaudio/"\
+    "best[height<=$max_h][height>=$min_h]/"\
+    "bestvideo[height<=$max_h][vcodec^=$codec_pref]+bestaudio/"\
+    "bestvideo[height<=$max_h]+bestaudio/"\
+    "best[height<=$max_h]"
 
     set -l yt_dlp_cmd yt-dlp \
         -f "$format_sel" \
@@ -145,7 +150,7 @@ function yt --description 'Download YouTube videos with options'
     set yt_dlp_cmd $yt_dlp_cmd -- "$url"
 
     # Execute download
-    if not $yt_dlp_cmd
+    if not command $yt_dlp_cmd
         echo "yt: Download failed" >&2
         return 1
     end
