@@ -1,4 +1,4 @@
-function media-on --description 'Stop transmission-cli, disconnect NordVPN, ensure Tailscale is running, then mount homelab media share'
+function media-on --description 'Stop transmission-cli, disconnect VPN, ensure Tailscale is running, then mount homelab media share'
     # 1. Bring down Transmission so torrent traffic doesn't leak outside VPN
     if command -q brew
         brew services stop transmission-cli >/dev/null && echo "media-on: transmission-daemon stopped"; or begin

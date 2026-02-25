@@ -29,13 +29,13 @@ function media-off --description 'Unmount media share, disconnect Tailscale, con
         return 1
     end
 
-    # 3. Connect NordVPN (required)
+    # 3. Connect VPN (required)
     if not functions -q vpn-on
         echo "media-off: vpn-on function not found; aborting." >&2
         return 127
     end
 
-    nord-up; or begin
+    vpn-on; or begin
         echo "media-off: vpn-on failed; not restarting transmission-cli" >&2
         return 1
     end
