@@ -11,13 +11,13 @@ function media-on --description 'Stop transmission-cli, disconnect NordVPN, ensu
     end
 
     # 2. NordVPN must disconnect to prevent routing conflicts
-    if not functions -q nord-down
-        echo "media-on: nord-down function not found; aborting." >&2
+    if not functions -q vpn-off
+        echo "media-on: vpn-off function not found; aborting." >&2
         return 127
     end
 
-    nord-down; or begin
-        echo "media-on: nord-down failed; aborting to avoid routing conflicts." >&2
+    vpn-off; or begin
+        echo "media-on: vpn-off failed; aborting to avoid routing conflicts." >&2
         return 1
     end
 

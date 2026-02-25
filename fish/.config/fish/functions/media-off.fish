@@ -1,4 +1,4 @@
-function media-off --description 'Unmount media share, disconnect Tailscale, connect NordVPN, and resume transmission daemon'
+function media-off --description 'Unmount media share, disconnect Tailscale, connect VPN, and resume transmission daemon'
     # 1. Attempt to unmount the share
     if test -d /Volumes/media
         if diskutil unmount "/Volumes/media" >/dev/null 2>&1
@@ -30,13 +30,13 @@ function media-off --description 'Unmount media share, disconnect Tailscale, con
     end
 
     # 3. Connect NordVPN (required)
-    if not functions -q nord-up
-        echo "media-off: nord-up function not found; aborting." >&2
+    if not functions -q vpn-on
+        echo "media-off: vpn-on function not found; aborting." >&2
         return 127
     end
 
     nord-up; or begin
-        echo "media-off: nord-up failed; not restarting transmission-cli" >&2
+        echo "media-off: vpn-on failed; not restarting transmission-cli" >&2
         return 1
     end
 

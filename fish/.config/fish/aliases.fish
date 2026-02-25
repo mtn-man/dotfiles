@@ -2,8 +2,8 @@
 
 abbr -a u 'update'
 abbr -a t 'timer'
-abbr -a nu 'nord-up'
-abbr -a nd 'nord-down'
+abbr -a vn 'vpn-on'
+abbr -a vf 'vpn-off'
 abbr -a ff 'fastfetch'
 abbr -a speed 'networkQuality'
 abbr -a lg 'lazygit'

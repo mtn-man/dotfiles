@@ -1,6 +1,7 @@
 # 1. Environment Variables
 set -gx EDITOR "micro"
 set -gx VISUAL "micro"
+set -gx VPN_SVC "NordVPN NordLynx"
 # Suppress Homebrew hints and cleanup messages
 set -gx HOMEBREW_NO_ENV_HINTS 1
 set -gx HOMEBREW_NO_INSTALL_CLEANUP 1
