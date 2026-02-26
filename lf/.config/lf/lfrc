@@ -1,3 +1,5 @@
+set sortby time
+set reverse true
 map o $open "$fx"
 map <enter> $open "$fx"
 map . set hidden!
