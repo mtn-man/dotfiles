@@ -1,8 +1,8 @@
-function vpn-on --description "Connect VPN service via scutil --nc"
+function vpn-on --description "Connect vpn service via scutil --nc"
     set -l svc (set -q VPN_SVC; and echo $VPN_SVC; or echo "NordVPN NordLynx")
 
     if not scutil --nc list | grep -q -- "$svc"
-        echo "vpn-on: error: VPN service '$svc' not found. Check VPN app configuration." >&2
+        echo "vpn-on: error: vpn service '$svc' not found. Check vpn app configuration." >&2
         return 1
     end
 
@@ -15,7 +15,7 @@ function vpn-on --description "Connect VPN service via scutil --nc"
         echo "vpn-on: error: failed to start $svc" >&2
         return 1
     end
-    echo "vpn-on: connecting to VPN..."
+    echo "vpn-on: connecting to vpn..."
 
     set -l timeout 15
     set -l elapsed 0
@@ -25,8 +25,18 @@ function vpn-on --description "Connect VPN service via scutil --nc"
 
         if test "$vpn_status" = "Connected"
             echo "vpn-on: success — $svc is now active."
-            set -l public_ip (curl -fsS --max-time 5 https://ifconfig.co 2>/dev/null; or echo "unknown")
-            echo "vpn-on: public IP: $public_ip"
+
+            set -l public_ip
+
+            set public_ip (curl -fsS --max-time 5 https://ifconfig.co 2>/dev/null)
+            or set public_ip (curl -fsS --max-time 5 https://api.ipify.org 2>/dev/null)
+
+            if test -n "$public_ip"
+                echo "vpn-on: public IP: $public_ip (vpn)"
+            else
+                echo "vpn-on: public IP lookup failed — vpn status OK"
+            end
+
             return 0
         end
 
