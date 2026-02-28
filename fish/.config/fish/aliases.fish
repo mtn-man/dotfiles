@@ -13,6 +13,7 @@ abbr -a mn 'media-on'
 abbr -a mf 'media-off'
 abbr -a gs 'git status'
 abbr -a z 'cd'
+abbr -a zl 'cdl'
 
 alias gt='timer 3m -q; and say "your tea is ready now"'
 alias bt='timer 4m -q; and say "your tea is ready now"'
