@@ -26,7 +26,7 @@ if status is-interactive
     source ~/.config/fish/aliases.fish
     # zoxide init 
     if type -q zoxide
-      # zoxide init fish --cmd cd | source
-        zoxide init fish | source
+        zoxide init fish --cmd cd | source
+      # zoxide init fish | source
     end
 end
