@@ -1,6 +1,23 @@
-function tm --description 'Add magnet link from clipboard (or arg) to Transmission'
+function tm --description 'Manage Transmission-CLI services and magnet links'
     set -l host "127.0.0.1:9091"
 
+    # 1. Check if the first argument is a service management subcommand
+    switch "$argv[1]"
+        case on
+            brew services start transmission-cli
+            return
+        case off
+            brew services stop transmission-cli
+            return
+        case re restart
+            brew services restart transmission-cli
+            return
+        case ping
+            transmission-remote "$host" -st
+            return
+    end
+
+    # 2. Existing Magnet Link Logic
     # dependency check
     if not command -q transmission-remote
         echo "tm: transmission-remote not found (brew install transmission-cli)" >&2
@@ -8,7 +25,6 @@ function tm --description 'Add magnet link from clipboard (or arg) to Transmissi
     end
 
     # Preflight: ensure Transmission daemon is running and RPC is reachable
-    # This prevents cryptic errors when trying to add torrents to a stopped service
     if not transmission-remote "$host" -l >/dev/null 2>&1
         echo "tm: Transmission RPC not reachable at $host" >&2
         echo "tm: start the daemon/app, then try again." >&2
