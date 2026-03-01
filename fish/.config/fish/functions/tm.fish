@@ -55,6 +55,6 @@ function tm --description 'Manage Transmission-CLI services and magnet links'
 
     if transmission-remote "$host" -a "$clip"
         echo "Magnet added to Transmission."
-        echo "Track progress at http://$host/transmission/web/ (may be unavailable under VPN)"
+        echo "Track progress at http://$host/transmission/web/"
     end
 end
