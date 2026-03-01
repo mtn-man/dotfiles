@@ -1,3 +1,22 @@
+# Internal helper: Formats and indents error messages using native string built-in
+function __media_fail
+    echo "media: error: $argv[1]" >&2
+    if set -q argv[2]
+        string indent --n 2 -- "$argv[2]" >&2
+    end
+    return 1
+end
+
+# Internal helper: Verifies all command dependencies exist in PATH
+function __media_require
+    for cmd in $argv
+        if not command -q $cmd
+            echo "media: required command '$cmd' not found in PATH" >&2
+            return 127
+        end
+    end
+end
+
 function media --description 'Manage homelab media share and networking state'
     switch "$argv[1]"
         case on
@@ -16,7 +35,10 @@ function media --description 'Manage homelab media share and networking state'
             # 4. Ensure Tailscale backend is active
             set -l state (tailscale status --json 2>/dev/null | jq -r .BackendState)
             if test "$state" != "Running"
-                tailscale up >/dev/null 2>&1; or __media_fail "tailscale up failed" "$(tailscale up 2>&1)"; or return
+                set -l ts_up_out (tailscale up 2>&1)
+                if test $status -ne 0
+                    __media_fail "tailscale up failed" "$ts_up_out"; or return
+                end
                 echo "media: Tailscale started"
             end
 
@@ -43,8 +65,12 @@ function media --description 'Manage homelab media share and networking state'
         case off
             # 1. Unmount the share and verify it is no longer in the filesystem
             if test -d /Volumes/media
-                diskutil unmount "/Volumes/media" >/dev/null 2>&1; and echo "media: unmounted"
-                or __media_fail "failed to unmount /Volumes/media (disk busy)" "$(diskutil unmount "/Volumes/media" 2>&1)"; or return
+                set -l unmount_out (diskutil unmount "/Volumes/media" 2>&1)
+                if test $status -eq 0
+                    echo "media: unmounted"
+                else
+                    __media_fail "failed to unmount /Volumes/media (disk busy)" "$unmount_out"; or return
+                end
             end
 
             # 2. Shut down Tailscale interface
