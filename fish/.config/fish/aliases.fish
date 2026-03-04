@@ -1,7 +1,15 @@
 # ~/.config/fish/aliases.fish
 
+# helper function for dynamic timer expansion
+function __abbr_timer_minutes --argument token
+    set -l minutes (string match -r --groups-only '^t([1-9][0-9]*)$' -- $token)
+    or return 1
+    printf 'timer %sm\n' "$minutes"
+end
+
 abbr -a u 'update'
 abbr -a t 'timer'
+abbr -a t_num --regex '^t([1-9][0-9]*)$' --function __abbr_timer_minutes
 abbr -a vn 'vpn on'
 abbr -a vf 'vpn off'
 abbr -a mn 'media on'
