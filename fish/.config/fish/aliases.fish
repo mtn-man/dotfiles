@@ -14,6 +14,7 @@ abbr -a m 'micro'
 abbr -a gs 'git status'
 abbr -a z 'cd'
 abbr -a zl 'cdl'
+abbr -a batt 'system_profiler SPPowerDataType'
 
 alias gt='timer 3m -q; and say "your tea is ready now"'
 alias bt='timer 4m -q; and say "your tea is ready now"'
