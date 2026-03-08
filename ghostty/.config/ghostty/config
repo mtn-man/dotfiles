@@ -3,7 +3,7 @@ font-size = 12
 font-thicken = true
 font-thicken-strength = 70
 background-opacity = 0.7
-macos-option-as-alt = true
+macos-option-as-alt = left
 background-blur = 10
 shell-integration = fish
 theme = Dark Pastel
@@ -11,5 +11,9 @@ cursor-style-blink = false
 cursor-style = underline
 adjust-cursor-thickness = 2
 shell-integration-features = no-cursor
-macos-titlebar-style = tabs
+# native, transparent, tabs, hidden
+macos-titlebar-style = transparent
 maximize = true
+macos-window-buttons = hidden
+# true, false, visible-menu, padded-notch
+macos-non-native-fullscreen = visible-menu

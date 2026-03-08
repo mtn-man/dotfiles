@@ -72,8 +72,7 @@ render_graphics_file() {
 preview_text() {
     if [[ "$HAS_BAT" -eq 1 ]]; then
         # Unified bat handler: automatic syntax detection based on file content/extension
-        env -u NO_COLOR bat --color=always --style=plain \
-            --terminal-width="$w" "$file"
+        bat --color=always --style=plain --terminal-width="$w" "$file"    
     else
         cat "$file"
     fi
@@ -123,7 +122,7 @@ preview_video_ytdlp() {
 mimetype=$(file --mime-type -b "$file" 2>/dev/null || echo "application/octet-stream")
 
 case "$mimetype" in
-    text/*|application/json|application/javascript|application/xml|application/x-sh|*.toml)
+    text/*|application/json|application/javascript|application/xml|application/x-sh)
         preview_text
         ;;
     image/heic|image/heif)
