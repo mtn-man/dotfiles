@@ -3,6 +3,11 @@ function yt --description 'Download YouTube videos with options'
     # Maintains download archive to prevent re-downloading
     # Uses Safari cookies for age-restricted or member content
 
+    # Default format settings
+    set -l min_h 720
+    set -l max_h 1440
+    set -l codec_pref vp9
+    
     # Parse arguments using fish's built-in argparse
     argparse -n yt 'h/help' 'o/open' 'i/interactive' -- $argv
     or return 1
@@ -41,21 +46,12 @@ function yt --description 'Download YouTube videos with options'
 
     # Setup output directory
     set -l outdir "$HOME/Movies/YouTube"
-    if not mkdir -p "$outdir"
+    mkdir -p "$outdir"
+    or begin
         echo "yt: Failed to create output directory: $outdir" >&2
         return 1
     end
 
-    # Defaults
-    set -l max_h 1440
-
-    # Preferred codec token (used with vcodec^= prefix match in -f)
-    # Defaults to VP9, but will fall back to other codecs automatically.
-    set -l codec_pref vp9
-
-    # Guardrail: avoid surprise 360p when higher resolutions exist
-    # (Falls back below this only if nothing >= min_h is available.)
-    set -l min_h 720
 
     # Interactive mode: single-key selection
     if set -q _flag_interactive
@@ -138,7 +134,7 @@ function yt --description 'Download YouTube videos with options'
         --buffer-size 1M \
         -o "%(title)s.%(ext)s" \
         --paths "$outdir" \
-        --cookies ~/Movies/YouTube/.ytcookies.txt \
+        --cookies "$outdir/.ytcookies.txt" \
         --no-overwrites
 
     # Add --exec flag if opening after download
@@ -149,14 +145,19 @@ function yt --description 'Download YouTube videos with options'
     # Add URL
     set yt_dlp_cmd $yt_dlp_cmd -- "$url"
 
-    # Execute download
-    if not command $yt_dlp_cmd
+    # Run yt-dlp with the constructed argument list
+    $yt_dlp_cmd
+    or begin
         echo "yt: Download failed" >&2
         return 1
     end
 
     # Play a sound only on success
-    command -q afplay; and afplay /System/Library/Sounds/Glass.aiff >/dev/null 2>&1 &
+    if status --is-interactive
+        if command -q afplay
+            afplay /System/Library/Sounds/Glass.aiff &
+        end
+    end
 
     # Context-aware completion message
     if set -q _flag_open

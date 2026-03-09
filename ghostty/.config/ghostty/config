@@ -2,18 +2,28 @@ font-family = "Fira Code"
 font-size = 12
 font-thicken = true
 font-thicken-strength = 70
-background-opacity = 0.7
-macos-option-as-alt = left
-background-blur = 10
-shell-integration = fish
+
+window-padding-x = 8
+window-padding-y = 8
+
 theme = Dark Pastel
+background-opacity = 0.7
+background-blur = 20
+unfocused-split-opacity = 0.5
+
+macos-option-as-alt = left
+shell-integration = fish
+shell-integration-features = no-cursor
 cursor-style-blink = false
 cursor-style = underline
 adjust-cursor-thickness = 2
-shell-integration-features = no-cursor
+maximize = true
+mouse-hide-while-typing = true
+
 # native, transparent, tabs, hidden
 macos-titlebar-style = transparent
-maximize = true
-macos-window-buttons = hidden
+
 # true, false, visible-menu, padded-notch
-macos-non-native-fullscreen = visible-menu
+# macos-non-native-fullscreen = visible-menu
+
+keybind = global:ctrl+alt+t=toggle_quick_terminal
