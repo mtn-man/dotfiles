@@ -1,12 +1,18 @@
 function yt --description 'Download YouTube videos with options'
     # Downloads to ~/Movies/YouTube with embedded thumbnails and metadata
     # Maintains download archive to prevent re-downloading
-    # Uses Safari cookies for age-restricted or member content
+    # Uses exported .ytcookies.txt file in $outdir (for downloading consistency)
 
     # Default format settings
     set -l min_h 720
     set -l max_h 1440
     set -l codec_pref vp9
+
+    # Check for yt-dlp
+    if not command -q yt-dlp
+        echo "yt: yt-dlp not found. Install with: brew install yt-dlp" >&2
+        return 127
+    end
     
     # Parse arguments using fish's built-in argparse
     argparse -n yt 'h/help' 'o/open' 'i/interactive' -- $argv
@@ -22,6 +28,9 @@ function yt --description 'Download YouTube videos with options'
         echo "  -h, --help         Show this help"
         echo ""
         echo "If no URL provided, uses clipboard content"
+        echo ""
+        echo "Use cookies.txt browser extension to export cookies" 
+        echo "to a file named `.ytcookies.txt` in your output folder"
         return 0
     end
 
@@ -37,12 +46,6 @@ function yt --description 'Download YouTube videos with options'
         echo "yt: no URL provided and clipboard is empty" >&2
         return 1
     end
-    
-    # Check dependencies
-    if not command -q yt-dlp
-        echo "yt: yt-dlp not found. Install with: brew install yt-dlp ffmpeg" >&2
-        return 127
-    end
 
     # Setup output directory
     set -l outdir "$HOME/Movies/YouTube"
@@ -51,8 +54,7 @@ function yt --description 'Download YouTube videos with options'
         echo "yt: Failed to create output directory: $outdir" >&2
         return 1
     end
-
-
+    
     # Interactive mode: single-key selection
     if set -q _flag_interactive
         echo "Select Max Resolution:"
@@ -67,7 +69,7 @@ function yt --description 'Download YouTube videos with options'
                 set max_h 1080
             case 3
                 set max_h 2160
-            case '' 2 '*'
+            case '*'
                 set max_h 1440
         end
 
@@ -84,7 +86,7 @@ function yt --description 'Download YouTube videos with options'
                 set codec_pref av01
             case 3
                 set codec_pref avc1
-            case '' 1 '*'
+            case '*'
                 set codec_pref vp9
         end
 
@@ -165,6 +167,4 @@ function yt --description 'Download YouTube videos with options'
     else
         echo "✓ Downloaded to: $outdir"
     end
-
-    return 0
 end
