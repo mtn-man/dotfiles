@@ -46,4 +46,4 @@ cask "utm"
 go "golang.org/x/tools/gopls"
 go "github.com/Mtn-Man/mintmedia/cmd/mintmedia"
 go "honnef.co/go/tools/cmd/staticcheck"
-go "github.com/Mtn-Man/timer"
+
