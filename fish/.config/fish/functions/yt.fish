@@ -136,7 +136,6 @@ function yt --description 'Download YouTube videos with options'
         --buffer-size 1M \
         -o "%(title)s.%(ext)s" \
         --paths "$outdir" \
-        --cookies "$outdir/.ytcookies.txt" \
         --no-overwrites
 
     # Add --exec flag if opening after download
