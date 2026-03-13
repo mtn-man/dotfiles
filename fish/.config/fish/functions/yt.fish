@@ -1,7 +1,6 @@
 function yt --description 'Download YouTube videos with options'
     # Downloads to ~/Movies/YouTube with embedded thumbnails and metadata
     # Maintains download archive to prevent re-downloading
-    # Uses exported .ytcookies.txt file in $outdir (for downloading consistency)
 
     # Default format settings
     set -l min_h 720
