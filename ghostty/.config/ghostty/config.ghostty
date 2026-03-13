@@ -23,6 +23,7 @@ adjust-cursor-thickness = 2
 maximize = true
 window-save-state = always
 mouse-hide-while-typing = true
+shell-integration-features = ssh-terminfo
 
 # native, transparent, tabs, hidden
 macos-titlebar-style = tabs
