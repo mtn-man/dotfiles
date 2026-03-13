@@ -19,7 +19,6 @@ shell-integration = fish
 shell-integration-features = no-cursor
 cursor-style-blink = false
 cursor-style = underline
-cursor-click-to-move = true
 adjust-cursor-thickness = 2
 maximize = true
 window-save-state = always
