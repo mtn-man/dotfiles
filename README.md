@@ -23,8 +23,7 @@ killall Dock
 ```
 ### Keyboard (CLI Speed)
 
-**Max key repeat speed**
-Fast, precise key repeat (lf/fish/micro navigation, beyond UI slider):
+**Fast, precise key repeat (lf/fish/micro navigation, beyond UI slider):**
 ```bash
 defaults write -g InitialKeyRepeat -int 8
 defaults write -g KeyRepeat -int 2
