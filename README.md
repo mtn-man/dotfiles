@@ -18,6 +18,6 @@ and disable it
 Sane dock autohide delay:
 ```bash
 	defaults write com.apple.Dock autohide-delay -float 0
-	defaults write com.apple.dock autohide-time-modifier -int 1
+	defaults write com.apple.dock autohide-time-modifier -float 0.5
 	killall Dock
 ```
