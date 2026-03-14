@@ -1,0 +1,62 @@
+[paths]
+drop_folder = "~/Downloads/MintDrop"
+state_dir   = "~/.local/state/mintmedia"
+
+[destinations]
+dest_dir_movies = "/Volumes/media/Movies"
+dest_dir_shows  = "/Volumes/media/Shows"
+
+[system]
+auto_create_missing_dirs = true
+defer_destination_checks = true
+done_notification_mode = "per_file"
+shutdown_grace_duration = "10m"
+shutdown_force_timeout = "15s"
+
+[features]
+enable_processing = true
+enable_torrent_automation = true
+
+[watch]
+drop_settle_duration = "5s"
+
+[clipboard]
+enabled = true
+poll_interval = "250ms"
+
+[media]
+main_media_extensions = [".mkv", ".mp4", ".avi", ".mov", ".wmv", ".flv", ".webm"]
+associated_file_extensions = [".srt", ".sub", ".ass", ".idx", ".vtt"]
+
+[naming]
+media_tag_blacklist = [
+  '2160p',
+  '1080p',
+  '720p',
+  'x265',
+  'x264',
+  'hevc',
+  'h\.264',
+  'h\.265',
+  'web[- ]?dl',
+  'webrip',
+  'bluray',
+  'elite'
+]
+
+[logging]
+# Console operational log filter (DEBUG | INFO | WARN | ERROR)
+console_level = "INFO"
+
+# History file filter (DEBUG | INFO | WARN | ERROR)
+history_level = "WARN"
+
+# Persistent JSONL history file (stored under state_dir when relative)
+history_file = "history.jsonl"
+
+[torrent]
+enabled = true
+host = "localhost:9091"
+transmission_remote_path = "/opt/homebrew/bin/transmission-remote"
+# auth = "user:pass"   # only if required
+auto_cleanup_completed_torrents = false
