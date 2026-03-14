@@ -1,4 +1,5 @@
 function fm --description 'Open file in micro via fd search (fzf when multiple matches)'
+# Always searches ~/dev first, then falls back to cwd if no matches (by design)
     if test (count $argv) -eq 0
         echo "Usage: fm <pattern>"
         return 1
