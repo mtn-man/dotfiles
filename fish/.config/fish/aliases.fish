@@ -7,9 +7,9 @@ function __abbr_timer_minutes --argument token
     printf 'timer %sm\n' "$minutes"
 end
 
+abbr -a t_num --regex '^t([1-9][0-9]*)$' --function __abbr_timer_minutes
 abbr -a u 'update'
 abbr -a t 'timer'
-abbr -a t_num --regex '^t([1-9][0-9]*)$' --function __abbr_timer_minutes
 abbr -a vn 'vpn on'
 abbr -a vf 'vpn off'
 abbr -a mn 'media on'

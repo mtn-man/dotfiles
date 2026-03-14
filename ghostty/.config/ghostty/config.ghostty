@@ -16,14 +16,13 @@ background-blur = 20
 
 macos-option-as-alt = left
 shell-integration = fish
-shell-integration-features = no-cursor
+shell-integration-features = no-cursor, ssh-terminfo
 cursor-style-blink = false
 cursor-style = underline
 adjust-cursor-thickness = 2
 maximize = true
 window-save-state = always
 mouse-hide-while-typing = true
-shell-integration-features = ssh-terminfo
 
 # native, transparent, tabs, hidden
 macos-titlebar-style = tabs
