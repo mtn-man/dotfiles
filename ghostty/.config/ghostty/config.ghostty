@@ -29,6 +29,6 @@ shell-integration-features = ssh-terminfo
 macos-titlebar-style = tabs
 
 # true, false, visible-menu, padded-notch
-# macos-non-native-fullscreen = visible-menu
+macos-non-native-fullscreen = visible-menu
 
 keybind = global:ctrl+alt+t=toggle_quick_terminal
