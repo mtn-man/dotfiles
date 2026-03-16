@@ -21,6 +21,8 @@ function __media_preflight --description 'Validate media command dependencies by
             __media_require brew tailscale nc osascript jq; or return
         case off
             __media_require brew tailscale; or return
+        case status
+            __media_require brew; or return
         case '*'
             __media_fail "usage: __media_preflight [on|off]"; or return
     end
@@ -100,7 +102,30 @@ function media --description 'Manage homelab media share and networking state'
             # 5. Restart Transmission service
             brew services start transmission-cli >/dev/null; and echo "media: transmission-daemon resumed"
             or __media_fail "failed to restart transmission-cli"
-
+        case status
+            __media_preflight status; or return
+        
+            # SMB mount
+            if test -d "$mountpoint"
+                echo "media: $share is mounted at $mountpoint"
+            else
+                echo "media: $share is not mounted"
+            end
+        
+            # VPN state
+            if functions -q vpn
+                vpn status
+            else
+                echo "media: vpn function not available" >&2
+            end
+        
+            # Transmission service state
+            set -l tx_state (brew services info transmission-cli --json 2>/dev/null | jq -r '.[0].status')
+            if test -n "$tx_state"
+                echo "media: transmission-daemon is $tx_state"
+            else
+                echo "media: could not determine transmission-cli state" >&2
+            end
         case '*'
             echo "Usage: media [on|off]" >&2
             return 1

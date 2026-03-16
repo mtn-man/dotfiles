@@ -77,7 +77,7 @@ function vpn --description 'Manage VPN service (on/off/status) via scutil --nc'
                     echo "vpn: $VPN_SVC is connected"
                     set -l ip (_vpn_public_ip)
                     if test -n "$ip"
-                        echo "vpn: public IP: $ip"
+                        echo "vpn: public IP: $ip (VPN)"
                     else
                         echo "vpn: public IP lookup failed"
                     end
