@@ -124,7 +124,7 @@ function media --description 'Manage homelab media share and networking state'
             if test -n "$tx_state"
                 echo "media: transmission-daemon is $tx_state"
             else
-                echo "media: could not determine transmission-cli state" >&2
+                echo "media: could not determine transmission-daemon state" >&2
             end
         case '*'
             echo "Usage: media [on|off]" >&2
