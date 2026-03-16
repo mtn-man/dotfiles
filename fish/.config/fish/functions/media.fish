@@ -24,7 +24,7 @@ function __media_preflight --description 'Validate media command dependencies by
         case status
             __media_require brew; or return
         case '*'
-            __media_fail "usage: __media_preflight [on|off]"; or return
+            __media_fail "usage: __media_preflight [on|off|status]"; or return
     end
 end
 
@@ -127,7 +127,7 @@ function media --description 'Manage homelab media share and networking state'
                 echo "media: could not determine transmission-daemon state" >&2
             end
         case '*'
-            echo "Usage: media [on|off]" >&2
+            echo "Usage: media [on|off|status]" >&2
             return 1
     end
 end
