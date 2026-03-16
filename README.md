@@ -25,7 +25,7 @@ killall Dock
 
 **Fast, precise key repeat (lf/fish/micro navigation, beyond UI slider):**
 ```bash
-defaults write -g InitialKeyRepeat -int 8
+defaults write -g InitialKeyRepeat -int 10
 defaults write -g KeyRepeat -int 2
 # Log out to apply
 ```
