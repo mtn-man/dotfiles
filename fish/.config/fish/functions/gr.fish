@@ -54,7 +54,7 @@ function gr --description 'Jump to a git repo root via fzf'
 
     if test -d "$target"
         cd "$target"
-        eza -aTL3 --git-ignore
+        eza -aTL4 --git-ignore
         zoxide add "$target"
     else
         echo "gr: target directory no longer exists: $target" >&2
