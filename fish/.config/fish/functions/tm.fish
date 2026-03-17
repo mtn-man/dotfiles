@@ -2,6 +2,13 @@ function tm --description 'Manage Transmission-CLI services and magnet links'
     set -l host "127.0.0.1:9091"
 
     # 1. Check if the first argument is a service management subcommand
+    if contains -- "$argv[1]" on off re restart ping
+        if not command -q brew
+            echo "tm: brew not found" >&2
+            return 127
+        end
+    end
+
     switch "$argv[1]"
         case on
             brew services start transmission-cli
