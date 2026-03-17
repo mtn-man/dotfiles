@@ -24,6 +24,7 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
 
         # 2. Brewfile
         echo "~/dotfiles/Brewfile (also backed-up to dotfiles repo):"
+        echo
         cat $dotfiles/Brewfile
         echo
         echo $thin
