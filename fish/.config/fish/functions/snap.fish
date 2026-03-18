@@ -120,7 +120,11 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         # 9. Timer source
         echo "My custom go timer binary:"
         echo
-        cat ~/dev/golang/timer/main.go
+        cat ~/dev/golang/after/README.md
+        echo
+        echo $thin
+        echo
+        cat ~/dev/golang/after/main.go
 
     end >> $outfile
 

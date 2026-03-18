@@ -4,8 +4,12 @@ function caf --argument-names duration
         return 1
     end
 
-    dash -c 'timer -c "$1"; say "caffeinate disabled; sleep re-enabled."' _ "$duration" 2>/dev/null &
+    dash -c 'after -c "$1"; say "caffeinate disabled; sleep re-enabled."' _ "$duration" 2>/dev/null &
     disown $last_pid
 
-    echo "caf: sleep prevented for $duration"
+    if not string match -qr '^[0-9]+[smh]$' -- $duration
+        echo "caf: sleep prevented until $duration"
+    else
+        echo "caf: sleep prevented for $duration"
+    end
 end
