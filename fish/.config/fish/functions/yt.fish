@@ -57,16 +57,19 @@ function yt --description 'Download YouTube videos with options'
     # Interactive mode: single-key selection
     if set -q _flag_interactive
         echo "Select Max Resolution:"
-        echo "  [1] 1080p"
-        echo "  [2] 1440p (Default)"
-        echo "  [3] 2160p (4K)"
+        echo "  [1] 720p"
+        echo "  [2] 1080p"
+        echo "  [3] 1440p (Default)"
+        echo "  [4] 2160p (4K)"
         read -n 1 -P "Choice > " res_choice
         echo
 
         switch $res_choice
             case 1
+                set max_h 720
+            case 2
                 set max_h 1080
-            case 3
+            case 4
                 set max_h 2160
             case '*'
                 set max_h 1440
@@ -135,7 +138,7 @@ function yt --description 'Download YouTube videos with options'
         --buffer-size 1M \
         -o "%(title)s.%(ext)s" \
         --paths "$outdir" \
-        --cookies-from-browser safari\
+        --cookies-from-browser safari \
         --no-overwrites
 
     # Add --exec flag if opening after download
