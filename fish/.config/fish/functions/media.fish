@@ -1,7 +1,7 @@
 function __media_fail
     echo "media: error: $argv[1]" >&2
     if set -q argv[2]
-        string indent --n 2 -- "$argv[2]" >&2
+        string indent -w 2 -- "$argv[2]" >&2
     end
     return 1
 end
@@ -22,7 +22,7 @@ function __media_preflight --description 'Validate media command dependencies by
         case off
             __media_require brew tailscale; or return
         case status
-            __media_require brew; or return
+            __media_require brew jq; or return
         case '*'
             __media_fail "usage: __media_preflight [on|off|status]"; or return
     end
@@ -40,7 +40,11 @@ function media --description 'Manage homelab media share and networking state'
             __media_preflight on; or return
 
             # 2. Stop Transmission to prevent traffic leaks during network transition
-            brew services stop transmission-cli >/dev/null; and echo "media: transmission-daemon stopped"; or __media_fail "failed to stop transmission-cli via brew"; or return
+            if brew services stop transmission-cli >/dev/null 2>&1
+                echo "media: transmission-daemon stopped"
+            else
+                __media_fail "failed to stop transmission-cli via brew"; or return
+            end
 
             # 3. Toggle VPN (NordVPN must be off for Tailscale/SMB routing)
             if not functions -q vpn; or not vpn off
@@ -65,7 +69,8 @@ function media --description 'Manage homelab media share and networking state'
                 set tries (math $tries + 1)
             end
             if test $tries -ge 10
-                __media_fail "$host not reachable on SMB port" "$(tailscale status 2>&1)"; or return
+                set -l ts_status (tailscale status 2>&1)
+                __media_fail "$host not reachable on SMB port" "$ts_status"; or return
             end
 
             # 6. Mount volume via Finder to utilize Keychain credentials
@@ -91,8 +96,12 @@ function media --description 'Manage homelab media share and networking state'
             end
 
             # 3. Shut down Tailscale interface
-            tailscale down >/dev/null 2>&1; and echo "media: Tailscale disconnected"
-            or __media_fail "tailscale down failed" "$(tailscale status 2>&1)"; or return
+            if tailscale down >/dev/null 2>&1
+                echo "media: Tailscale disconnected"
+            else
+                set -l ts_status (tailscale status 2>&1)
+                __media_fail "tailscale down failed" "$ts_status"; or return
+            end
 
             # 4. Re-enable VPN to secure subsequent torrent traffic
             if not functions -q vpn; or not vpn on
