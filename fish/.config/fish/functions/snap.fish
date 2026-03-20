@@ -126,6 +126,13 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         echo
         cat ~/dev/golang/after/main.go
 
+        echo $sep
+        echo
+
+        # 10. mintmedia readme
+        echo "My media automation tool, mintmedia:"
+        echo
+        cat ~/dev/golang/mintmedia/README.md
     end >> $outfile
 
     echo "snap: updated $outfile"
