@@ -122,9 +122,6 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         echo
         cat ~/dev/golang/after/README.md
         echo
-        echo $thin
-        echo
-        cat ~/dev/golang/after/main.go
 
         echo $sep
         echo
