@@ -4,6 +4,8 @@
 # - Performance: Cached dependency lookups
 # - Media: yt-dlp style embedded thumbnail extraction only
 # - Text: Simplified bat/color handling for all text
+# Note: image previews require `kitten icat` (from the kitty cask) even when
+# using Ghostty, as Ghostty does not ship its own kitten binary.
 set -o pipefail
 
 file="$1"
@@ -24,7 +26,7 @@ fi
 PREVIEW_CACHE_DIR="${LF_PREVIEW_CACHE_DIR:-$HOME/Library/Caches/lf}"
 DEP_CACHE_FILE="${PREVIEW_CACHE_DIR}/.dep_cache"
 GRAPHICS_CLEAR_MARKER="${PREVIEW_CACHE_DIR}/.needs_graphics_clear"
-mkdir -p "$PREVIEW_CACHE_DIR" 2>/dev/null
+mkdir -p "$PREVIEW_CACHE_DIR/thumbs" 2>/dev/null
 
 # --- SECTION 1: CENTRALIZED DEPENDENCY STATE ---
 if [[ -f "$DEP_CACHE_FILE" ]]; then
@@ -37,12 +39,20 @@ else
         echo "HAS_FFMPEG=$(command -v ffmpeg >/dev/null 2>&1 && echo 1 || echo 0)"
         echo "HAS_FFPROBE=$(command -v ffprobe >/dev/null 2>&1 && echo 1 || echo 0)"
         echo "HAS_EZA=$(command -v eza >/dev/null 2>&1 && echo 1 || echo 0)"
-        echo "HAS_JQ=$(command -v jq >/dev/null 2>&1 && echo 1 || echo 0)"
     } > "$DEP_CACHE_FILE"
     source "$DEP_CACHE_FILE"
 fi
 
 # --- SECTION 2: UTILITIES ---
+thumb_cache_path() {
+    local src="$1"
+    local stat_out
+    stat_out=$(stat -f "%m:%z" "$src" 2>/dev/null) || stat_out="0:0"
+    local key
+    key=$(printf '%s:%s' "$src" "$stat_out" | md5 -q 2>/dev/null)
+    echo "${PREVIEW_CACHE_DIR}/thumbs/${key}.jpg"
+}
+
 prefer_graphics_protocol() {
     [[ "${TERM_PROGRAM:-}" == "ghostty" ]] || \
     [[ -n "${KITTY_WINDOW_ID:-}" ]] || \
@@ -80,16 +90,19 @@ preview_text() {
 
 preview_heic() {
     local px_w=$(( w * 12 ))
-    local tmpfile
-    tmpfile=$(mktemp "$PREVIEW_CACHE_DIR/heic-XXXXXX.jpg")
+    local cached
+    cached=$(thumb_cache_path "$file")
 
-    sips -s format jpeg -s formatOptions 80 --resampleWidth "$px_w" "$file" \
-        --out "$tmpfile" >/dev/null 2>&1 || return 1
-
-    if [[ -s "$tmpfile" ]]; then
-        render_graphics_file "$tmpfile"
-        rm -f "$tmpfile"
+    if [[ ! -s "$cached" ]]; then
+        local tmp="${cached}.tmp.$$"
+        sips -s format jpeg -s formatOptions 80 --resampleWidth "$px_w" "$file" \
+            --out "$tmp" >/dev/null 2>&1 || { rm -f "$tmp"; return 1; }
+        mv "$tmp" "$cached"
+    else
+        touch "$cached"
     fi
+
+    [[ -s "$cached" ]] && render_graphics_file "$cached"
 }
 
 preview_video_ytdlp() {
@@ -103,16 +116,23 @@ preview_video_ytdlp() {
     
     case "$codec" in
         mjpeg|png|webp|bmp|gif|tiff)
-            local tmpfile
-            tmpfile=$(mktemp "$PREVIEW_CACHE_DIR/vid-XXXXXX.jpg")
-            # Extract the embedded thumbnail without transcoding (-c:v copy)
-            if ffmpeg -hide_banner -loglevel error -y -i "$file" \
-                -map 0:v:1 -frames:v 1 -c:v copy -f image2 "$tmpfile" >/dev/null 2>&1; then
-                render_graphics_file "$tmpfile"
-                rm -f "$tmpfile"
-                return 0
+            local cached
+            cached=$(thumb_cache_path "$file")
+            if [[ ! -s "$cached" ]]; then
+                local tmp="${cached}.tmp.$$"
+                # Extract the embedded thumbnail without transcoding (-c:v copy)
+                if ffmpeg -hide_banner -loglevel error -y -i "$file" \
+                    -map 0:v:1 -frames:v 1 -c:v copy -f image2 "$tmp" >/dev/null 2>&1; then
+                    mv "$tmp" "$cached"
+                else
+                    rm -f "$tmp"
+                    return 1
+                fi
+            else
+                touch "$cached"
             fi
-            rm -f "$tmpfile"
+            render_graphics_file "$cached"
+            return 0
             ;;
     esac
     return 1
