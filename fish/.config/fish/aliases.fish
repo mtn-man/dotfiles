@@ -25,6 +25,7 @@ abbr -a gs 'git status'
 abbr -a z 'cd'
 abbr -a zl 'cdl'
 abbr -a c 'bat'
+abbr -a envs 'env | sort | fzf'
 
 alias batt='system_profiler SPPowerDataType | rg -i "cycle count|maximum capacity|condition"'
 alias gt='after 3m -q; and say "your tea is ready now"'
