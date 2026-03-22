@@ -95,7 +95,8 @@ preview_heic() {
 
     if [[ ! -s "$cached" ]]; then
         local tmp="${cached}.tmp.$$"
-        sips -s format jpeg -s formatOptions 80 --resampleWidth "$px_w" "$file" \
+        sips --matchTo '/System/Library/ColorSync/Profiles/sRGB Profile.icc' \
+            -s format jpeg -s formatOptions 80 --resampleWidth "$px_w" "$file" \
             --out "$tmp" >/dev/null 2>&1 || { rm -f "$tmp"; return 1; }
         mv "$tmp" "$cached"
     else
@@ -109,27 +110,30 @@ preview_video_ytdlp() {
     [[ "$HAS_FFMPEG" -eq 1 && "$HAS_FFPROBE" -eq 1 ]] || return 1
     can_use_kitten_graphics || return 1
 
+    # Check cache first to avoid expensive ffprobe call on cache hits
+    local cached
+    cached=$(thumb_cache_path "$file")
+    if [[ -s "$cached" ]]; then
+        touch "$cached"
+        render_graphics_file "$cached"
+        return 0
+    fi
+
     # Specifically target yt-dlp style embedded thumbnails (usually stream v:1)
     # Check if stream 1 exists and is an image codec (mjpeg/webp/png/etc)
     local codec
     codec=$(ffprobe -v error -select_streams v:1 -show_entries stream=codec_name -of default=noprint_wrappers=1:nk=1 "$file" 2>/dev/null)
-    
+
     case "$codec" in
         mjpeg|png|webp|bmp|gif|tiff)
-            local cached
-            cached=$(thumb_cache_path "$file")
-            if [[ ! -s "$cached" ]]; then
-                local tmp="${cached}.tmp.$$"
-                # Extract the embedded thumbnail without transcoding (-c:v copy)
-                if ffmpeg -hide_banner -loglevel error -y -i "$file" \
-                    -map 0:v:1 -frames:v 1 -c:v copy -f image2 "$tmp" >/dev/null 2>&1; then
-                    mv "$tmp" "$cached"
-                else
-                    rm -f "$tmp"
-                    return 1
-                fi
+            local tmp="${cached}.tmp.$$"
+            # Extract the embedded thumbnail without transcoding (-c:v copy)
+            if ffmpeg -hide_banner -loglevel error -y -i "$file" \
+                -map 0:v:1 -frames:v 1 -c:v copy -f image2 "$tmp" >/dev/null 2>&1; then
+                mv "$tmp" "$cached"
             else
-                touch "$cached"
+                rm -f "$tmp"
+                return 1
             fi
             render_graphics_file "$cached"
             return 0
