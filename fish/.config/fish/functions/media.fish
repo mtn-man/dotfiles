@@ -23,16 +23,12 @@ function __media_preflight --description 'Validate media command dependencies by
             __media_require brew tailscale; or return
         case status
             __media_require brew jq; or return
-        case '*'
-            __media_fail "usage: __media_preflight [on|off|status]"; or return
     end
 end
 
 function media --description 'Manage homelab media share and networking state'
-    set -l host "centos.tail586311.ts.net"
-    set -l share "media"
-    set -l mountpoint "/Volumes/$share"
-    set -l smb_url "smb://$host/$share"
+    set -l mountpoint "/Volumes/$MEDIA_SHARE"
+    set -l smb_url "smb://$HOMELAB_HOST/$MEDIA_SHARE"
 
     switch "$argv[1]"
         case on
@@ -64,13 +60,13 @@ function media --description 'Manage homelab media share and networking state'
             # 5. Wait for SMB availability on the Tailscale network
             set -l tries 0
             while test $tries -lt 10
-                nc -z -w2 $host 445 >/dev/null 2>&1; and break
+                nc -z -w2 $HOMELAB_HOST 445 >/dev/null 2>&1; and break
                 sleep 0.5
                 set tries (math $tries + 1)
             end
             if test $tries -ge 10
                 set -l ts_status (tailscale status 2>&1)
-                __media_fail "$host not reachable on SMB port" "$ts_status"; or return
+                __media_fail "$HOMELAB_HOST not reachable on SMB port" "$ts_status"; or return
             end
 
             # 6. Mount volume via Finder to utilize Keychain credentials
@@ -93,6 +89,8 @@ function media --description 'Manage homelab media share and networking state'
                 else
                     __media_fail "failed to unmount $mountpoint (disk busy)" "$unmount_out"; or return
                 end
+            else
+                echo "media: $MEDIA_SHARE is not mounted, skipping"
             end
 
             # 3. Shut down Tailscale interface
@@ -109,16 +107,19 @@ function media --description 'Manage homelab media share and networking state'
             end
 
             # 5. Restart Transmission service
-            brew services start transmission-cli >/dev/null; and echo "media: transmission-daemon resumed"
-            or __media_fail "failed to restart transmission-cli"
+            if brew services start transmission-cli >/dev/null 2>&1
+                echo "media: transmission-daemon resumed"
+            else
+                __media_fail "failed to restart transmission-cli"; or return
+            end
         case status
             __media_preflight status; or return
         
             # SMB mount
             if test -d "$mountpoint"
-                echo "media: $share is mounted at $mountpoint"
+                echo "media: $MEDIA_SHARE is mounted at $mountpoint"
             else
-                echo "media: $share is not mounted"
+                echo "media: $MEDIA_SHARE is not mounted"
             end
         
             # VPN state
