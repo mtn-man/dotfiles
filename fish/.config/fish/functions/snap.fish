@@ -20,6 +20,7 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
 
         echo
         echo "System note: Full system backups are performed daily to an air-gapped time machine SSD. Dotfiles are also backed up to a private github repo and symlinked into place with GNU stow."
+        echo "Battery entry above is current charge, NOT health."
         echo
 
         # 2. Brewfile
