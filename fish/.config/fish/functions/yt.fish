@@ -157,7 +157,7 @@ function yt --description 'Download YouTube videos with options'
     end
 
     # Play a sound only on success
-    if status --is-interactive
+    if status is-interactive
         if command -q afplay
             afplay /System/Library/Sounds/Glass.aiff &
         end
