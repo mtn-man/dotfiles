@@ -21,8 +21,10 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         echo
         echo "System note: Full system backups are performed daily to an air-gapped time machine SSD. Dotfiles are also backed up to a private github repo and symlinked into place with GNU stow."
         echo "Battery entry above is current charge, NOT health."
+        echo "kitty is kept installed for its kitten icat image rendering; Ghostty is my primary terminal emulator."
         echo
-
+        echo $sep
+        
         # 2. Brewfile
         echo "~/dotfiles/Brewfile (also backed-up to dotfiles repo):"
         echo
@@ -47,10 +49,15 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         echo
         cat $fishcfg/config.fish
         echo
-        echo $sep
+        echo $thin
         echo
 
         cat $fishcfg/aliases.fish
+        echo
+        echo $thin
+        echo
+
+        cat $fishcfg/abbrs.fish
         echo
         echo $sep
         echo
