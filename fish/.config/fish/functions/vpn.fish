@@ -1,9 +1,9 @@
-function _vpn_public_ip
+function ___vpn_public_ip
     curl -fsS --max-time 5 https://ifconfig.co 2>/dev/null
         or curl -fsS --max-time 5 https://api.ipify.org 2>/dev/null
 end
 
-function _vpn_wait_for --argument-names svc target_state timeout
+function __vpn_wait_for --argument-names svc target_state timeout
     set -l elapsed 0
     while test $elapsed -lt $timeout
         set -l state (scutil --nc status "$svc")
@@ -42,9 +42,9 @@ function vpn --description 'Manage VPN service (on/off/status) via scutil --nc'
             end
             
             echo "vpn: connecting..."
-            if _vpn_wait_for "$VPN_SVC" Connected 15
+            if __vpn_wait_for "$VPN_SVC" Connected 15
                 echo "vpn: $VPN_SVC active"
-                set -l ip (_vpn_public_ip)
+                set -l ip (__vpn_public_ip)
                 if test -n "$ip"
                     echo "vpn: public IP: $ip (VPN)"
                 else
@@ -63,7 +63,7 @@ function vpn --description 'Manage VPN service (on/off/status) via scutil --nc'
             end
             scutil --nc stop "$VPN_SVC"
             echo "vpn: disconnecting..."
-            if _vpn_wait_for "$VPN_SVC" Disconnected 10
+            if __vpn_wait_for "$VPN_SVC" Disconnected 10
                 echo "vpn: $VPN_SVC offline"
                 return 0
             end
@@ -75,7 +75,7 @@ function vpn --description 'Manage VPN service (on/off/status) via scutil --nc'
             switch "$state[1]"
                 case Connected
                     echo "vpn: $VPN_SVC is connected"
-                    set -l ip (_vpn_public_ip)
+                    set -l ip (__vpn_public_ip)
                     if test -n "$ip"
                         echo "vpn: public IP: $ip (VPN)"
                     else
