@@ -1,28 +1,14 @@
-function __media_fail
-    echo "media: error: $argv[1]" >&2
-    if set -q argv[2]
-        string indent -w 2 -- "$argv[2]" >&2
-    end
-    return 1
-end
-
-function __media_require
-    for cmd in $argv
-        if not command -q $cmd
-            echo "media: required command '$cmd' not found in PATH" >&2
-            return 127
+function __media_rollback --description 'Undo completed media-on steps in reverse order'
+    echo "media: rolling back..."
+    for step in $argv
+        switch $step
+            case tailscale
+                tailscale down >/dev/null 2>&1
+            case vpn
+                vpn on >/dev/null 2>&1
+            case transmission
+                brew services start transmission-cli >/dev/null 2>&1
         end
-    end
-end
-
-function __media_preflight --description 'Validate media command dependencies by mode'
-    switch "$argv[1]"
-        case on
-            __media_require brew tailscale nc osascript jq; or return
-        case off
-            __media_require brew tailscale; or return
-        case status
-            __media_require brew jq; or return
     end
 end
 
@@ -32,110 +18,135 @@ function media --description 'Manage homelab media share and networking state'
 
     switch "$argv[1]"
         case on
-            # 1. Preflight dependency checks (fail fast before mutating state)
-            __media_preflight on; or return
+            set -l __done
 
-            # 2. Stop Transmission to prevent traffic leaks during network transition
+            # 1. Stop Transmission to prevent traffic leaks during network transition
             if brew services stop transmission-cli >/dev/null 2>&1
                 echo "media: transmission-daemon stopped"
+                set -p __done transmission
             else
-                __media_fail "failed to stop transmission-cli via brew"; or return
+                echo "media: error: failed to stop transmission-cli" >&2
+                __media_rollback $__done
+                return 1
             end
 
-            # 3. Toggle VPN (NordVPN must be off for Tailscale/SMB routing)
-            if not functions -q vpn; or not vpn off
-                __media_fail "vpn management failed; aborting to avoid routing conflicts"; or return
+            # 2. Toggle VPN (NordVPN must be off for Tailscale/SMB routing)
+            if not vpn off
+                echo "media: error: vpn management failed" >&2
+                __media_rollback $__done
+                return 1
             end
+            set -p __done vpn
 
-            # 4. Ensure Tailscale backend is active
+            # 3. Ensure Tailscale backend is active
             set -l state (tailscale status --json 2>/dev/null | jq -r .BackendState)
             if test "$state" != "Running"
-                set -l ts_up_out (tailscale up 2>&1)
-                if test $status -ne 0
-                    __media_fail "tailscale up failed" "$ts_up_out"; or return
+                if not tailscale up 2>/dev/null
+                    echo "media: error: tailscale up failed" >&2
+                    __media_rollback $__done
+                    return 1
                 end
                 echo "media: Tailscale started"
             end
+            set -p __done tailscale
 
-            # 5. Wait for SMB availability on the Tailscale network
+            # 4. Wait for SMB availability on the Tailscale network
+            #    nc -w is unreliable on macOS when DNS blocks, so enforce
+            #    a hard 15-second wall-clock deadline via background job.
+            set -l smb_ok 0
             set -l tries 0
-            while test $tries -lt 10
-                nc -z -w2 $HOMELAB_HOST 445 >/dev/null 2>&1; and break
-                sleep 0.5
+            while test $tries -lt 5
+                nc -z -w2 $HOMELAB_HOST 445 >/dev/null 2>&1 &
+                set -l nc_pid $last_pid
+                set -l waited 0
+                while test $waited -lt 3
+                    if not kill -0 $nc_pid 2>/dev/null
+                        wait $nc_pid 2>/dev/null; and set smb_ok 1
+                        break
+                    end
+                    sleep 0.5
+                    set waited (math "$waited + 0.5")
+                end
+                kill $nc_pid 2>/dev/null; wait $nc_pid 2>/dev/null
+                test $smb_ok -eq 1; and break
                 set tries (math $tries + 1)
             end
-            if test $tries -ge 10
-                set -l ts_status (tailscale status 2>&1)
-                __media_fail "$HOMELAB_HOST not reachable on SMB port" "$ts_status"; or return
+            if test $smb_ok -eq 0
+                echo "media: server unreachable" >&2
+                __media_rollback $__done
+                return 1
             end
 
-            # 6. Mount volume via Finder to utilize Keychain credentials
-            set -l os_out (osascript -e "tell application \"Finder\" to mount volume \"$smb_url\"" 2>&1)
-            if test $status -ne 0
-                __media_fail "mount request failed" "$os_out"; or return
+            # 5. Mount volume via Finder to utilize Keychain credentials
+            if not osascript -e "tell application \"Finder\" to mount volume \"$smb_url\"" >/dev/null 2>&1
+                echo "media: error: mount request failed" >&2
+                __media_rollback $__done
+                return 1
             end
 
-            test -d "$mountpoint"; and echo "media: mounted at $mountpoint"; or __media_fail "$mountpoint not found after mount command"
+            if test -d "$mountpoint"
+                echo "media: mounted at $mountpoint"
+            else
+                echo "media: error: $mountpoint not found after mount command" >&2
+                __media_rollback $__done
+                return 1
+            end
 
         case off
-            # 1. Preflight dependency checks (fail fast before mutating state)
-            __media_preflight off; or return
-
-            # 2. Unmount the share and verify it is no longer in the filesystem
+            # 1. Unmount the share
             if test -d "$mountpoint"
-                set -l unmount_out (diskutil unmount "$mountpoint" 2>&1)
-                if test $status -eq 0
+                if diskutil unmount "$mountpoint" >/dev/null 2>&1
                     echo "media: unmounted"
                 else
-                    __media_fail "failed to unmount $mountpoint (disk busy)" "$unmount_out"; or return
+                    echo "media: error: failed to unmount $mountpoint (disk busy)" >&2
+                    return 1
                 end
             else
                 echo "media: $MEDIA_SHARE is not mounted, skipping"
             end
 
-            # 3. Shut down Tailscale interface
-            if tailscale down >/dev/null 2>&1
-                echo "media: Tailscale disconnected"
-            else
-                set -l ts_status (tailscale status 2>&1)
-                __media_fail "tailscale down failed" "$ts_status"; or return
+            # 2. Shut down Tailscale interface
+            if not tailscale down >/dev/null 2>&1
+                echo "media: error: tailscale down failed" >&2
+                return 1
+            end
+            echo "media: Tailscale disconnected"
+
+            # 3. Re-enable VPN to secure subsequent torrent traffic
+            if not vpn on
+                echo "media: error: vpn reconnect failed; not restarting transmission" >&2
+                return 1
             end
 
-            # 4. Re-enable VPN to secure subsequent torrent traffic
-            if not functions -q vpn; or not vpn on
-                __media_fail "vpn reconnect failed; not restarting transmission"; or return
-            end
-
-            # 5. Restart Transmission service
+            # 4. Restart Transmission service
             if brew services start transmission-cli >/dev/null 2>&1
                 echo "media: transmission-daemon resumed"
             else
-                __media_fail "failed to restart transmission-cli"; or return
+                echo "media: error: failed to restart transmission-cli" >&2
+                return 1
             end
+
         case status
-            __media_preflight status; or return
-        
             # SMB mount
             if test -d "$mountpoint"
                 echo "media: $MEDIA_SHARE is mounted at $mountpoint"
             else
                 echo "media: $MEDIA_SHARE is not mounted"
             end
-        
+
             # VPN state
-            if functions -q vpn
-                vpn status
-            else
-                echo "media: vpn function not available" >&2
-            end
-        
+            vpn status
+
             # Transmission service state
             set -l tx_state (brew services info transmission-cli --json 2>/dev/null | jq -r '.[0].status')
+            test "$tx_state" = none; and set tx_state off
+            test "$tx_state" = started; and set tx_state on
             if test -n "$tx_state"
                 echo "media: transmission-daemon is $tx_state"
             else
                 echo "media: could not determine transmission-daemon state" >&2
             end
+
         case '*'
             echo "Usage: media [on|off|status]" >&2
             return 1

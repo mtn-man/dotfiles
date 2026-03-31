@@ -1,4 +1,4 @@
-function ___vpn_public_ip
+function __vpn_public_ip
     curl -fsS --max-time 5 https://ifconfig.co 2>/dev/null
         or curl -fsS --max-time 5 https://api.ipify.org 2>/dev/null
 end
