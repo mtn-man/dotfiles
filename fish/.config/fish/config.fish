@@ -26,6 +26,5 @@ if status is-interactive
     # zoxide init 
     if type -q zoxide
         zoxide init fish --cmd cd | source
-      # zoxide init fish | source
     end
 end
