@@ -17,9 +17,6 @@ set -gx HOMEBREW_REPOSITORY /opt/homebrew
 fish_add_path -gP /opt/homebrew/bin
 fish_add_path -gP /opt/homebrew/sbin
 
-set -gx MANPATH /opt/homebrew/share/man $MANPATH
-set -gx INFOPATH /opt/homebrew/share/info $INFOPATH
-
 # 3. Go Binary Path
 fish_add_path -gP ~/go/bin
 
