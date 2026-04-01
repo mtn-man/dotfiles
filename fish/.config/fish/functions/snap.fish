@@ -1,7 +1,6 @@
 function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
     set -l outfile ~/dev/sys-snapshot.txt
     set -l dotfiles ~/dev/dotfiles
-    set -l fishcfg ~/.config/fish
     set -l sep "------------------------------------------------------------------------------------------"
     set -l thin "---"
 
@@ -17,6 +16,9 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         fastfetch 2>/dev/null \
             | string replace -ra '\x1b\[[0-9;]*m' '' \
             | string replace -r 'Public IP:.*' 'Public IP: censored'
+
+        echo
+        system_profiler SPPowerDataType | rg -i "cycle count|maximum capacity|condition"
 
         echo
         echo "System note: Full system backups are performed daily to an air-gapped time machine SSD. Dotfiles are also backed up to a private github repo and symlinked into place with GNU stow."
@@ -47,12 +49,12 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         # 4. Fish config files
         echo "~/.config/fish/config.fish:"
         echo
-        cat $fishcfg/config.fish
+        cat $__fish_config_dir/config.fish
         echo
         echo $thin
         echo
 
-        cat $fishcfg/abbrs.fish
+        cat $__fish_config_dir/abbrs.fish
         echo
         echo $sep
         echo
@@ -60,7 +62,7 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         echo "The following reside in separate files within the ~/.config/fish/functions directory:"
         echo
 
-        for f in $fishcfg/functions/*.fish
+        for f in $__fish_config_dir/functions/*.fish
             echo $thin
             echo
             cat $f
