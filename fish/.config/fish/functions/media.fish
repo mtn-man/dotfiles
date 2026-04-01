@@ -1,4 +1,6 @@
 function __media_rollback --description 'Undo completed media-on steps in reverse order'
+# Policy: system default is VPN on + transmission active.
+# Rollback enforces this baseline rather than restoring prior state.
     echo "media: rolling back..."
     for step in $argv
         switch $step
