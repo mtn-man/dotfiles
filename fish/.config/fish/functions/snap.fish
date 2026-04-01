@@ -119,22 +119,6 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         cat ~/.config/fastfetch/config.jsonc
         echo
 
-        echo $sep
-        echo
-
-        # 9. Timer source
-        echo "My custom go timer binary:"
-        echo
-        cat ~/dev/golang/after/README.md
-        echo
-
-        echo $sep
-        echo
-
-        # 10. mintmedia readme
-        echo "My media automation tool, mintmedia:"
-        echo
-        cat ~/dev/golang/mintmedia/README.md
     end >> $outfile
 
     echo "snap: updated $outfile"
