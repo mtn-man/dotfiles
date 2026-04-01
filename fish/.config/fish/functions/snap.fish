@@ -52,11 +52,6 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         echo $thin
         echo
 
-        cat $fishcfg/aliases.fish
-        echo
-        echo $thin
-        echo
-
         cat $fishcfg/abbrs.fish
         echo
         echo $sep
