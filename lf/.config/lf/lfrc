@@ -17,8 +17,8 @@ map H cd ~
 map x cut
 map C clear
 map Q $qlmanage -p -- "$f" >/dev/null 2>&1 &
-set previewer /Users/user/.config/lf/pv.sh
-set cleaner /Users/user/.config/lf/clean.sh
+set previewer ~/.config/lf/pv.sh
+set cleaner ~/.config/lf/clean.sh
 
 # --- zoxide integration (fish-compatible) ---
 
