@@ -35,6 +35,20 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         echo $thin
         echo
 
+        echo "~/dotfiles/README.md:"
+        echo
+        cat $dotfiles/README.md
+        echo
+        echo $thin
+        echo
+
+        echo "~/dotfiles/setup.sh:"
+        echo
+        cat $dotfiles/setup.sh
+        echo
+        echo $thin
+        echo
+
         # 3. Applications listings
         echo "/Applications:"
         ls /Applications
