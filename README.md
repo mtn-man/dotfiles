@@ -27,7 +27,7 @@
    ./setup.sh
    ```
 
-   This installs packages from the Brewfile, sets Fish as the default shell, stows all dotfiles, fixes the Homebrew path override, suppresses the login message, and applies macOS defaults (window drag, Dock autohide).
+   This installs packages from the Brewfile, sets Fish as the default shell, stows all dotfiles, fixes the Homebrew path override, suppresses the login message, and applies macOS defaults (window drag, Dock autohide, key repeat).
 
 4. App setup — sign into Bitwarden, Tailscale, Spotify, etc. Grant Accessibility permissions for Hammerspoon and LinearMouse.
 
@@ -49,11 +49,14 @@ defaults delete -g NSWindowShouldDragOnGesture
 **Fast Dock autohide (0s delay, 0.5x animation):**
 
 ```bash
-defaults write com.apple.Dock autohide-delay -float 0
+defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0.5
 killall Dock
 ```
+
 ### Keyboard (CLI Speed)
+
+> These settings are applied automatically by `setup.sh`. Kept here as a reference for undo commands.
 
 **Fast, precise key repeat (lf/fish/micro navigation, beyond UI slider):**
 
