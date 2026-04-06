@@ -29,7 +29,14 @@
 
    This installs packages from the Brewfile, sets Fish as the default shell, stows all dotfiles, fixes the Homebrew path override, suppresses the login message, and applies macOS defaults (window drag, Dock autohide, key repeat).
 
-4. App setup — sign into Bitwarden, Tailscale, Spotify, etc. Grant Accessibility permissions for Hammerspoon and LinearMouse.
+4. Install private Go tools (not in Brewfile):
+
+   ```bash
+   gh repo clone mtn-man/mintmedia ~/dev/mintmedia
+   cd ~/dev/mintmedia && go install ./...
+   ```
+
+5. App setup — sign into Bitwarden, Tailscale, Spotify, etc. Grant Accessibility permissions for Hammerspoon and LinearMouse.
 
 ### macOS Window + Dock
 
