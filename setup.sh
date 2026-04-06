@@ -24,9 +24,11 @@ touch ~/.hushlogin
 
 echo "==> Applying macOS defaults..."
 defaults write -g NSWindowShouldDragOnGesture -bool true
-defaults write com.apple.Dock autohide-delay -float 0
+defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0.5
 killall Dock
+defaults write -g InitialKeyRepeat -int 10
+defaults write -g KeyRepeat -int 2
 
 echo ""
 echo "Done. Log out and back in for the Fish shell to take effect."
