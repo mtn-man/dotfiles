@@ -10,10 +10,6 @@ set -gx HOMEBREW_NO_INSTALL_CLEANUP 1
 
 # 2. Homebrew Initialization 
 # Homebrew (Apple Silicon)
-set -gx HOMEBREW_PREFIX /opt/homebrew
-set -gx HOMEBREW_CELLAR /opt/homebrew/Cellar
-set -gx HOMEBREW_REPOSITORY /opt/homebrew
-
 fish_add_path -gP /opt/homebrew/bin
 fish_add_path -gP /opt/homebrew/sbin
 
