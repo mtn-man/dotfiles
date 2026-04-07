@@ -1,139 +1,84 @@
+function __snap_file --argument-names label path
+    echo "$label:"
+    echo
+    cat $path
+    echo
+    echo "---"
+    echo
+end
+
 function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
     set -l outfile ~/dev/sys-snapshot.txt
     set -l dotfiles ~/dev/dotfiles
     set -l sep "------------------------------------------------------------------------------------------"
-    set -l thin "---"
 
     if not command -q fastfetch
         echo "snap: fastfetch not found" >&2
         return 127
     end
 
-    rm -f $outfile
-
     begin
-        # 1. fastfetch header (public IP censored, ANSI codes stripped)
+        # 1. System info
         fastfetch 2>/dev/null \
             | string replace -ra '\x1b\[[0-9;]*m' '' \
             | string replace -r 'Public IP:.*' 'Public IP: censored'
 
         echo
+        echo "Battery health:"
         system_profiler SPPowerDataType | rg -i "cycle count|maximum capacity|condition"
-
         echo
         echo "System note: Full system backups are performed daily to an air-gapped time machine SSD. Dotfiles are also backed up to a private github repo and symlinked into place with GNU stow."
-        echo "Battery entry above is current charge, NOT health."
         echo "kitty is kept installed for its kitten icat image rendering; Ghostty is my primary terminal emulator."
         echo
         echo $sep
-        
-        # 2. Brewfile
-        echo "~/dotfiles/Brewfile (also backed-up to dotfiles repo):"
-        echo
-        cat $dotfiles/Brewfile
-        echo
-        echo $thin
         echo
 
-        echo "~/dotfiles/README.md:"
-        echo
-        cat $dotfiles/README.md
-        echo
-        echo $thin
-        echo
-
-        echo "~/dotfiles/setup.sh:"
-        echo
-        cat $dotfiles/setup.sh
-        echo
-        echo $thin
-        echo
-
-        # 3. Applications listings
+        # 2. Applications
         echo "/Applications:"
         ls /Applications
         echo
         echo "~/Applications:"
         ls ~/Applications
         echo
-
         echo $sep
         echo
 
-        # 4. Fish config files
-        echo "~/.config/fish/config.fish:"
-        echo
-        cat $__fish_config_dir/config.fish
-        echo
-        echo $thin
-        echo
-
-        cat $__fish_config_dir/abbrs.fish
-        echo
+        # 3. Dotfiles
+        __snap_file "~/dotfiles/Brewfile (also backed-up to dotfiles repo)" $dotfiles/Brewfile
+        __snap_file "~/dotfiles/README.md" $dotfiles/README.md
+        __snap_file "~/dotfiles/setup.sh" $dotfiles/setup.sh
         echo $sep
         echo
+
+        # 4. Fish config
+        __snap_file "~/.config/fish/config.fish" $__fish_config_dir/config.fish
+        __snap_file "~/.config/fish/abbrs.fish" $__fish_config_dir/abbrs.fish
 
         echo "The following reside in separate files within the ~/.config/fish/functions directory:"
         echo
-
         for f in $__fish_config_dir/functions/*.fish
-            echo $thin
+            echo "---"
             echo
             cat $f
             echo
         end
-
         echo $sep
         echo
 
         # 5. lf config
-        echo "~/.config/lf/lfrc:"
-        echo
-        cat ~/.config/lf/lfrc
-        echo
-
-        echo $thin
-        echo "~/.config/lf/pv.sh:"
-        echo
-        cat ~/.config/lf/pv.sh
-
-        echo $thin
-        echo
-        echo "~/.config/lf/clean.sh:"
-        echo
-        cat ~/.config/lf/clean.sh
+        __snap_file "~/.config/lf/lfrc" ~/.config/lf/lfrc
+        __snap_file "~/.config/lf/pv.sh" ~/.config/lf/pv.sh
+        __snap_file "~/.config/lf/clean.sh" ~/.config/lf/clean.sh
+        echo $sep
         echo
 
-        # 6. Ghostty config
-        echo $thin
-        echo
-        echo "~/.config/ghostty/config.ghostty:"
-        echo
-        cat ~/.config/ghostty/config.ghostty
-        echo
+        # 6. App configs
+        __snap_file "~/.config/ghostty/config.ghostty" ~/.config/ghostty/config.ghostty
+        __snap_file "~/.config/micro/bindings.json" ~/.config/micro/bindings.json
+        __snap_file "~/.config/micro/settings.json" ~/.config/micro/settings.json
+        __snap_file "~/.config/fastfetch/config.jsonc" ~/.config/fastfetch/config.jsonc
 
-        # 7. Micro configs
-        echo $thin
-        echo
-        echo "~/.config/micro/bindings.json:"
-        cat ~/.config/micro/bindings.json
-        echo
-
-        echo $thin
-        echo
-        echo "~/.config/micro/settings.json:"
-        cat ~/.config/micro/settings.json
-        echo
-
-        # 8. Fastfetch config
-        echo $thin
-        echo
-        echo "~/.config/fastfetch/config.jsonc:"
-        echo
-        cat ~/.config/fastfetch/config.jsonc
-        echo
-
-    end >> $outfile
+    end > $outfile
 
     echo "snap: updated $outfile"
 end
