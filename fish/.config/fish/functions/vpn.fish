@@ -3,6 +3,15 @@ function __vpn_public_ip
         or curl -fsS --max-time 5 https://api.ipify.org 2>/dev/null
 end
 
+function __vpn_print_ip
+    set -l ip (__vpn_public_ip)
+    if test -n "$ip"
+        echo "vpn: public IP: $ip"
+    else
+        echo "vpn: public IP lookup failed"
+    end
+end
+
 function __vpn_wait_for --argument-names svc target_state timeout
     set -l elapsed 0
     while test $elapsed -lt $timeout
@@ -44,12 +53,7 @@ function vpn --description 'Manage VPN service (on/off/status) via scutil --nc'
             echo "vpn: connecting..."
             if __vpn_wait_for "$VPN_SVC" Connected 15
                 echo "vpn: $VPN_SVC active"
-                set -l ip (__vpn_public_ip)
-                if test -n "$ip"
-                    echo "vpn: public IP: $ip (VPN)"
-                else
-                    echo "vpn: public IP lookup failed -- vpn status OK"
-                end
+                __vpn_print_ip
                 return 0
             end
             echo "vpn: error -- connection timed out after 15 seconds." >&2
@@ -75,12 +79,7 @@ function vpn --description 'Manage VPN service (on/off/status) via scutil --nc'
             switch "$state[1]"
                 case Connected
                     echo "vpn: $VPN_SVC is connected"
-                    set -l ip (__vpn_public_ip)
-                    if test -n "$ip"
-                        echo "vpn: public IP: $ip (VPN)"
-                    else
-                        echo "vpn: public IP lookup failed"
-                    end
+                    __vpn_print_ip
                 case Disconnected
                     echo "vpn: $VPN_SVC is disconnected"
                 case '*'
