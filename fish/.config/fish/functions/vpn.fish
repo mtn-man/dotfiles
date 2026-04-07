@@ -1,6 +1,7 @@
 function __vpn_public_ip
-    curl -fsS --max-time 5 https://ifconfig.co 2>/dev/null
-        or curl -fsS --max-time 5 https://api.ipify.org 2>/dev/null
+    set -l ip_timeout 5
+    curl -fsS --max-time $ip_timeout https://ifconfig.co 2>/dev/null
+        or curl -fsS --max-time $ip_timeout https://api.ipify.org 2>/dev/null
 end
 
 function __vpn_print_ip
@@ -17,7 +18,7 @@ function __vpn_wait_for --argument-names svc target_state timeout
     while test $elapsed -lt $timeout
         set -l state (scutil --nc status "$svc")
         if test "$state[1]" = "$target_state"
-            return 0
+            return
         end
         sleep 1
         set elapsed (math "$elapsed + 1")
@@ -36,40 +37,42 @@ function vpn --description 'Manage VPN service (on/off/status) via scutil --nc'
         return 1
     end
     
+    set -l vpn_timeout 10
+
     switch "$sub"
-    
+
         case on
             set -l state (scutil --nc status "$VPN_SVC")
             if test "$state[1]" = "Connected"
                 echo "vpn: $VPN_SVC is already connected"
-                return 0
+                return
             end
-            
+
             if not scutil --nc start "$VPN_SVC"
                 echo "vpn: error: failed to start $VPN_SVC" >&2
                 return 1
             end
-            
+
             echo "vpn: connecting VPN..."
-            if __vpn_wait_for "$VPN_SVC" Connected 15
+            if __vpn_wait_for "$VPN_SVC" Connected $vpn_timeout
                 echo "vpn: $VPN_SVC active"
                 __vpn_print_ip
-                return 0
+                return
             end
-            echo "vpn: error -- connection timed out after 15 seconds." >&2
+            echo "vpn: error -- connection timed out after $vpn_timeout seconds." >&2
             return 1
-            
+
         case off
             set -l state (scutil --nc status "$VPN_SVC")
             if test "$state[1]" = "Disconnected"
                 echo "vpn: $VPN_SVC is already disconnected."
-                return 0
+                return
             end
             scutil --nc stop "$VPN_SVC"
             echo "vpn: disconnecting VPN..."
-            if __vpn_wait_for "$VPN_SVC" Disconnected 10
+            if __vpn_wait_for "$VPN_SVC" Disconnected $vpn_timeout
                 echo "vpn: $VPN_SVC offline"
-                return 0
+                return
             end
             echo "vpn: warning -- disconnect requested, but status is unknown."
             return 1
