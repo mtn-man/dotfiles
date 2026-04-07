@@ -22,6 +22,10 @@ if [[ -z "$file" || ! -e "$file" ]]; then
     exit 0
 fi
 
+# Constants
+PX_PER_COL=12       # pixel-per-column estimate for font width scaling
+HEIC_JPEG_QUALITY=80
+
 # Environment & Caching
 PREVIEW_CACHE_DIR="${LF_PREVIEW_CACHE_DIR:-$HOME/Library/Caches/lf}"
 DEP_CACHE_FILE="${PREVIEW_CACHE_DIR}/.dep_cache"
@@ -89,14 +93,14 @@ preview_text() {
 }
 
 preview_heic() {
-    local px_w=$(( w * 12 ))
+    local px_w=$(( w * PX_PER_COL ))
     local cached
     cached=$(thumb_cache_path "$file")
 
     if [[ ! -s "$cached" ]]; then
         local tmp="${cached}.tmp.$$"
         sips --matchTo '/System/Library/ColorSync/Profiles/sRGB Profile.icc' \
-            -s format jpeg -s formatOptions 80 --resampleWidth "$px_w" "$file" \
+            -s format jpeg -s formatOptions "$HEIC_JPEG_QUALITY" --resampleWidth "$px_w" "$file" \
             --out "$tmp" >/dev/null 2>&1 || { rm -f "$tmp"; return 1; }
         mv "$tmp" "$cached"
     else
@@ -122,7 +126,9 @@ preview_video_ytdlp() {
     # Specifically target yt-dlp style embedded thumbnails (usually stream v:1)
     # Check if stream 1 exists and is an image codec (mjpeg/webp/png/etc)
     local codec
-    codec=$(ffprobe -v error -select_streams v:1 -show_entries stream=codec_name -of default=noprint_wrappers=1:nk=1 "$file" 2>/dev/null)
+    codec=$(ffprobe -v error -select_streams v:1 \
+        -show_entries stream=codec_name \
+        -of default=noprint_wrappers=1:nk=1 "$file" 2>/dev/null)
 
     case "$codec" in
         mjpeg|png|webp|bmp|gif|tiff)
