@@ -11,10 +11,12 @@ if ! grep -qF /opt/homebrew/bin/fish /etc/shells; then
     echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells
 fi
 # Note: chsh prompts for your login password (separate from sudo)
-chsh -s /opt/homebrew/bin/fish
+if [ "$SHELL" != /opt/homebrew/bin/fish ]; then
+    chsh -s /opt/homebrew/bin/fish
+fi
 
 echo "==> Stowing dotfiles..."
-stow -vt "$HOME" fish ghostty kitty micro lf fastfetch btop hammerspoon linearmouse mintmedia
+stow -Rvt "$HOME" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia
 
 echo "==> Removing Homebrew path override from /etc/paths.d/..."
 sudo rm -f /etc/paths.d/homebrew
