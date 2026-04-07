@@ -40,7 +40,7 @@ function gcp --description "Review changes, stage all, commit (message or editor
     # 5. Verification: Abort cleanly if nothing resulted from the add
     git diff --cached --quiet; and begin
         echo "gcp: nothing staged to commit"
-        return 0
+        return
     end
 
     # 6. Commit: Use message if provided, otherwise open editor

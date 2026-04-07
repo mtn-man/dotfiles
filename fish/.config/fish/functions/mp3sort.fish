@@ -1,7 +1,7 @@
 function mp3sort --description "Organize MP3s from 'Artist - Album - Track.mp3' into Artist/Album/Track.mp3"
     set -l dir ~/Downloads
 
-    set -l files $dir/*.mp3
+    set -l files (fd -e mp3 --max-depth 1 . $dir)
     if test (count $files) -eq 0
         echo "No .mp3 files found in $dir"
         return 1

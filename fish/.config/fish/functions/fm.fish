@@ -23,7 +23,7 @@ function fm --description 'Open file in micro via fd search (fzf when multiple m
 
         case 1
             micro $matches[1]
-            return 0
+            return
 
         case '*'
             set -l chosen (printf '%s\n' $matches | fzf -i \
