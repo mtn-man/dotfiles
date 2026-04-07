@@ -30,7 +30,7 @@ function yt --description 'Download YouTube videos with options'
         echo ""
         echo "Use cookies.txt browser extension to export cookies" 
         echo "to a file named `.ytcookies.txt` in your output folder"
-        return 0
+        return
     end
 
     # Get URL from remaining args or clipboard
