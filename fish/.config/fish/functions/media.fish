@@ -14,6 +14,11 @@ function __media_rollback --description 'Undo completed media-on steps in revers
     end
 end
 
+function __media_vpn --argument-names subcmd
+    vpn $subcmd 2>&1 | string replace --regex '^vpn:' 'media:'
+    return $pipestatus[1]
+end
+
 function media --description 'Manage homelab media share and networking state'
     set -l mountpoint "/Volumes/$MEDIA_SHARE"
     set -l smb_url "smb://$HOMELAB_HOST/$MEDIA_SHARE"
@@ -33,8 +38,7 @@ function media --description 'Manage homelab media share and networking state'
             end
 
             # 2. Toggle VPN (NordVPN must be off for Tailscale/SMB routing)
-            if not vpn off
-                echo "media: error: vpn management failed" >&2
+            if not __media_vpn off
                 __media_rollback $__done
                 return 1
             end
@@ -115,8 +119,7 @@ function media --description 'Manage homelab media share and networking state'
             echo "media: Tailscale disconnected"
 
             # 3. Re-enable VPN to secure subsequent torrent traffic
-            if not vpn on
-                echo "media: error: vpn reconnect failed; not restarting transmission" >&2
+            if not __media_vpn on
                 return 1
             end
 
@@ -137,16 +140,17 @@ function media --description 'Manage homelab media share and networking state'
             end
 
             # VPN state
-            vpn status
+            __media_vpn status
 
             # Transmission service state
             set -l tx_state (brew services info transmission-cli --json 2>/dev/null | jq -r '.[0].status')
-            test "$tx_state" = none; and set tx_state off
-            test "$tx_state" = started; and set tx_state on
-            if test -n "$tx_state"
-                echo "media: transmission-daemon is $tx_state"
-            else
-                echo "media: could not determine transmission-daemon state" >&2
+            switch "$tx_state"
+                case started
+                    echo "media: transmission-daemon is on"
+                case none
+                    echo "media: transmission-daemon is off"
+                case '*'
+                    echo "media: transmission-daemon state unknown: $tx_state" >&2
             end
 
         case '*'
