@@ -28,7 +28,7 @@ brew bundle install   # install all tools from Brewfile
 
 ## Architecture
 
-- **`fish/`** — Primary shell config: `config.fish` (env vars), `aliases.fish` (abbreviations), and `functions/` (17 custom functions)
+- **`fish/`** — Primary shell config: `config.fish` (env vars), `abbrs.fish` (abbreviations), and `functions/` (19 custom functions)
 - **`ghostty/`** / **`kitty/`** — Terminal emulator configs
 - **`micro/`** — Editor config (Solarized theme, Go tool keybindings in `bindings.json`)
 - **`lf/`** — File manager config with zoxide integration and preview/clean scripts
@@ -45,10 +45,20 @@ brew bundle install   # install all tools from Brewfile
 | `update.fish` | Homebrew upgrade wrapper |
 | `yt.fish` | YouTube download via yt-dlp |
 | `fm.fish` | File search + edit (fd + fzf + micro) |
-| `tm.fish` | Tmux session management |
+| `tm.fish` | Transmission-CLI service management and magnet link handler |
 | `gr.fish` | Git repo discovery and navigation |
-| `gcp.fish` | Go test/lint commands |
+| `gcp.fish` | Stage all, commit (message or editor), and push |
 | `fish_prompt.fish` | Custom prompt with git status indicators |
+| `fish_right_prompt.fish` | Shows elapsed time for commands over threshold |
+| `fish_greeting.fish` | Welcome message + fastfetch, once per terminal window |
+| `lf.fish` | Wraps lf with quit-and-cd integration |
+| `snap.fish` | Rebuilds `~/dev/sys-snapshot.txt` with live system data |
+| `caf.fish` | Prevents sleep for a duration via `after` |
+| `stow-add.fish` | Moves a `~/.config` package into dotfiles and stows it |
+| `mkcd.fish` | Creates a directory and cd into it |
+| `lp.fish` | Lists PATH entries with existence check |
+| `mp3sort.fish` | Organizes MP3s from `Artist - Album - Track` into folders |
+| `__abbr_timer_minutes.fish` | Helper expanding `a15` → `after 15m` abbreviations |
 
 ## Git-ignored Paths
 
