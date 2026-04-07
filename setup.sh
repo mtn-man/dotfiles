@@ -28,7 +28,7 @@ echo "==> Applying macOS defaults..."
 defaults write -g NSWindowShouldDragOnGesture -bool true
 defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0.5
-killall Dock
+killall Dock # Dock is always running on macOS; this is safe
 defaults write -g InitialKeyRepeat -int 10
 defaults write -g KeyRepeat -int 2
 
