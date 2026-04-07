@@ -19,6 +19,25 @@ function __media_vpn --argument-names subcmd
     return $pipestatus[1]
 end
 
+function __media_run_with_timeout --argument-names timeout
+    set -l cmd $argv[2..-1]
+    set -l interval 0.5
+    $cmd >/dev/null 2>&1 &
+    set -l pid $last_pid
+    set -l waited 0
+    while math -q "$waited < $timeout"
+        if not kill -0 $pid 2>/dev/null
+            wait $pid 2>/dev/null
+            return $status
+        end
+        sleep $interval
+        set waited (math "$waited + $interval")
+    end
+    kill $pid 2>/dev/null
+    wait $pid 2>/dev/null
+    return 1
+end
+
 function media --description 'Manage homelab media share and networking state'
     set -l mountpoint "/Volumes/$MEDIA_SHARE"
     set -l smb_url "smb://$HOMELAB_HOST/$MEDIA_SHARE"
@@ -58,24 +77,20 @@ function media --description 'Manage homelab media share and networking state'
 
             # 4. Wait for SMB availability on the Tailscale network
             #    nc -w is unreliable on macOS when DNS blocks, so enforce
-            #    a hard 15-second wall-clock deadline via background job.
+            #    a hard wall-clock deadline via background job.
+            set -l smb_port 445
+            set -l smb_retries 5
+            set -l nc_timeout 2
+            set -l probe_budget 3
+            set -l mount_timeout 10
+
             set -l smb_ok 0
-            set -l tries 0
-            while test $tries -lt 5
-                nc -z -w2 $HOMELAB_HOST 445 >/dev/null 2>&1 &
-                set -l nc_pid $last_pid
-                set -l waited 0
-                while test $waited -lt 3
-                    if not kill -0 $nc_pid 2>/dev/null
-                        wait $nc_pid 2>/dev/null; and set smb_ok 1
-                        break
-                    end
-                    sleep 0.5
-                    set waited (math "$waited + 0.5")
+            for _i in (seq $smb_retries)
+                if __media_run_with_timeout $probe_budget \
+                        nc -z -w $nc_timeout $HOMELAB_HOST $smb_port
+                    set smb_ok 1
+                    break
                 end
-                kill $nc_pid 2>/dev/null; wait $nc_pid 2>/dev/null
-                test $smb_ok -eq 1; and break
-                set tries (math $tries + 1)
             end
             if test $smb_ok -eq 0
                 echo "media: server unreachable" >&2
@@ -84,7 +99,8 @@ function media --description 'Manage homelab media share and networking state'
             end
 
             # 5. Mount volume via Finder to utilize Keychain credentials
-            if not osascript -e "tell application \"Finder\" to mount volume \"$smb_url\"" >/dev/null 2>&1
+            if not __media_run_with_timeout $mount_timeout \
+                    osascript -e "tell application \"Finder\" to mount volume \"$smb_url\""
                 echo "media: error: mount request failed" >&2
                 __media_rollback $__done
                 return 1
@@ -143,7 +159,8 @@ function media --description 'Manage homelab media share and networking state'
             __media_vpn status
 
             # Transmission service state
-            set -l tx_state (brew services info transmission-cli --json 2>/dev/null | jq -r '.[0].status')
+            set -l tx_state (brew services info transmission-cli --json 2>/dev/null \
+                | jq -r '.[0].status')
             switch "$tx_state"
                 case started
                     echo "media: transmission-daemon is on"
