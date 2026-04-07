@@ -50,7 +50,7 @@ function vpn --description 'Manage VPN service (on/off/status) via scutil --nc'
                 return 1
             end
             
-            echo "vpn: connecting..."
+            echo "vpn: connecting VPN..."
             if __vpn_wait_for "$VPN_SVC" Connected 15
                 echo "vpn: $VPN_SVC active"
                 __vpn_print_ip
@@ -66,7 +66,7 @@ function vpn --description 'Manage VPN service (on/off/status) via scutil --nc'
                 return 0
             end
             scutil --nc stop "$VPN_SVC"
-            echo "vpn: disconnecting..."
+            echo "vpn: disconnecting VPN..."
             if __vpn_wait_for "$VPN_SVC" Disconnected 10
                 echo "vpn: $VPN_SVC offline"
                 return 0
