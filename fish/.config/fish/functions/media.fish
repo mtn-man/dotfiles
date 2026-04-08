@@ -24,14 +24,12 @@ function __media_run_with_timeout --argument-names timeout
     set -l interval 0.5
     $cmd >/dev/null 2>&1 &
     set -l pid $last_pid
-    set -l waited 0
-    while math -q "$waited < $timeout"
+    for _i in (seq (math --scale=0 "$timeout / $interval"))
         if not kill -0 $pid 2>/dev/null
             wait $pid 2>/dev/null
             return $status
         end
         sleep $interval
-        set waited (math "$waited + $interval")
     end
     kill $pid 2>/dev/null
     wait $pid 2>/dev/null
