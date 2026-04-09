@@ -26,6 +26,10 @@ The `server/` directory is not stow-deployed; its Fish config is sourced manuall
 brew bundle install   # install all tools from Brewfile
 ```
 
+## Bootstrap
+
+`setup.sh` in the repo root bootstraps a new macOS machine: installs Brewfile packages, sets Fish as the default shell, stows all dotfile packages, removes the Homebrew path override from `/etc/paths.d/`, suppresses the login message, and applies macOS defaults (dock, key repeat, window drag).
+
 ## Architecture
 
 - **`fish/`** — Primary shell config: `config.fish` (env vars), `abbrs.fish` (abbreviations), and `functions/` (19 custom functions)
