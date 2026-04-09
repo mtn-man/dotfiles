@@ -10,8 +10,8 @@ window-padding-y = 8
 
 # Dark Pastel, Kitty Default
 # Apple Classic, Neon, Retro Legends
-theme = Dark Pastel
-background-opacity = 0.7
+theme = Github Dark Default
+background-opacity = 0.8
 background-blur = 20
 
 macos-option-as-alt = left
