@@ -38,6 +38,12 @@
 
 5. App setup — sign into Bitwarden, Tailscale, Spotify, etc. Grant Accessibility permissions for Hammerspoon and LinearMouse.
 
+### Transmission
+
+`transmission/settings.json` is managed here and symlinked to `/opt/homebrew/var/transmission/settings.json`.
+
+`bind-address-ipv4` is set to `10.5.0.2`, the NordVPN tunnel interface. This acts as a killswitch: if the VPN goes down, the daemon loses its bind address and peer connections stop — no traffic leaks over the default interface.
+
 ### macOS Window + Dock
 
 > These settings are applied automatically by `setup.sh`. Kept here as a reference for undo commands.
