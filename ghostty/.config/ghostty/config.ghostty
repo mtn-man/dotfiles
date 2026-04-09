@@ -10,7 +10,7 @@ window-padding-y = 8
 
 # Dark Pastel, Kitty Default
 # Apple Classic, Neon, Retro Legends
-theme = Github Dark Default
+theme = Thayer Bright
 background-opacity = 0.8
 background-blur = 20
 
