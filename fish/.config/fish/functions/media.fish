@@ -7,6 +7,7 @@ function __media_rollback --description 'Undo completed media-on steps in revers
             case tailscale
                 tailscale down >/dev/null 2>&1
             case vpn
+                sleep 2
                 vpn on >/dev/null 2>&1
             case transmission
                 brew services start transmission-cli >/dev/null 2>&1
