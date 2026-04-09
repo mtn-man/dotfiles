@@ -92,6 +92,7 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         __snap_file "~/.config/micro/bindings.json" $dotfiles/micro/.config/micro/bindings.json
         __snap_file "~/.config/micro/settings.json" $dotfiles/micro/.config/micro/settings.json
         __snap_file "~/.config/fastfetch/config.jsonc" $dotfiles/fastfetch/.config/fastfetch/config.jsonc
+        __snap_file "/opt/homebrew/var/transmission/settings.json" $dotfiles/transmission/settings.json
 
     end > $outfile
 
