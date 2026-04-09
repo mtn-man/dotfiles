@@ -40,7 +40,7 @@
 
 ### Transmission
 
-`transmission/settings.json` is managed here and symlinked to `/opt/homebrew/var/transmission/settings.json`.
+`~/dev/transmission/settings.json` is symlinked to `/opt/homebrew/var/transmission/settings.json` (not version controlled).
 
 `bind-address-ipv4` is set to `10.5.0.2`, the NordVPN tunnel interface. This acts as a killswitch: if the VPN goes down, the daemon loses its bind address and peer connections stop — no traffic leaks over the default interface.
 
