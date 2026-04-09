@@ -33,6 +33,9 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         echo "Battery health:"
         system_profiler SPPowerDataType | rg -i "cycle count|maximum capacity|condition" | string trim
         echo
+        echo "Memory pressure:"
+        memory_pressure | rg "System-wide|Swapins|Swapouts|Pages used by compressor|Pages decompressed|Pages compressed" | string trim
+        echo
         echo "System note: This snapshot provides a single-file view of the system configuration, useful"
         echo "for recovery, human review, and giving AI assistants full context about this machine."
         echo "Full system backups are performed daily to an air-gapped time machine SSD."
