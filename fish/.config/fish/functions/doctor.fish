@@ -3,7 +3,7 @@ function doctor --description 'Verify system is in a known-good state'
 
     # Env var checks
     for var in VPN_SVC HOMELAB_HOST MEDIA_SHARE
-        if not set -q $var; or test -z (string trim -- (eval echo \$$var))
+        if test -z (string join "" $$var)
             printf 'doctor: %serror: $%s is not set%s\n' (set_color red) $var (set_color normal) >&2
             set ok 0
         end
@@ -26,6 +26,7 @@ function doctor --description 'Verify system is in a known-good state'
     # Collect raw signals
     set -l vpn_state (scutil --nc status "$VPN_SVC" 2>/dev/null)
     set -l vpn_status $vpn_state[1]
+    set -l vpn_iface (string match -rg 'InterfaceName : (\S+)' $vpn_state)
     set -l tx_state (brew services info transmission-cli --json 2>/dev/null \
         | jq -r '.[0].status' 2>/dev/null)
     set -l ts_state (tailscale status --json 2>/dev/null | jq -r .BackendState 2>/dev/null)
@@ -68,17 +69,14 @@ function doctor --description 'Verify system is in a known-good state'
             set -l bind_addr (jq -r '.["bind-address-ipv4"]' $tx_settings 2>/dev/null)
             echo "doctor: transmission bind-address-ipv4: $bind_addr"
             if test "$vpn_status" = Connected
-                set -l vpn_iface (scutil --nc status "$VPN_SVC" 2>/dev/null \
-                    | string match -rg 'InterfaceName : (\S+)')
-                set -l expected_vpn_ip ""
-                test -n "$vpn_iface"
-                    and set expected_vpn_ip (ipconfig getifaddr "$vpn_iface" 2>/dev/null)
-                if test -n "$expected_vpn_ip"; and test "$bind_addr" != "$expected_vpn_ip"
-                    set -l warn "warning: transmission not bound to VPN interface"
-                    set -l detail "(got: $bind_addr, expected: $expected_vpn_ip)"
-                    printf 'doctor: %s%s %s%s\n' \
-                        (set_color red) $warn $detail (set_color normal)
-                    set ok 0
+                if test -n "$vpn_iface"
+                    set -l expected_vpn_ip (ipconfig getifaddr "$vpn_iface" 2>/dev/null)
+                    if test -n "$expected_vpn_ip"
+                        and test "$bind_addr" != "$expected_vpn_ip"
+                        printf 'doctor: %swarning: transmission not bound to VPN interface (got: %s, expected: %s)%s\n' \
+                            (set_color red) $bind_addr $expected_vpn_ip (set_color normal)
+                        set ok 0
+                    end
                 end
             end
         end
@@ -90,7 +88,8 @@ function doctor --description 'Verify system is in a known-good state'
         end
     end
 
-    if test "$vpn_status" = Connected; and test "$ts_state" = Running
+    if test "$vpn_status" = Connected
+        and test "$ts_state" = Running
         printf 'doctor: %serror: Tailscale running while VPN is connected%s\n' \
             (set_color red) (set_color normal)
         set ok 0
