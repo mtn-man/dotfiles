@@ -64,6 +64,10 @@ brew bundle install   # install all tools from Brewfile
 | `mp3sort.fish` | Organizes MP3s from `Artist - Album - Track` into folders |
 | `__abbr_timer_minutes.fish` | Helper expanding `a15` → `after 15m` abbreviations |
 
+## Git Workflow
+
+Never create commits unless explicitly instructed to. The user reviews all changes before committing.
+
 ## Git-ignored Paths
 
 Fish shell state (`fish_history`, `fish_variables`, `conf.d/`), micro editor buffers/history, and `.DS_Store` files are excluded from version control.
