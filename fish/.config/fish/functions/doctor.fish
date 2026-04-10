@@ -1,73 +1,89 @@
 function doctor --description 'Verify system is in a known-good state'
     set -l ok 1
 
-    # 1. Env var checks (silent on pass)
+    # Env var checks
     for var in VPN_SVC HOMELAB_HOST MEDIA_SHARE
-        if test -z "$$var"
-            echo "doctor: error: \$$var is not set" >&2
+        if not set -q $var; or test -z (string trim -- (eval echo \$$var))
+            echo "doctor: "(set_color red)"error: \$$var is not set"(set_color normal) >&2
             set ok 0
         end
     end
+    if test $ok -eq 0
+        return 1
+    end
 
-    # 2. Toolchain checks (silent on pass)
+    # Toolchain checks
     for tool in jq fd rg fzf bat eza brew tailscale transmission-remote
         if not command -q $tool
-            echo "doctor: missing: $tool"
+            echo "doctor: "(set_color red)"missing: $tool"(set_color normal)
             set ok 0
         end
     end
 
-    # 3. System state — display via existing functions, collect raw signals for classification
-    media status 2>&1 | string replace --regex '^media:' 'doctor:'
-
-    set -l ts_state (tailscale status --json 2>/dev/null | jq -r .BackendState 2>/dev/null)
-    echo "doctor: tailscale: $ts_state"
-
-    # Raw signals needed for state classification
+    # Collect raw signals
     set -l vpn_state (scutil --nc status "$VPN_SVC" 2>/dev/null)
     set -l tx_state (brew services info transmission-cli --json 2>/dev/null \
         | jq -r '.[0].status' 2>/dev/null)
+    set -l ts_state (tailscale status --json 2>/dev/null | jq -r .BackendState 2>/dev/null)
     set -l media_mounted no
     if test -d "/Volumes/$MEDIA_SHARE"
         set media_mounted yes
     end
 
-    # 4. State classification
-    if test "$vpn_state[1]" = Connected \
-            -a "$tx_state" = started \
-            -a "$media_mounted" = no \
-            -a "$ts_state" != Running
-        echo "doctor: state: default (healthy)"
-    else if test "$vpn_state[1]" = Disconnected \
-            -a "$tx_state" != started \
-            -a "$media_mounted" = yes \
-            -a "$ts_state" = Running
-        echo "doctor: state: media (healthy)"
+    # Display: mount, VPN (delegate for public IP), tailscale
+    if test "$media_mounted" = yes
+        echo "doctor: $MEDIA_SHARE is mounted at /Volumes/$MEDIA_SHARE"
     else
-        echo "doctor: state: inconsistent"
-        set ok 0
+        echo "doctor: $MEDIA_SHARE is not mounted"
+    end
+    vpn status 2>&1 | string replace --regex '^vpn:' 'doctor:'
+    echo "doctor: tailscale: $ts_state"
+
+    # Display: transmission (daemon + security grouped)
+    switch "$tx_state"
+        case started
+            echo "doctor: transmission-daemon is on"
+        case none
+            echo "doctor: transmission-daemon is off"
+        case '*'
+            echo "doctor: "(set_color red)"transmission-daemon state unknown: $tx_state"(set_color normal)
     end
 
-    # 5. Transmission security
     set -l tx_settings /opt/homebrew/var/transmission/settings.json
     if test -f $tx_settings
         set -l bind_addr (jq -r '.["bind-address-ipv4"]' $tx_settings 2>/dev/null)
         echo "doctor: transmission bind-address-ipv4: $bind_addr"
         if test "$bind_addr" = "0.0.0.0"
-            echo "doctor: warning: transmission bound to all interfaces (expected: VPN IP)"
+            echo "doctor: "(set_color red)"warning: transmission bound to all interfaces (expected: VPN IP)"(set_color normal)
             set ok 0
         end
     else
-        echo "doctor: transmission settings.json not found: $tx_settings"
+        echo "doctor: "(set_color red)"transmission settings.json not found: $tx_settings"(set_color normal)
     end
 
     if test "$tx_state" = started
         if not transmission-remote "127.0.0.1:9091" -l >/dev/null 2>&1
-            echo "doctor: transmission RPC not reachable"
+            echo "doctor: "(set_color red)"transmission RPC not reachable"(set_color normal)
             set ok 0
         else
             echo "doctor: transmission RPC reachable"
         end
+    end
+
+    # State classification (always last)
+    if test "$vpn_state[1]" = Connected \
+            -a "$tx_state" = started \
+            -a "$media_mounted" = no \
+            -a "$ts_state" != Running
+        echo "doctor: "(set_color green)"state: default (healthy)"(set_color normal)
+    else if test "$vpn_state[1]" = Disconnected \
+            -a "$tx_state" != started \
+            -a "$media_mounted" = yes \
+            -a "$ts_state" = Running
+        echo "doctor: "(set_color green)"state: media (healthy)"(set_color normal)
+    else
+        echo "doctor: "(set_color red)"state: inconsistent"(set_color normal)
+        set ok 0
     end
 
     if test $ok -eq 0
