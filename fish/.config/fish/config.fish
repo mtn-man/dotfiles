@@ -10,6 +10,9 @@ set -gx HOMEBREW_NO_INSTALL_CLEANUP 1
 
 # 2. Homebrew Initialization 
 # Homebrew (Apple Silicon) normalized paths
+# path_helper (via brew shellenv) does not guarantee Homebrew paths are prepended,
+# so we scrub any existing entries first and re-add them to the front of PATH,
+# ensuring Homebrew tools take precedence over system equivalents.
 set -l brew_paths /opt/homebrew/bin /opt/homebrew/sbin
 for p in $brew_paths
     while contains $p $PATH
