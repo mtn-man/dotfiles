@@ -15,7 +15,7 @@
 2. Authenticate with GitHub and clone:
    
    ```bash
-   brew install gh
+   brew install gh bitwarden
    gh auth login
    gh repo clone mtn-man/dotfiles ~/dev/dotfiles
    ```
