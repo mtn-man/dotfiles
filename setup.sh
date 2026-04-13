@@ -18,9 +18,6 @@ fi
 echo "==> Stowing dotfiles..."
 stow -Rvt "$HOME" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia
 
-echo "==> Removing Homebrew path override from /etc/paths.d/..."
-sudo rm -f /etc/paths.d/homebrew
-
 echo "==> Suppressing login message..."
 touch ~/.hushlogin
 
