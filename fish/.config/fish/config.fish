@@ -12,7 +12,9 @@ set -gx HOMEBREW_NO_INSTALL_CLEANUP 1
 # Homebrew (Apple Silicon) normalized paths
 set -l brew_paths /opt/homebrew/bin /opt/homebrew/sbin
 for p in $brew_paths
-    set PATH (string match -vx $p $PATH)
+    while contains $p $PATH
+        set -e PATH[(contains -i $p $PATH)]
+    end
 end
 fish_add_path -gP $brew_paths
 
