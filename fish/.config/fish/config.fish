@@ -9,9 +9,12 @@ set -gx HOMEBREW_NO_ENV_HINTS 1
 set -gx HOMEBREW_NO_INSTALL_CLEANUP 1
 
 # 2. Homebrew Initialization 
-# Homebrew (Apple Silicon)
-fish_add_path -gP /opt/homebrew/bin
-fish_add_path -gP /opt/homebrew/sbin
+# Homebrew (Apple Silicon) normalized paths
+set -l brew_paths /opt/homebrew/bin /opt/homebrew/sbin
+for p in $brew_paths
+    set PATH (string match -vx $p $PATH)
+end
+fish_add_path -gP $brew_paths
 
 # 3. Go Binary Path
 fish_add_path -gP ~/go/bin
