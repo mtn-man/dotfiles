@@ -27,6 +27,7 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         # 1. System info
         fastfetch \
             | string replace -ra '\x1b\[[0-9;]*m' '' \
+            | string match -rv '█' \
             | string replace -r 'Public IP →.*' 'Public IP → censored'
 
         echo
