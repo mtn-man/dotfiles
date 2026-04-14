@@ -28,8 +28,7 @@ function yt --description 'Download YouTube videos with options'
         echo ""
         echo "If no URL provided, uses clipboard content"
         echo ""
-        echo "Use cookies.txt browser extension to export cookies" 
-        echo "to a file named `.ytcookies.txt` in your output folder"
+        echo "Cookies are read automatically from Safari via --cookies-from-browser"
         return
     end
 
