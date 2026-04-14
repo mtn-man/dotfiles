@@ -42,7 +42,9 @@ function fish_prompt --description 'Write out the prompt'
     if set -q __git_prompt_cache_pwd __git_prompt_cache_time __git_prompt_cache_gitdir
         and test "$__git_prompt_cache_pwd" = "$PWD"
         and test (math "$now - $__git_prompt_cache_time") -lt 3
-        read -l head_now < "$__git_prompt_cache_gitdir/HEAD" 2>/dev/null
+        set -l head_now ''
+        test -n "$__git_prompt_cache_gitdir"
+            and read head_now < "$__git_prompt_cache_gitdir/HEAD" 2>/dev/null
         test "$head_now" = "$__git_prompt_cache_head"
         and set cache_stale 0
     end
