@@ -70,7 +70,7 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         # 3. Dotfiles
         __snap_file "~/dotfiles/Brewfile (also backed-up to dotfiles repo)" $dotfiles/Brewfile
         __snap_file "~/dotfiles/README.md" $dotfiles/README.md
-        __snap_file "~/dotfiles/setup.sh" $dotfiles/setup.sh
+        __snap_file "~/dotfiles/bootstrap.sh" $dotfiles/bootstrap.sh
         echo $sep
         echo
 
