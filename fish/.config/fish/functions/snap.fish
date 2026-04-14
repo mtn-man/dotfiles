@@ -36,12 +36,17 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         echo "Memory pressure:"
         memory_pressure | rg "System-wide|Swapins|Swapouts|Pages used by compressor|Pages decompressed|Pages compressed" | string trim
         echo
+        echo "System state:"
+        doctor 2>/dev/null \
+            | string replace -ra '\x1b\[[0-9;]*m' '' \
+            | string replace -r 'public IP: \S+' 'public IP: censored'
+        echo
         echo "System note: This snapshot provides a single-file view of the system configuration, useful"
         echo "for recovery, human review, and giving AI assistants full context about this machine."
         echo "Full system backups are performed daily to an air-gapped time machine SSD."
         echo "Dotfiles are also backed up to a private github repo and symlinked into place with GNU stow."
         echo "A CentOS Stream 10 homelab is accessible over Tailscale, with SMB shares mounted on demand"
-        echo "via the \`media\` function."
+        echo "via the `media` function."
         echo "kitty is kept installed for its kitten icat image rendering;"
         echo "Ghostty is my primary terminal emulator."
         echo "On macOS, raw memory utilization is less meaningful than memory pressure — the OS aggressively"
