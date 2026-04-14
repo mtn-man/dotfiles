@@ -40,7 +40,8 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         echo "System state:"
         doctor 2>/dev/null \
             | string replace -ra '\x1b\[[0-9;]*m' '' \
-            | string replace -r 'public IP: \S+' 'public IP: censored'
+            | string replace -r 'public IP: \S+' 'public IP: censored' \
+            | string replace -r 'tailscale IP: \S+' 'tailscale IP: censored'
         echo
         echo "System note: This snapshot provides a single-file view of the system configuration, useful"
         echo "for recovery, human review, and giving AI assistants full context about this machine."
