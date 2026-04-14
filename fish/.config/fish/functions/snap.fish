@@ -59,10 +59,10 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
 
         # 2. Applications
         echo "/Applications:"
-        ls -1 /Applications
+        eza -1 /Applications
         echo
         echo "~/Applications:"
-        ls -1 ~/Applications
+        eza -1 ~/Applications
         echo
         echo $sep
         echo
