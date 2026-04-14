@@ -13,7 +13,7 @@ function doctor --description 'Verify system is in a known-good state'
     end
 
     # Toolchain checks
-    # Required by doctor: jq, brew, tailscale, transmission-remote
+    # Required by doctor: jq, tailscale, transmission-remote
     # System toolchain (used by other functions): fd, rg, fzf, bat, eza
     for tool in jq fd rg fzf bat eza brew tailscale transmission-remote
         if not command -q $tool
@@ -30,8 +30,9 @@ function doctor --description 'Verify system is in a known-good state'
     set -l vpn_state (scutil --nc status "$VPN_SVC" 2>/dev/null)
     set -l vpn_status $vpn_state[1]
     set -l vpn_iface (string match -rg 'InterfaceName : (\S+)' $vpn_state)
-    set -l tx_state (brew services info transmission-cli --json 2>/dev/null \
-        | jq -r '.[0].status' 2>/dev/null)
+    set -l tx_up no
+    transmission-remote "127.0.0.1:9091" -l >/dev/null 2>&1
+        and set tx_up yes
     set -l ts_state (tailscale status --json 2>/dev/null | jq -r .BackendState 2>/dev/null)
     if test -z "$ts_state"
         printf 'doctor: %stailscale status unavailable%s\n' (set_color red) (set_color normal)
@@ -75,18 +76,14 @@ function doctor --description 'Verify system is in a known-good state'
         echo "doctor: tailscale IP: $ts_ip"
     end
 
-    # Display: transmission (daemon + security grouped)
-    switch "$tx_state"
-        case started
-            echo "doctor: transmission-daemon is on"
-        case none
-            echo "doctor: transmission-daemon is off"
-        case '*'
-            printf 'doctor: %stransmission-daemon state unknown: %s%s\n' \
-                (set_color red) $tx_state (set_color normal)
+    # Display: transmission
+    if test "$tx_up" = yes
+        echo "doctor: transmission-daemon is on"
+    else
+        echo "doctor: transmission-daemon is off"
     end
 
-    if test "$tx_state" = started
+    if test "$tx_up" = yes
         set -l tx_settings /opt/homebrew/var/transmission/settings.json
         if not test -f $tx_settings
             printf 'doctor: %stransmission settings.json not found: %s%s\n' \
@@ -112,12 +109,6 @@ function doctor --description 'Verify system is in a known-good state'
                     end
                 end
             end
-        end
-        if not transmission-remote "127.0.0.1:9091" -l >/dev/null 2>&1
-            printf 'doctor: %stransmission RPC not reachable%s\n' (set_color red) (set_color normal)
-            set ok 0
-        else
-            echo "doctor: transmission RPC reachable"
         end
     end
 
@@ -157,7 +148,7 @@ function doctor --description 'Verify system is in a known-good state'
 
     # State classification (always last)
     if test "$vpn_status" = Connected
-        and test "$tx_state" = started
+        and test "$tx_up" = yes
         and test "$media_mounted" = no
         and test "$ts_state" != Running
         and test "$filevault_on" = yes
@@ -167,7 +158,7 @@ function doctor --description 'Verify system is in a known-good state'
         and test "$autoupdate_on" = yes
         printf 'doctor: %sstate: default (healthy)%s\n' (set_color green) (set_color normal)
     else if test "$vpn_status" = Disconnected
-        and test "$tx_state" != started
+        and test "$tx_up" != yes
         and test "$media_mounted" = yes
         and test "$ts_state" = Running
         and test "$filevault_on" = yes
