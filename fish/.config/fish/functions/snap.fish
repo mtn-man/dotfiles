@@ -101,7 +101,10 @@ function snap --description 'Rebuild ~/dev/sys-snapshot.txt with live data'
         __snap_file "~/.config/fastfetch/config.jsonc" $dotfiles/fastfetch/.config/fastfetch/config.jsonc
         __snap_file "/opt/homebrew/var/transmission/settings.json" ~/dev/transmission/settings.json
 
-    end > $outfile
+    end \
+        | string replace -ra '[a-z0-9-]+\.tail[0-9]+\.ts\.net' 'censored' \
+        | string replace -ra '"rpc-password": "[^"]*"' '"rpc-password": "censored"' \
+        > $outfile
 
     echo "snap: updated $outfile"
 
