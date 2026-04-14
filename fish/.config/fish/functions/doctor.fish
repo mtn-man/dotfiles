@@ -31,8 +31,13 @@ function doctor --description 'Verify system is in a known-good state'
     set -l vpn_iface (string match -rg 'InterfaceName : (\S+)' $vpn_state)
     set -l vpn_status $vpn_state[1]
     test -z "$vpn_status"; and set vpn_status unknown
+    set -l tx_pass (security find-generic-password -s transmission-rpc -a user -w 2>/dev/null)
+    if test -z "$tx_pass"
+        printf 'doctor: %serror: transmission RPC credentials not found in keychain%s\n' (set_color red) (set_color normal) >&2
+        return 1
+    end
     set -l tx_up no
-    transmission-remote "127.0.0.1:9091" -l >/dev/null 2>&1
+    transmission-remote "127.0.0.1:9091" -n "user:$tx_pass" -l >/dev/null 2>&1
         and set tx_up yes
     set -l ts_state (tailscale status --json 2>/dev/null | jq -r .BackendState 2>/dev/null)
     if test -z "$ts_state"
