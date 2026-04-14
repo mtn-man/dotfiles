@@ -29,12 +29,8 @@ function doctor --description 'Verify system is in a known-good state'
     # Collect raw signals
     set -l vpn_state (scutil --nc status "$VPN_SVC" 2>/dev/null)
     set -l vpn_iface (string match -rg 'InterfaceName : (\S+)' $vpn_state)
-    set -l vpn_status unknown
-    if string match -q "*Connected*" $vpn_state
-        set vpn_status Connected
-    else if string match -q "*Disconnected*" $vpn_state
-        set vpn_status Disconnected
-    end
+    set -l vpn_status $vpn_state[1]
+    test -z "$vpn_status"; and set vpn_status unknown
     set -l tx_up no
     transmission-remote "127.0.0.1:9091" -l >/dev/null 2>&1
         and set tx_up yes
