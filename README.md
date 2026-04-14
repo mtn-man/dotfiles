@@ -20,11 +20,11 @@
    gh repo clone mtn-man/dotfiles ~/dev/dotfiles
    ```
 
-3. Run the setup script:
+3. Run the bootstrap script:
 
    ```bash
    cd ~/dev/dotfiles
-   ./setup.sh
+   ./bootstrap.sh
    ```
 
    This installs packages from the Brewfile, sets Fish as the default shell, stows all dotfiles, fixes the Homebrew path override, suppresses the login message, and applies macOS defaults (window drag, Dock autohide, key repeat).
@@ -46,8 +46,6 @@
 
 ### macOS Window + Dock
 
-> These settings are applied automatically by `setup.sh`. Kept here as a reference for undo commands.
-
 **Drag windows anywhere** (Cmd+Ctrl+click):
 
 ```bash
@@ -68,8 +66,6 @@ killall Dock
 ```
 
 ### Keyboard (CLI Speed)
-
-> These settings are applied automatically by `setup.sh`. Kept here as a reference for undo commands.
 
 **Fast, precise key repeat (lf/fish/micro navigation, beyond UI slider):**
 
