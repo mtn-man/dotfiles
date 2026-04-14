@@ -13,6 +13,8 @@ function doctor --description 'Verify system is in a known-good state'
     end
 
     # Toolchain checks
+    # Required by doctor: jq, brew, tailscale, transmission-remote
+    # System toolchain (used by other functions): fd, rg, fzf, bat, eza
     for tool in jq fd rg fzf bat eza brew tailscale transmission-remote
         if not command -q $tool
             printf 'doctor: %smissing: %s%s\n' (set_color red) $tool (set_color normal)
@@ -22,6 +24,7 @@ function doctor --description 'Verify system is in a known-good state'
     if test $ok -eq 0
         return 1
     end
+    echo "doctor: toolchain: ok"
 
     # Collect raw signals
     set -l vpn_state (scutil --nc status "$VPN_SVC" 2>/dev/null)
@@ -56,7 +59,7 @@ function doctor --description 'Verify system is in a known-good state'
     spctl --status 2>/dev/null | string match -q "*enabled*"
         and set gatekeeper_on yes
     set -l autoupdate_on no
-    set -l _au (defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticDownload 2>/dev/null)
+    set -l _au (defaults read /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall 2>/dev/null)
     test "$_au" = 1
         and set autoupdate_on yes
 
@@ -69,7 +72,7 @@ function doctor --description 'Verify system is in a known-good state'
     vpn status 2>&1 | string replace --regex '^vpn:' 'doctor:'
     echo "doctor: tailscale: $ts_state"
     if test -n "$ts_ip"
-        echo "doctor: public IP: $ts_ip"
+        echo "doctor: tailscale IP: $ts_ip"
     end
 
     # Display: transmission (daemon + security grouped)
@@ -92,10 +95,17 @@ function doctor --description 'Verify system is in a known-good state'
             set -l bind_addr (jq -r '.["bind-address-ipv4"]' $tx_settings 2>/dev/null)
             echo "doctor: transmission bind-address-ipv4: $bind_addr"
             if test "$vpn_status" = Connected
-                if test -n "$vpn_iface"
-                    set -l expected_vpn_ip (ipconfig getifaddr "$vpn_iface" 2>/dev/null)
-                    if test -n "$expected_vpn_ip"
-                        and test "$bind_addr" != "$expected_vpn_ip"
+                if test -z "$vpn_iface"
+                    printf 'doctor: %swarning: VPN connected but interface name unknown; cannot verify transmission bind address%s\n' \
+                        (set_color yellow) (set_color normal)
+                    set ok 0
+                else
+                    set -l expected_vpn_ip (ifconfig "$vpn_iface" 2>/dev/null | string match -rg '\binet (\S+)')
+                    if test -z "$expected_vpn_ip"
+                        printf 'doctor: %swarning: could not read IP for VPN interface %s; cannot verify transmission bind address%s\n' \
+                            (set_color yellow) "$vpn_iface" (set_color normal)
+                        set ok 0
+                    else if test "$bind_addr" != "$expected_vpn_ip"
                         printf 'doctor: %swarning: transmission not bound to VPN interface (got: %s, expected: %s)%s\n' \
                             (set_color red) $bind_addr $expected_vpn_ip (set_color normal)
                         set ok 0
