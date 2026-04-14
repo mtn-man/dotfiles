@@ -39,6 +39,13 @@ function doctor --description 'Verify system is in a known-good state'
     if mount | string match -q "* on /Volumes/$MEDIA_SHARE (*"
         set media_mounted yes
     end
+    set -l filevault_on no
+    string match -q "FileVault is On*" (fdesetup status 2>/dev/null)
+        and set filevault_on yes
+    set -l firewall_on no
+    /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate 2>/dev/null \
+        | string match -q "*enabled*"
+        and set firewall_on yes
 
     # Display: mount, VPN (delegate for public IP), tailscale
     if test "$media_mounted" = yes
@@ -88,6 +95,18 @@ function doctor --description 'Verify system is in a known-good state'
         end
     end
 
+    # Display: security
+    if test "$filevault_on" = yes
+        echo "doctor: filevault: on"
+    else
+        printf 'doctor: %sfilevault: off%s\n' (set_color yellow) (set_color normal)
+    end
+    if test "$firewall_on" = yes
+        echo "doctor: firewall: on"
+    else
+        printf 'doctor: %sfirewall: off%s\n' (set_color yellow) (set_color normal)
+    end
+
     if test "$vpn_status" = Connected
         and test "$ts_state" = Running
         printf 'doctor: %serror: Tailscale running while VPN is connected%s\n' \
@@ -100,11 +119,15 @@ function doctor --description 'Verify system is in a known-good state'
         and test "$tx_state" = started
         and test "$media_mounted" = no
         and test "$ts_state" != Running
+        and test "$filevault_on" = yes
+        and test "$firewall_on" = yes
         printf 'doctor: %sstate: default (healthy)%s\n' (set_color green) (set_color normal)
     else if test "$vpn_status" = Disconnected
         and test "$tx_state" != started
         and test "$media_mounted" = yes
         and test "$ts_state" = Running
+        and test "$filevault_on" = yes
+        and test "$firewall_on" = yes
         printf 'doctor: %sstate: media (healthy)%s\n' (set_color green) (set_color normal)
     else
         printf 'doctor: %sstate: inconsistent%s\n' (set_color red) (set_color normal)
