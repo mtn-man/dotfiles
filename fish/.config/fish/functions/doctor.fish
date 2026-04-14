@@ -35,6 +35,9 @@ function doctor --description 'Verify system is in a known-good state'
         set ok 0
         set ts_state unknown
     end
+    set -l ts_ip ''
+    test "$ts_state" = Running
+        and set ts_ip (tailscale ip -4 2>/dev/null)
     set -l media_mounted no
     if mount | string match -q "* on /Volumes/$MEDIA_SHARE (*"
         set media_mounted yes
@@ -55,6 +58,9 @@ function doctor --description 'Verify system is in a known-good state'
     end
     vpn status 2>&1 | string replace --regex '^vpn:' 'doctor:'
     echo "doctor: tailscale: $ts_state"
+    if test -n "$ts_ip"
+        echo "doctor: public IP: $ts_ip"
+    end
 
     # Display: transmission (daemon + security grouped)
     switch "$tx_state"
