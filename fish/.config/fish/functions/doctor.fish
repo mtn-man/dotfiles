@@ -42,6 +42,9 @@ function doctor --description 'Verify system is in a known-good state'
     if mount | string match -q "* on /Volumes/$MEDIA_SHARE (*"
         set media_mounted yes
     end
+    set -l sip_on no
+    csrutil status 2>/dev/null | string match -q "*enabled*"
+        and set sip_on yes
     set -l filevault_on no
     string match -q "FileVault is On*" (fdesetup status 2>/dev/null)
         and set filevault_on yes
@@ -49,6 +52,13 @@ function doctor --description 'Verify system is in a known-good state'
     /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate 2>/dev/null \
         | string match -q "*enabled*"
         and set firewall_on yes
+    set -l gatekeeper_on no
+    spctl --status 2>/dev/null | string match -q "*enabled*"
+        and set gatekeeper_on yes
+    set -l autoupdate_on no
+    set -l _au (defaults read /Library/Preferences/com.apple.SoftwareUpdate AutomaticDownload 2>/dev/null)
+    test "$_au" = 1
+        and set autoupdate_on yes
 
     # Display: mount, VPN (delegate for public IP), tailscale
     if test "$media_mounted" = yes
@@ -102,6 +112,11 @@ function doctor --description 'Verify system is in a known-good state'
     end
 
     # Display: security
+    if test "$sip_on" = yes
+        echo "doctor: SIP: on"
+    else
+        printf 'doctor: %sSIP: off%s\n' (set_color yellow) (set_color normal)
+    end
     if test "$filevault_on" = yes
         echo "doctor: filevault: on"
     else
@@ -111,6 +126,16 @@ function doctor --description 'Verify system is in a known-good state'
         echo "doctor: firewall: on"
     else
         printf 'doctor: %sfirewall: off%s\n' (set_color yellow) (set_color normal)
+    end
+    if test "$gatekeeper_on" = yes
+        echo "doctor: gatekeeper: on"
+    else
+        printf 'doctor: %sgatekeeper: off%s\n' (set_color yellow) (set_color normal)
+    end
+    if test "$autoupdate_on" = yes
+        echo "doctor: auto updates: on"
+    else
+        printf 'doctor: %sauto updates: off%s\n' (set_color yellow) (set_color normal)
     end
 
     if test "$vpn_status" = Connected
@@ -127,6 +152,9 @@ function doctor --description 'Verify system is in a known-good state'
         and test "$ts_state" != Running
         and test "$filevault_on" = yes
         and test "$firewall_on" = yes
+        and test "$sip_on" = yes
+        and test "$gatekeeper_on" = yes
+        and test "$autoupdate_on" = yes
         printf 'doctor: %sstate: default (healthy)%s\n' (set_color green) (set_color normal)
     else if test "$vpn_status" = Disconnected
         and test "$tx_state" != started
@@ -134,6 +162,9 @@ function doctor --description 'Verify system is in a known-good state'
         and test "$ts_state" = Running
         and test "$filevault_on" = yes
         and test "$firewall_on" = yes
+        and test "$sip_on" = yes
+        and test "$gatekeeper_on" = yes
+        and test "$autoupdate_on" = yes
         printf 'doctor: %sstate: media (healthy)%s\n' (set_color green) (set_color normal)
     else
         printf 'doctor: %sstate: inconsistent%s\n' (set_color red) (set_color normal)
