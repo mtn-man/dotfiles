@@ -32,17 +32,16 @@ function doctor --description 'Report system status and verify transmission VPN 
     set -l vpn_status $vpn_state[1]
     test -z "$vpn_status"; and set vpn_status unknown
     set -l tx_pass (security find-generic-password -s transmission-rpc -a user -w 2>/dev/null)
-    if test -z "$tx_pass"
-        printf 'doctor: %serror: transmission RPC credentials not found in keychain%s\n' (set_color red) (set_color normal) >&2
-        return 1
-    end
     set -l tx_up no
-    transmission-remote "127.0.0.1:9091" -n "user:$tx_pass" -l >/dev/null 2>&1
-        and set tx_up yes
+    if test -z "$tx_pass"
+        printf 'doctor: %swarning: transmission RPC credentials not found in keychain%s\n' (set_color yellow) (set_color normal)
+    else
+        transmission-remote "127.0.0.1:9091" -n "user:$tx_pass" -l >/dev/null 2>&1
+            and set tx_up yes
+    end
     set -l ts_state (tailscale status --json 2>/dev/null | jq -r .BackendState 2>/dev/null)
     if test -z "$ts_state"
-        printf 'doctor: %stailscale status unavailable%s\n' (set_color red) (set_color normal)
-        set ok 0
+        printf 'doctor: %swarning: tailscale status unavailable%s\n' (set_color yellow) (set_color normal)
         set ts_state unknown
     end
     set -l ts_ip ''
@@ -105,15 +104,13 @@ function doctor --description 'Report system status and verify transmission VPN 
                 if test -z "$vpn_iface"
                     printf 'doctor: %swarning: VPN connected but interface name unknown; cannot verify transmission bind address%s\n' \
                         (set_color yellow) (set_color normal)
-                    set ok 0
                 else
                     set -l expected_vpn_ip (ifconfig "$vpn_iface" 2>/dev/null | string match -rg '\binet (\S+)')[1]
                     if test -z "$expected_vpn_ip"
                         printf 'doctor: %swarning: could not read IP for VPN interface %s; cannot verify transmission bind address%s\n' \
                             (set_color yellow) "$vpn_iface" (set_color normal)
-                        set ok 0
                     else if test "$bind_addr" != "$expected_vpn_ip"
-                        printf 'doctor: %swarning: transmission not bound to VPN interface (got: %s, expected: %s)%s\n' \
+                        printf 'doctor: %serror: transmission not bound to VPN interface (got: %s, expected: %s)%s\n' \
                             (set_color red) $bind_addr $expected_vpn_ip (set_color normal)
                         set ok 0
                     end
