@@ -9,23 +9,23 @@ function gcp --description "Review changes, stage all, commit (message or editor
     echo (set_color yellow)"==> Pending Changes (git status -sb):"(set_color normal)
     git status -sb
 
-    printf "\n"
+    echo
     echo (set_color yellow)"==> Impact Analysis (git diff --stat):"(set_color normal)
     git diff --stat
 
     # Also show untracked files (diff --stat won't include them)
     set -l untracked (git ls-files --others --exclude-standard)
-    if test (count $untracked) -gt 0
-        printf "\n"
+    if set -q untracked[1]
+        echo
         echo (set_color yellow)"==> Untracked Files (will be added):"(set_color normal)
         printf '%s\n' $untracked
     end
 
     # 3. Guardrail: Pause for awareness (abort only on explicit 'n')
     if status is-interactive
-        printf "\n"
+        echo
         read -n 1 -P "Proceed with stage, commit, and push? [Y/n] " confirm
-        printf "\n"
+        echo
 
         # Abort ONLY if user presses n or N
         if string match -qr '^[Nn]$' -- "$confirm"
@@ -38,7 +38,7 @@ function gcp --description "Review changes, stage all, commit (message or editor
     git add -A; or return 1
 
     # 5. Verification: Abort cleanly if nothing resulted from the add
-    git diff --cached --quiet; and begin
+    if git diff --cached --quiet
         echo "gcp: nothing staged to commit"
         return
     end

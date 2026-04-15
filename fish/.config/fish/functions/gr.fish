@@ -32,7 +32,7 @@ function gr --description 'Jump to a git repo root via fzf'
     # Build menu: basename tab full path
     set -l menu
     for d in $dirs
-        set menu $menu (string join "$tab" (basename "$d") "$d")
+        set menu $menu (string join "$tab" (path basename $d) "$d")
     end
 
     set -l choice (

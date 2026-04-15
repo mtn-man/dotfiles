@@ -1,5 +1,5 @@
 function caf --argument-names duration
-    if test -z "$duration"
+    if not set -q duration
         echo "caf: usage - caf <duration> (e.g. caf 30m)" >&2
         return 1
     end
