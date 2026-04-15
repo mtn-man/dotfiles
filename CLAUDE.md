@@ -56,7 +56,7 @@ brew bundle install   # install all tools from Brewfile
 | `fish_right_prompt.fish` | Shows elapsed time for commands over threshold |
 | `fish_greeting.fish` | Welcome message + fastfetch, once per terminal window |
 | `lf.fish` | Wraps lf with quit-and-cd integration |
-| `snap.fish` | Rebuilds `~/dev/sys-snapshot.txt` with live system data |
+| `snap.fish` | Rebuilds `~/dev/snapshot.md` with live system data |
 | `caf.fish` | Prevents sleep for a duration via `after` |
 | `stow-add.fish` | Moves a `~/.config` package into dotfiles and stows it |
 | `mkcd.fish` | Creates a directory and cd into it |
