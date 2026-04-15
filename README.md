@@ -36,7 +36,7 @@
    cd ~/dev/mintmedia && go install ./...
    ```
 
-5. App setup — sign into Bitwarden, Tailscale, Spotify, etc. Grant Accessibility permissions for Hammerspoon and LinearMouse.
+5. App setup — sign into Bitwarden, Tailscale, Spotify, etc. Grant Accessibility permissions for Hammerspoon Raycast, Ghostty, and LinearMouse.
 
 ### Transmission
 
