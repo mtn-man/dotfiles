@@ -4,7 +4,7 @@ function caf --argument-names duration
         return 1
     end
 
-    dash -c 'after -c "$1"; say "caffeinate disabled; sleep re-enabled."' \
+    sh -c 'after -c "$1"; say "caffeinate disabled; sleep re-enabled."' \
         _ "$duration" 2>/dev/null &
     disown $last_pid
 
