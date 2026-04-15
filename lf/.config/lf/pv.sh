@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Optimized Preview script for lf
 # - Compatibility: Ghostty 1.x+ and Kitty
 # - Performance: Cached dependency lookups
