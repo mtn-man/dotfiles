@@ -105,7 +105,7 @@ function doctor --description 'Report system status and verify transmission VPN 
                     printf 'doctor: %swarning: VPN connected but interface name unknown; cannot verify transmission bind address%s\n' \
                         (set_color yellow) (set_color normal)
                 else
-                    set -l expected_vpn_ip (ifconfig "$vpn_iface" 2>/dev/null | string match -rg '\binet (\S+)')[1]
+                    set -l expected_vpn_ip (ifconfig "$vpn_iface[1]" 2>/dev/null | string match -rg '\binet (\S+)')[1]
                     if test -z "$expected_vpn_ip"
                         printf 'doctor: %swarning: could not read IP for VPN interface %s; cannot verify transmission bind address%s\n' \
                             (set_color yellow) "$vpn_iface" (set_color normal)
