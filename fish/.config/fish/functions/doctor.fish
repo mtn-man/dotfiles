@@ -95,8 +95,8 @@ function doctor --description 'Report system status and verify transmission VPN 
 
     if test "$tx_up" = yes
         if not test -f $tx_settings
-            printf 'doctor: %stransmission settings.json not found: %s%s\n' \
-                (set_color red) $tx_settings (set_color normal)
+            printf 'doctor: %swarning: transmission settings.json not found: %s%s\n' \
+                (set_color yellow) $tx_settings (set_color normal)
         else
             set -l bind_addr (jq -r '.["bind-address-ipv4"]' $tx_settings 2>/dev/null)
             echo "doctor: transmission bind-address-ipv4: $bind_addr"
@@ -125,7 +125,8 @@ function doctor --description 'Report system status and verify transmission VPN 
                         (set_color red) $bind_addr (set_color normal) >&2
                     set ok 0
                 else
-                    echo "doctor: transmission running without VPN — kill switch active"
+                    printf 'doctor: %swarning: transmission running without VPN — kill switch active%s\n' \
+                        (set_color yellow) (set_color normal)
                 end
             end
         end
