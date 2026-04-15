@@ -95,7 +95,6 @@ function doctor --description 'Report system status and verify transmission VPN 
     end
 
     if test "$tx_up" = yes
-
         if not test -f $tx_settings
             printf 'doctor: %stransmission settings.json not found: %s%s\n' \
                 (set_color red) $tx_settings (set_color normal)
@@ -118,6 +117,18 @@ function doctor --description 'Report system status and verify transmission VPN 
                             (set_color red) $bind_addr $expected_vpn_ip (set_color normal)
                         set ok 0
                     end
+                end
+            else
+                if test "$bind_addr" = "0.0.0.0"
+                    printf 'doctor: %serror: transmission running unprotected — bind address is 0.0.0.0%s\n' \
+                        (set_color red) (set_color normal) >&2
+                    set ok 0
+                else if ifconfig 2>/dev/null | string match -q "*inet $bind_addr *"
+                    printf 'doctor: %serror: transmission running unprotected — bind address %s is reachable%s\n' \
+                        (set_color red) $bind_addr (set_color normal) >&2
+                    set ok 0
+                else
+                    echo "doctor: transmission running without VPN — kill switch active"
                 end
             end
         end
@@ -153,34 +164,6 @@ function doctor --description 'Report system status and verify transmission VPN 
         echo "doctor: auto updates: on"
     else
         printf 'doctor: %sauto updates: off%s\n' (set_color yellow) (set_color normal)
-    end
-
-    # Safety check: transmission must not run without VPN protection
-    if test "$vpn_status" != Connected
-        and test "$tx_up" = yes
-
-        set -l bind_addr
-        if test -f $tx_settings
-            set bind_addr (jq -r '.["bind-address-ipv4"]' $tx_settings 2>/dev/null)
-        end
-        if test "$bind_addr" = "0.0.0.0"
-            printf 'doctor: %serror: transmission running unprotected — bind address is 0.0.0.0%s\n' \
-                (set_color red) (set_color normal) >&2
-            set ok 0
-        else if test -n "$bind_addr"
-            if ifconfig 2>/dev/null | string match -q "*inet $bind_addr *"
-                printf 'doctor: %serror: transmission running unprotected — bind address %s is reachable%s\n' \
-                    (set_color red) $bind_addr (set_color normal) >&2
-                set ok 0
-            else
-                printf 'doctor: transmission running without VPN — kill switch active (bind address %s unreachable)\n' \
-                    $bind_addr
-            end
-        else
-            printf 'doctor: %serror: transmission running without VPN — bind address unknown%s\n' \
-                (set_color red) (set_color normal) >&2
-            set ok 0
-        end
     end
 
     if test $ok -eq 0
