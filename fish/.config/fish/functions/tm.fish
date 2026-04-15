@@ -48,29 +48,41 @@ function tm --description 'Manage Transmission-CLI services and magnet links'
         return 1
     end
 
-    set -l clip
-    if test (count $argv) -gt 0
-        set clip (string trim -- "$argv[1]")
+    set -l input
+    if set -q argv[1]
+        set input (string trim -- "$argv[1]")
     else
-        set clip (pbpaste | string trim)
+        set input (pbpaste | string trim)
     end
 
-    if test -z "$clip"
+    if test -z "$input"
         echo "tm: clipboard is empty" >&2
         return 1
     end
 
-    if not string match -rq '^magnet:\?' -- "$clip"
-        echo "tm: not a magnet link" >&2
+    if string match -q "*.torrent" -- "$input"
+        if not test -f "$input"
+            echo "tm: file not found: $input" >&2
+            return 1
+        end
+        if transmission-remote "$host" -n "$rpc_user:$pass" -a "$input"
+            echo "tm: torrent added"
+            echo "Track progress at http://$host/transmission/web/"
+        end
+        return
+    end
+
+    if not string match -rq '^magnet:\?' -- "$input"
+        echo "tm: not a magnet link or .torrent file" >&2
         return 1
     end
 
-    if not string match -rq 'xt=urn:btih:' -- "$clip"
+    if not string match -rq 'xt=urn:btih:' -- "$input"
         echo "tm: magnet missing xt=urn:btih:" >&2
         return 1
     end
 
-    if transmission-remote "$host" -n "$rpc_user:$pass" -a "$clip"
+    if transmission-remote "$host" -n "$rpc_user:$pass" -a "$input"
         echo "Magnet added to Transmission."
         echo "Track progress at http://$host/transmission/web/"
     end
