@@ -1,23 +1,18 @@
-function __media_rollback --description 'Undo completed media-on steps in reverse order'
-# Policy: system default is VPN on + transmission active.
-# Rollback enforces this baseline rather than restoring prior state.
-    echo "media: rolling back..."
-    for step in $argv
-        switch $step
-            case tailscale
-                tailscale down >/dev/null 2>&1
-            case vpn
-                sleep 2
-                vpn on >/dev/null 2>&1
-            case transmission
-                brew services start transmission-cli >/dev/null 2>&1
-        end
-    end
-end
-
 function __media_vpn --argument-names subcmd
     vpn $subcmd 2>&1 | string replace --regex '^vpn:' 'media:'
     return $pipestatus[1]
+end
+
+function __media_smb_reachable --argument-names host
+    set -l retries 5
+    set -l probe_budget 3
+    set -l nc_timeout 2
+    for _i in (seq $retries)
+        if __media_run_with_timeout $probe_budget nc -z -w $nc_timeout $host 445
+            return 0
+        end
+    end
+    return 1
 end
 
 function __media_run_with_timeout --argument-names timeout
@@ -43,73 +38,54 @@ function media --description 'Manage homelab media share and networking state'
 
     switch "$argv[1]"
         case on
-            set -l __done
-
             # 1. Stop Transmission to prevent traffic leaks during network transition
-            if brew services stop transmission-cli >/dev/null 2>&1
-                echo "media: transmission-daemon stopped"
-                set -p __done transmission
-            else
-                echo "media: error: failed to stop transmission-cli" >&2
-                __media_rollback $__done
-                return 1
+            set -l tx_state (brew services info transmission-cli --json 2>/dev/null | jq -r '.[0].status')
+            if test "$tx_state" = started
+                if brew services stop transmission-cli >/dev/null 2>&1
+                    echo "media: transmission-daemon stopped"
+                else
+                    echo "media: error: failed to stop transmission-cli" >&2
+                    return 1
+                end
             end
 
             # 2. Toggle VPN (NordVPN must be off for Tailscale/SMB routing)
             if not __media_vpn off
-                __media_rollback $__done
+                echo "media: error: run 'vpn on' and 'tm on' to restore baseline" >&2
                 return 1
             end
-            set -p __done vpn
 
             # 3. Ensure Tailscale backend is active
             set -l state (tailscale status --json 2>/dev/null | jq -r .BackendState)
             if test "$state" != "Running"
                 if not tailscale up 2>/dev/null
-                    echo "media: error: tailscale up failed" >&2
-                    __media_rollback $__done
+                    echo "media: error: tailscale up failed — run 'vpn on' and 'tm on' to restore baseline" >&2
                     return 1
                 end
                 echo "media: Tailscale started"
             end
-            set -p __done tailscale
 
             # 4. Wait for SMB availability on the Tailscale network
             #    nc -w is unreliable on macOS when DNS blocks, so enforce
             #    a hard wall-clock deadline via background job.
-            set -l smb_port 445
-            set -l smb_retries 5
-            set -l nc_timeout 2
-            set -l probe_budget 3
             set -l mount_timeout 10
 
-            set -l smb_ok 0
-            for _i in (seq $smb_retries)
-                if __media_run_with_timeout $probe_budget \
-                        nc -z -w $nc_timeout $HOMELAB_HOST $smb_port
-                    set smb_ok 1
-                    break
-                end
-            end
-            if test $smb_ok -eq 0
-                echo "media: server unreachable" >&2
-                __media_rollback $__done
+            if not __media_smb_reachable $HOMELAB_HOST
+                echo "media: error: server unreachable — run 'vpn on' and 'tm on' to restore baseline" >&2
                 return 1
             end
 
             # 5. Mount volume via Finder to utilize Keychain credentials
             if not __media_run_with_timeout $mount_timeout \
                     osascript -e "tell application \"Finder\" to mount volume \"$smb_url\""
-                echo "media: error: mount request failed" >&2
-                __media_rollback $__done
+                echo "media: error: mount request failed — run 'vpn on' and 'tm on' to restore baseline" >&2
                 return 1
             end
 
             if test -d "$mountpoint"
                 echo "media: mounted at $mountpoint"
             else
-                echo "media: error: $mountpoint not found after mount command" >&2
-                __media_rollback $__done
+                echo "media: error: $mountpoint not found after mount command — run 'vpn on' and 'tm on' to restore baseline" >&2
                 return 1
             end
 
@@ -128,7 +104,7 @@ function media --description 'Manage homelab media share and networking state'
 
             # 2. Shut down Tailscale interface
             if not tailscale down >/dev/null 2>&1
-                echo "media: error: tailscale down failed" >&2
+                echo "media: error: tailscale down failed — run 'tailscale down && vpn on' to restore baseline" >&2
                 return 1
             end
             echo "media: Tailscale disconnected"
@@ -146,31 +122,8 @@ function media --description 'Manage homelab media share and networking state'
                 return 1
             end
 
-        case status
-            # SMB mount
-            if test -d "$mountpoint"
-                echo "media: $MEDIA_SHARE is mounted at $mountpoint"
-            else
-                echo "media: $MEDIA_SHARE is not mounted"
-            end
-
-            # VPN state
-            __media_vpn status
-
-            # Transmission service state
-            set -l tx_state (brew services info transmission-cli --json 2>/dev/null \
-                | jq -r '.[0].status')
-            switch "$tx_state"
-                case started
-                    echo "media: transmission-daemon is on"
-                case none
-                    echo "media: transmission-daemon is off"
-                case '*'
-                    echo "media: transmission-daemon state unknown: $tx_state" >&2
-            end
-
         case '*'
-            echo "Usage: media [on|off|status]" >&2
+            echo "Usage: media [on|off]" >&2
             return 1
     end
 end
