@@ -45,7 +45,7 @@ brew bundle install   # install all tools from Brewfile
 | Function | Purpose |
 |----------|---------|
 | `vpn.fish` | VPN on/off/status via macOS `scutil --nc` |
-| `media.fish` | Orchestrates homelab SMB mount + Tailscale + Transmission |
+| `media.fish` | Manages Tailscale connection and homelab SMB mount |
 | `update.fish` | Homebrew upgrade wrapper |
 | `yt.fish` | YouTube download via yt-dlp |
 | `fm.fish` | File search + edit (fd + fzf + micro) |
