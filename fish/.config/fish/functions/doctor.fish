@@ -62,6 +62,10 @@ function doctor --description 'Verify system is in a known-good state'
     /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate 2>/dev/null \
         | string match -q "*enabled*"
         and set firewall_on yes
+    set -l stealth_on no
+    /usr/libexec/ApplicationFirewall/socketfilterfw --getstealthmode 2>/dev/null \
+        | string match -q "*is on"
+        and set stealth_on yes
     set -l gatekeeper_on no
     spctl --status 2>/dev/null | string match -q "*enabled*"
         and set gatekeeper_on yes
@@ -134,6 +138,11 @@ function doctor --description 'Verify system is in a known-good state'
     else
         printf 'doctor: %sfirewall: off%s\n' (set_color yellow) (set_color normal)
     end
+    if test "$stealth_on" = yes
+        echo "doctor: firewall stealth: on"
+    else
+        printf 'doctor: %sfirewall stealth: off%s\n' (set_color yellow) (set_color normal)
+    end
     if test "$gatekeeper_on" = yes
         echo "doctor: gatekeeper: on"
     else
@@ -159,6 +168,7 @@ function doctor --description 'Verify system is in a known-good state'
         and test "$ts_state" != Running
         and test "$filevault_on" = yes
         and test "$firewall_on" = yes
+        and test "$stealth_on" = yes
         and test "$sip_on" = yes
         and test "$gatekeeper_on" = yes
         and test "$autoupdate_on" = yes
@@ -169,6 +179,7 @@ function doctor --description 'Verify system is in a known-good state'
         and test "$ts_state" = Running
         and test "$filevault_on" = yes
         and test "$firewall_on" = yes
+        and test "$stealth_on" = yes
         and test "$sip_on" = yes
         and test "$gatekeeper_on" = yes
         and test "$autoupdate_on" = yes
