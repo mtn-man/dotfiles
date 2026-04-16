@@ -115,7 +115,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "/opt/homebrew/var/transmission/settings.json" ~/dev/transmission/settings.json json
 
     end \
-        | string replace -ra '[a-z0-9-]+\.tail[0-9]+\.ts\.net' 'censored' \
+        | string replace -ra -- "$HOMELAB_HOST" 'censored' \
         | string replace -ra '"rpc-password": "[^"]*"' '"rpc-password": "censored"' \
         > $outfile
 
