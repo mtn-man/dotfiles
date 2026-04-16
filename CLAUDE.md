@@ -32,7 +32,7 @@ brew bundle install   # install all tools from Brewfile
 
 ## Architecture
 
-- **`fish/`** — Primary shell config: `config.fish` (env vars), `abbrs.fish` (abbreviations), and `functions/` (19 custom functions)
+- **`fish/`** — Primary shell config: `config.fish` (env vars), `abbrs.fish` (abbreviations), and `functions/` (18 custom functions)
 - **`ghostty/`** — Terminal emulator config
 - **`micro/`** — Editor config (Solarized theme, Go tool keybindings in `bindings.json`)
 - **`lf/`** — File manager config with zoxide integration and preview/clean scripts
@@ -61,7 +61,6 @@ brew bundle install   # install all tools from Brewfile
 | `stow-add.fish` | Moves a `~/.config` package into dotfiles and stows it |
 | `mkcd.fish` | Creates a directory and cd into it |
 | `lp.fish` | Lists PATH entries with existence check |
-| `mp3sort.fish` | Organizes MP3s from `Artist - Album - Track` into folders |
 | `__abbr_timer_minutes.fish` | Helper expanding `a15` → `after 15m` abbreviations |
 
 ## Git Workflow
