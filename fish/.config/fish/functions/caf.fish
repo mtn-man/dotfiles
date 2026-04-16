@@ -6,7 +6,7 @@ function caf --argument-names duration
 
     /bin/sh -c 'after -c "$1"; say "caffeinate disabled; sleep re-enabled."' \
         _ "$duration" 2>/dev/null &
-    disown $last_pid
+    disown
 
     if not string match -qr '^[0-9]+[smh]$' -- $duration
         echo "caf: sleep prevented until $duration"
