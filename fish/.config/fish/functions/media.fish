@@ -1,3 +1,8 @@
+function __media_vpn --argument-names subcmd
+    vpn $subcmd 2>&1 | string replace --regex '^vpn:' 'media:'
+    return $pipestatus[1]
+end
+
 function __media_smb_reachable --argument-names host
     set -l retries 5
     set -l probe_budget 3
@@ -33,7 +38,13 @@ function media --description 'Manage homelab media share and networking state'
 
     switch "$argv[1]"
         case on
-            # 1. Ensure Tailscale backend is active
+            # 1. Turn off VPN so Tailscale can route to the homelab
+            if not __media_vpn off
+                echo "media: error: failed to disconnect VPN" >&2
+                return 1
+            end
+
+            # 2. Ensure Tailscale backend is active
             set -l state (tailscale status --json 2>/dev/null | jq -r .BackendState)
             if test "$state" != "Running"
                 if not tailscale up 2>/dev/null
@@ -43,7 +54,7 @@ function media --description 'Manage homelab media share and networking state'
                 echo "media: Tailscale started"
             end
 
-            # 2. Wait for SMB availability on the Tailscale network
+            # 3. Wait for SMB availability on the Tailscale network
             #    nc -w is unreliable on macOS when DNS blocks, so enforce
             #    a hard wall-clock deadline via background job.
             if not __media_smb_reachable $HOMELAB_HOST
@@ -51,7 +62,7 @@ function media --description 'Manage homelab media share and networking state'
                 return 1
             end
 
-            # 3. Mount volume via Finder to utilize Keychain credentials
+            # 4. Mount volume via Finder to utilize Keychain credentials
             set -l mount_timeout 10
             if not __media_run_with_timeout $mount_timeout \
                     osascript -e "tell application \"Finder\" to mount volume \"$smb_url\""
@@ -85,6 +96,12 @@ function media --description 'Manage homelab media share and networking state'
                 return 1
             end
             echo "media: Tailscale disconnected"
+
+            # 3. Re-enable VPN
+            if not __media_vpn on
+                echo "media: error: failed to reconnect VPN — run 'vpn on' manually" >&2
+                return 1
+            end
 
         case '*'
             echo "Usage: media [on|off]" >&2
