@@ -28,7 +28,7 @@ brew bundle install   # install all tools from Brewfile
 
 ## Bootstrap
 
-`bootstrap.sh` in the repo root bootstraps a new macOS machine: installs Brewfile packages, sets Fish as the default shell, stows all dotfile packages, removes the Homebrew path override from `/etc/paths.d/`, suppresses the login message, and applies macOS defaults (dock, key repeat, window drag).
+`bootstrap.sh` in the repo root bootstraps a new macOS machine: installs Brewfile packages, sets Fish as the default shell, stows all dotfile packages, suppresses the login message, and applies macOS defaults (dock, key repeat, window drag).
 
 ## Architecture
 
