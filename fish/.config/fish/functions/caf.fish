@@ -1,4 +1,5 @@
 function caf --argument-names duration
+    # after -c specifically integrates with macOS caffeinate and ties it to the after timer PID
     if not set -q duration
         echo "caf: usage - caf <duration> (e.g. caf 30m)" >&2
         return 1
