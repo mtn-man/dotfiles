@@ -3,6 +3,12 @@ set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 
+# Ensure Homebrew is on PATH for fresh shell sessions where brew shellenv
+# hasn't been evaluated yet (e.g. opening a new terminal between steps).
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
 echo "==> Installing packages from Brewfile..."
 brew bundle install --file="$DOTFILES/Brewfile"
 
