@@ -8,23 +8,29 @@ function doctor --description 'Report system status and verify transmission VPN 
             set ok 0
         end
     end
-    if test $ok -eq 0
-        return 1
-    end
 
     # Toolchain checks
     # Required by doctor: jq, tailscale, transmission-remote
     # System toolchain (used by other functions): fd, rg, fzf, bat, eza
-    for tool in jq fd rg fzf bat eza brew tailscale transmission-remote
+    set -l doctor_tools_ok 1
+    for tool in jq tailscale transmission-remote
+        if not command -q $tool
+            printf 'doctor: %s%s missing: proceeding in degraded state%s\n' (set_color red) $tool (set_color normal)
+            set ok 0
+            set doctor_tools_ok 0
+        end
+    end
+    set -l system_tools_ok 1
+    for tool in fd rg fzf bat eza brew
         if not command -q $tool
             printf 'doctor: %smissing: %s%s\n' (set_color red) $tool (set_color normal)
             set ok 0
+            set system_tools_ok 0
         end
     end
-    if test $ok -eq 0
-        return 1
+    if test $doctor_tools_ok -eq 1 -a $system_tools_ok -eq 1
+        echo "doctor: toolchain: ok"
     end
-    echo "doctor: toolchain: ok"
 
     # Collect raw signals
     set -l vpn_state (scutil --nc status "$VPN_SVC" 2>/dev/null)
@@ -33,9 +39,11 @@ function doctor --description 'Report system status and verify transmission VPN 
     test -z "$vpn_status"; and set vpn_status unknown
     set -l tx_pass (security find-generic-password -s transmission-rpc -a user -w 2>/dev/null)
     set -l tx_up no
+    set -l tx_checked no
     if test -z "$tx_pass"
         printf 'doctor: %swarning: transmission RPC credentials not found in keychain%s\n' (set_color yellow) (set_color normal)
     else
+        set tx_checked yes
         transmission-remote "127.0.0.1:9091" -n "user:$tx_pass" -l >/dev/null 2>&1
             and set tx_up yes
     end
@@ -87,13 +95,15 @@ function doctor --description 'Report system status and verify transmission VPN 
     end
 
     # Display: transmission
-    if test "$tx_up" = yes
-        echo "doctor: transmission-daemon is on"
-    else
-        echo "doctor: transmission-daemon is off"
+    if test "$tx_checked" = yes
+        if test "$tx_up" = yes
+            echo "doctor: transmission-daemon is on"
+        else
+            echo "doctor: transmission-daemon is off"
+        end
     end
 
-    if test "$tx_up" = yes
+    if test "$tx_up" = yes -a $doctor_tools_ok -eq 1
         if not test -f $tx_settings
             printf 'doctor: %swarning: transmission settings.json not found: %s%s\n' \
                 (set_color yellow) $tx_settings (set_color normal)
