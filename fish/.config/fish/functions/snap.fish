@@ -65,7 +65,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         echo "Full system backups are performed daily to an air-gapped time machine SSD."
         echo "Dotfiles are also backed up to a private github repo and symlinked into place with GNU stow."
         echo "A CentOS Stream 10 homelab is accessible over Tailscale, with SMB shares mounted on demand"
-        echo "via the \`media\` function."
+        echo "via the media fish function."
         echo "kitty is kept installed for its kitten icat image rendering;"
         echo "Ghostty is my primary terminal emulator."
         echo "On macOS, raw memory utilization is less meaningful than memory pressure — the OS aggressively"
