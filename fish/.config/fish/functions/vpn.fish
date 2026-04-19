@@ -32,7 +32,7 @@ function vpn --description 'Manage VPN service (on/off/status) via scutil --nc'
     
     # VPN_SVC is set as an environment variable in config.fish
     # Ensure the specified VPN service exists in the network configuration
-    if not scutil --nc list | grep -q -- "\"$VPN_SVC\""
+    if not scutil --nc show "$VPN_SVC" >/dev/null 2>&1
         echo "vpn: error: VPN service '$VPN_SVC' not found." >&2
         return 1
     end
