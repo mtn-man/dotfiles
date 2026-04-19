@@ -29,7 +29,7 @@ function doctor --description 'Report system status and verify transmission VPN 
         end
     end
     if test $doctor_tools_ok -eq 1 -a $system_tools_ok -eq 1
-        echo "doctor: toolchain: ok"
+        printf 'doctor: toolchain: %sok%s\n' (set_color green) (set_color normal)
     end
 
     # Collect raw signals
@@ -89,7 +89,11 @@ function doctor --description 'Report system status and verify transmission VPN 
         echo "doctor: $MEDIA_SHARE is not mounted"
     end
     vpn status 2>&1 | string replace --regex '^vpn:' 'doctor:'
-    echo "doctor: tailscale: $ts_state"
+    if test "$ts_state" = Running
+        printf 'doctor: tailscale: %s%s%s\n' (set_color green) $ts_state (set_color normal)
+    else
+        echo "doctor: tailscale: $ts_state"
+    end
     if test -n "$ts_ip"
         echo "doctor: tailscale IP: $ts_ip"
     end
@@ -144,34 +148,34 @@ function doctor --description 'Report system status and verify transmission VPN 
 
     # Display: security
     if test "$sip_on" = yes
-        echo "doctor: SIP: on"
+        printf 'doctor: SIP: %son%s\n' (set_color green) (set_color normal)
     else
-        printf 'doctor: %sSIP: off%s\n' (set_color yellow) (set_color normal)
+        printf 'doctor: SIP: %soff%s\n' (set_color yellow) (set_color normal)
     end
     if test "$filevault_on" = yes
-        echo "doctor: filevault: on"
+        printf 'doctor: filevault: %son%s\n' (set_color green) (set_color normal)
     else
-        printf 'doctor: %sfilevault: off%s\n' (set_color yellow) (set_color normal)
+        printf 'doctor: filevault: %soff%s\n' (set_color yellow) (set_color normal)
     end
     if test "$firewall_on" = yes
-        echo "doctor: firewall: on"
+        printf 'doctor: firewall: %son%s\n' (set_color green) (set_color normal)
     else
-        printf 'doctor: %sfirewall: off%s\n' (set_color yellow) (set_color normal)
+        printf 'doctor: firewall: %soff%s\n' (set_color yellow) (set_color normal)
     end
     if test "$stealth_on" = yes
-        echo "doctor: firewall stealth: on"
+        printf 'doctor: firewall stealth: %son%s\n' (set_color green) (set_color normal)
     else
-        printf 'doctor: %sfirewall stealth: off%s\n' (set_color yellow) (set_color normal)
+        printf 'doctor: firewall stealth: %soff%s\n' (set_color yellow) (set_color normal)
     end
     if test "$gatekeeper_on" = yes
-        echo "doctor: gatekeeper: on"
+        printf 'doctor: gatekeeper: %son%s\n' (set_color green) (set_color normal)
     else
-        printf 'doctor: %sgatekeeper: off%s\n' (set_color yellow) (set_color normal)
+        printf 'doctor: gatekeeper: %soff%s\n' (set_color yellow) (set_color normal)
     end
     if test "$autoupdate_on" = yes
-        echo "doctor: auto updates: on"
+        printf 'doctor: auto updates: %son%s\n' (set_color green) (set_color normal)
     else
-        printf 'doctor: %sauto updates: off%s\n' (set_color yellow) (set_color normal)
+        printf 'doctor: auto updates: %soff%s\n' (set_color yellow) (set_color normal)
     end
 
     if test $ok -eq 0
