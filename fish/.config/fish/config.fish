@@ -3,6 +3,7 @@ set -gx EDITOR "micro"
 set -gx VISUAL "micro"
 set -g  VPN_SVC "NordVPN NordLynx"
 set -g  HOMELAB_HOST "100.106.45.25"
+set -g  HOMELAB_HOST_LOCAL "192.168.0.43"
 set -g  MEDIA_SHARE "media"
 # Suppress Homebrew hints and cleanup messages
 set -gx HOMEBREW_NO_ENV_HINTS 1
