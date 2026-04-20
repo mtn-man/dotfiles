@@ -84,22 +84,22 @@ function doctor --description 'Report system status and verify transmission VPN 
 
     # Display: mount, VPN (delegate for public IP), tailscale
     if test "$media_mounted" = yes
-        echo "doctor: $MEDIA_SHARE is mounted at /Volumes/$MEDIA_SHARE"
+        printf 'doctor: %s is mounted at /Volumes/%s\n' $MEDIA_SHARE $MEDIA_SHARE
     else
-        echo "doctor: $MEDIA_SHARE is not mounted"
+        printf 'doctor: %s is not mounted\n' $MEDIA_SHARE
     end
     vpn status 2>&1 | string replace --regex '^vpn:' 'doctor:'
-    echo "doctor: tailscale: $ts_state"
+    printf 'doctor: tailscale: %s\n' $ts_state
     if test -n "$ts_ip"
-        echo "doctor: tailscale IP: $ts_ip"
+        printf 'doctor: tailscale IP: %s\n' $ts_ip
     end
 
     # Display: transmission
     if test "$tx_checked" = yes
         if test "$tx_up" = yes
-            echo "doctor: transmission-daemon is on"
+            printf 'doctor: transmission-daemon is on\n'
         else
-            echo "doctor: transmission-daemon is off"
+            printf 'doctor: transmission-daemon is off\n'
         end
     end
 
@@ -130,12 +130,12 @@ function doctor --description 'Report system status and verify transmission VPN 
                 end
             else
                 if test "$bind_addr" = "0.0.0.0"
-                    echo "doctor: transmission bind-address-ipv4: $bind_addr"
+                    printf 'doctor: transmission bind-address-ipv4: %s\n' $bind_addr
                     printf 'doctor: %serror: transmission running unprotected — bind address is 0.0.0.0%s\n' \
                         (set_color red) (set_color normal) >&2
                     set ok 0
                 else if ifconfig 2>/dev/null | string match -q "*inet $bind_addr *"
-                    echo "doctor: transmission bind-address-ipv4: $bind_addr"
+                    printf 'doctor: transmission bind-address-ipv4: %s\n' $bind_addr
                     printf 'doctor: %serror: transmission running unprotected — bind address %s is reachable%s\n' \
                         (set_color red) $bind_addr (set_color normal) >&2
                     set ok 0
@@ -149,35 +149,14 @@ function doctor --description 'Report system status and verify transmission VPN 
     end
 
     # Display: security
-    if test "$sip_on" = yes
-        printf 'doctor: SIP: %son%s\n' (set_color green) (set_color normal)
-    else
-        printf 'doctor: SIP: %soff%s\n' (set_color yellow) (set_color normal)
-    end
-    if test "$filevault_on" = yes
-        printf 'doctor: filevault: %son%s\n' (set_color green) (set_color normal)
-    else
-        printf 'doctor: filevault: %soff%s\n' (set_color yellow) (set_color normal)
-    end
-    if test "$firewall_on" = yes
-        printf 'doctor: firewall: %son%s\n' (set_color green) (set_color normal)
-    else
-        printf 'doctor: firewall: %soff%s\n' (set_color yellow) (set_color normal)
-    end
-    if test "$stealth_on" = yes
-        printf 'doctor: firewall stealth: %son%s\n' (set_color green) (set_color normal)
-    else
-        printf 'doctor: firewall stealth: %soff%s\n' (set_color yellow) (set_color normal)
-    end
-    if test "$gatekeeper_on" = yes
-        printf 'doctor: gatekeeper: %son%s\n' (set_color green) (set_color normal)
-    else
-        printf 'doctor: gatekeeper: %soff%s\n' (set_color yellow) (set_color normal)
-    end
-    if test "$autoupdate_on" = yes
-        printf 'doctor: auto updates: %son%s\n' (set_color green) (set_color normal)
-    else
-        printf 'doctor: auto updates: %soff%s\n' (set_color yellow) (set_color normal)
+    set -l sec_labels SIP filevault firewall "firewall stealth" gatekeeper "auto updates"
+    set -l sec_flags $sip_on $filevault_on $firewall_on $stealth_on $gatekeeper_on $autoupdate_on
+    for i in (seq (count $sec_labels))
+        if test "$sec_flags[$i]" = yes
+            printf 'doctor: %s: %son%s\n' $sec_labels[$i] (set_color green) (set_color normal)
+        else
+            printf 'doctor: %s: %soff%s\n' $sec_labels[$i] (set_color yellow) (set_color normal)
+        end
     end
 
     if test $ok -eq 0
