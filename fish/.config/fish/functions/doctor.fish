@@ -89,11 +89,7 @@ function doctor --description 'Report system status and verify transmission VPN 
         echo "doctor: $MEDIA_SHARE is not mounted"
     end
     vpn status 2>&1 | string replace --regex '^vpn:' 'doctor:'
-    if test "$ts_state" = Running
-        printf 'doctor: tailscale: %s%s%s\n' (set_color green) $ts_state (set_color normal)
-    else
-        echo "doctor: tailscale: $ts_state"
-    end
+    echo "doctor: tailscale: $ts_state"
     if test -n "$ts_ip"
         echo "doctor: tailscale IP: $ts_ip"
     end
@@ -113,32 +109,38 @@ function doctor --description 'Report system status and verify transmission VPN 
                 (set_color yellow) $tx_settings (set_color normal)
         else
             set -l bind_addr (jq -r '.["bind-address-ipv4"]' $tx_settings 2>/dev/null)
-            echo "doctor: transmission bind-address-ipv4: $bind_addr"
             if test "$vpn_status" = Connected
                 if test -z "$vpn_iface"
+                    printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color yellow) $bind_addr (set_color normal)
                     printf 'doctor: %swarning: VPN connected but interface name unknown; cannot verify transmission bind address%s\n' \
                         (set_color yellow) (set_color normal)
                 else
                     set -l expected_vpn_ip (ifconfig "$vpn_iface[1]" 2>/dev/null | string match -rg '\binet (\S+)')[1]
                     if test -z "$expected_vpn_ip"
+                        printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color yellow) $bind_addr (set_color normal)
                         printf 'doctor: %swarning: could not read IP for VPN interface %s; cannot verify transmission bind address%s\n' \
                             (set_color yellow) "$vpn_iface" (set_color normal)
                     else if test "$bind_addr" != "$expected_vpn_ip"
                         printf 'doctor: %serror: transmission not bound to VPN interface (got: %s, expected: %s)%s\n' \
                             (set_color red) $bind_addr $expected_vpn_ip (set_color normal)
                         set ok 0
+                    else
+                        printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color green) $bind_addr (set_color normal)
                     end
                 end
             else
                 if test "$bind_addr" = "0.0.0.0"
+                    echo "doctor: transmission bind-address-ipv4: $bind_addr"
                     printf 'doctor: %serror: transmission running unprotected — bind address is 0.0.0.0%s\n' \
                         (set_color red) (set_color normal) >&2
                     set ok 0
                 else if ifconfig 2>/dev/null | string match -q "*inet $bind_addr *"
+                    echo "doctor: transmission bind-address-ipv4: $bind_addr"
                     printf 'doctor: %serror: transmission running unprotected — bind address %s is reachable%s\n' \
                         (set_color red) $bind_addr (set_color normal) >&2
                     set ok 0
                 else
+                    printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color yellow) $bind_addr (set_color normal)
                     printf 'doctor: %swarning: transmission running without VPN — kill switch active%s\n' \
                         (set_color yellow) (set_color normal)
                 end
