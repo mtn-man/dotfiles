@@ -2,7 +2,7 @@ function doctor --description 'Report system status and verify transmission VPN 
     set -l ok 1
 
     # Env var checks
-    for var in VPN_SVC HOMELAB_HOST MEDIA_SHARE
+    for var in VPN_SVC HOMELAB_HOST HOMELAB_HOST_LOCAL MEDIA_SHARE
         if test -z (string join "" $$var)
             printf 'doctor: %serror: $%s is not set%s\n' (set_color red) $var (set_color normal) >&2
             set ok 0
