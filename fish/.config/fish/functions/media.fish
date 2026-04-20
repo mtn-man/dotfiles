@@ -33,31 +33,39 @@ function __media_run_with_timeout --argument-names timeout
 end
 
 function media --description 'Manage homelab media share and networking state'
+    argparse 'l/local' -- $argv
+
     set -l mountpoint "/Volumes/$MEDIA_SHARE"
-    set -l smb_url "smb://$HOMELAB_HOST/$MEDIA_SHARE"
+    set -l host $HOMELAB_HOST
+    if set -q _flag_local
+        set host $HOMELAB_HOST_LOCAL
+    end
+    set -l smb_url "smb://$host/$MEDIA_SHARE"
 
     switch "$argv[1]"
         case on
-            # 1. Turn off VPN so Tailscale can route to the homelab
-            if not __media_vpn off
-                echo "media: error: failed to disconnect VPN" >&2
-                return 1
-            end
-
-            # 2. Ensure Tailscale backend is active
-            set -l state (tailscale status --json 2>/dev/null | jq -r .BackendState)
-            if test "$state" != "Running"
-                if not tailscale up 2>/dev/null
-                    echo "media: error: tailscale up failed" >&2
+            if not set -q _flag_local
+                # 1. Turn off VPN so Tailscale can route to the homelab
+                if not __media_vpn off
+                    echo "media: error: failed to disconnect VPN" >&2
                     return 1
                 end
-                echo "media: Tailscale started"
+
+                # 2. Ensure Tailscale backend is active
+                set -l state (tailscale status --json 2>/dev/null | jq -r .BackendState)
+                if test "$state" != "Running"
+                    if not tailscale up 2>/dev/null
+                        echo "media: error: tailscale up failed" >&2
+                        return 1
+                    end
+                    echo "media: Tailscale started"
+                end
             end
 
-            # 3. Wait for SMB availability on the Tailscale network
+            # 3. Wait for SMB availability
             #    nc -w is unreliable on macOS when DNS blocks, so enforce
             #    a hard wall-clock deadline via background job.
-            if not __media_smb_reachable $HOMELAB_HOST
+            if not __media_smb_reachable $host
                 echo "media: error: server unreachable" >&2
                 return 1
             end
@@ -90,21 +98,27 @@ function media --description 'Manage homelab media share and networking state'
                 echo "media: $MEDIA_SHARE is not mounted, skipping"
             end
 
-            # 2. Shut down Tailscale interface
-            if not tailscale down >/dev/null 2>&1
-                echo "media: error: tailscale down failed" >&2
-                return 1
+            # 2. Shut down Tailscale interface if active
+            set -l ts_state (tailscale status --json 2>/dev/null | jq -r .BackendState)
+            if test "$ts_state" = Running
+                if not tailscale down >/dev/null 2>&1
+                    echo "media: error: tailscale down failed" >&2
+                    return 1
+                end
+                echo "media: Tailscale disconnected"
             end
-            echo "media: Tailscale disconnected"
 
-            # 3. Re-enable VPN
-            if not __media_vpn on
-                echo "media: error: failed to reconnect VPN — run 'vpn on' manually" >&2
-                return 1
+            # 3. Re-enable VPN if not already connected
+            set -l vpn_state (scutil --nc status "$VPN_SVC" 2>/dev/null)
+            if test "$vpn_state[1]" != Connected
+                if not __media_vpn on
+                    echo "media: error: failed to reconnect VPN — run 'vpn on' manually" >&2
+                    return 1
+                end
             end
 
         case '*'
-            echo "Usage: media [on|off]" >&2
+            echo "Usage: media [on [-l/--local]|off]" >&2
             return 1
     end
 end
