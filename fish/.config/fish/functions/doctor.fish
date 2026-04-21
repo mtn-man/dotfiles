@@ -47,14 +47,15 @@ function doctor --description 'Report system status and verify transmission VPN 
         transmission-remote "127.0.0.1:9091" -n "user:$tx_pass" -l >/dev/null 2>&1
             and set tx_up yes
     end
-    set -l ts_state (tailscale status --json 2>/dev/null | jq -r .BackendState 2>/dev/null)
+    set -l ts_json (tailscale status --json 2>/dev/null)
+    set -l ts_state (echo $ts_json | jq -r .BackendState 2>/dev/null)
     if test -z "$ts_state"
         printf 'doctor: %swarning: tailscale status unavailable%s\n' (set_color yellow) (set_color normal)
         set ts_state unknown
     end
     set -l ts_ip ''
     test "$ts_state" = Running
-        and set ts_ip (tailscale ip -4 2>/dev/null)
+        and set ts_ip (echo $ts_json | jq -r '.Self.TailscaleIPs[0]' 2>/dev/null)
     set -l tx_settings /opt/homebrew/var/transmission/settings.json
     set -l media_mounted no
     if mount | string match -q "* on /Volumes/$MEDIA_SHARE (*"
