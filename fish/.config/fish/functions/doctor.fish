@@ -3,7 +3,7 @@ function doctor --description 'Report system status and verify transmission VPN 
 
     # Env var checks
     for var in VPN_SVC HOMELAB_HOST HOMELAB_HOST_LOCAL MEDIA_SHARE
-        if test -z (string join "" $$var)
+        if not set -q $var
             printf 'doctor: %serror: $%s is not set%s\n' (set_color red) $var (set_color normal) >&2
             set ok 0
         end
@@ -15,7 +15,7 @@ function doctor --description 'Report system status and verify transmission VPN 
     set -l doctor_tools_ok 1
     for tool in jq tailscale transmission-remote
         if not command -q $tool
-            printf 'doctor: %s%s missing: proceeding in degraded state%s\n' (set_color red) $tool (set_color normal)
+            printf 'doctor: %s%s missing: proceeding in degraded state%s\n' (set_color red) $tool (set_color normal) >&2
             set ok 0
             set doctor_tools_ok 0
         end
@@ -23,12 +23,12 @@ function doctor --description 'Report system status and verify transmission VPN 
     set -l system_tools_ok 1
     for tool in fd rg fzf bat eza brew
         if not command -q $tool
-            printf 'doctor: %smissing: %s%s\n' (set_color red) $tool (set_color normal)
+            printf 'doctor: %smissing: %s%s\n' (set_color red) $tool (set_color normal) >&2
             set ok 0
             set system_tools_ok 0
         end
     end
-    if test $doctor_tools_ok -eq 1 -a $system_tools_ok -eq 1
+    if test $doctor_tools_ok -eq 1; and test $system_tools_ok -eq 1
         printf 'doctor: toolchain: %sok%s\n' (set_color green) (set_color normal)
     end
 
@@ -104,7 +104,7 @@ function doctor --description 'Report system status and verify transmission VPN 
         end
     end
 
-    if test "$tx_up" = yes -a $doctor_tools_ok -eq 1
+    if test "$tx_up" = yes; and test $doctor_tools_ok -eq 1
         if not test -f $tx_settings
             printf 'doctor: %swarning: transmission settings.json not found: %s%s\n' \
                 (set_color yellow) $tx_settings (set_color normal)
@@ -113,17 +113,19 @@ function doctor --description 'Report system status and verify transmission VPN 
             if test "$vpn_status" = Connected
                 if test -z "$vpn_iface"
                     printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color yellow) $bind_addr (set_color normal)
-                    printf 'doctor: %swarning: VPN connected but interface name unknown; cannot verify transmission bind address%s\n' \
-                        (set_color yellow) (set_color normal)
+                    printf 'doctor: %serror: VPN connected but interface name unknown; cannot verify transmission bind address%s\n' \
+                        (set_color red) (set_color normal) >&2
+                    set ok 0
                 else
                     set -l expected_vpn_ip (ifconfig "$vpn_iface[1]" 2>/dev/null | string match -rg '\binet (\S+)')[1]
                     if test -z "$expected_vpn_ip"
                         printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color yellow) $bind_addr (set_color normal)
-                        printf 'doctor: %swarning: could not read IP for VPN interface %s; cannot verify transmission bind address%s\n' \
-                            (set_color yellow) "$vpn_iface" (set_color normal)
+                        printf 'doctor: %serror: could not read IP for VPN interface %s; cannot verify transmission bind address%s\n' \
+                            (set_color red) "$vpn_iface" (set_color normal) >&2
+                        set ok 0
                     else if test "$bind_addr" != "$expected_vpn_ip"
                         printf 'doctor: %serror: transmission not bound to VPN interface (got: %s, expected: %s)%s\n' \
-                            (set_color red) $bind_addr $expected_vpn_ip (set_color normal)
+                            (set_color red) $bind_addr $expected_vpn_ip (set_color normal) >&2
                         set ok 0
                     else
                         printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color green) $bind_addr (set_color normal)
