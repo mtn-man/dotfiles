@@ -117,7 +117,7 @@ function doctor --description 'Report system status and verify transmission VPN 
                         (set_color red) (set_color normal) >&2
                     set ok 0
                 else
-                    set -l expected_vpn_ip (ifconfig "$vpn_iface[1]" 2>/dev/null | string match -rg '\binet (\S+)')[1]
+                    set -l expected_vpn_ip (ifconfig "$vpn_iface" 2>/dev/null | string match -rg '\binet (\S+)')[1]
                     if test -z "$expected_vpn_ip"
                         printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color yellow) $bind_addr (set_color normal)
                         printf 'doctor: %serror: could not read IP for VPN interface %s; cannot verify transmission bind address%s\n' \
