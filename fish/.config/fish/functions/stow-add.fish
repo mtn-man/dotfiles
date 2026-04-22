@@ -1,6 +1,6 @@
 function stow-add --description 'Move a ~/.config package into dotfiles and stow it'
     if test (count $argv) -ne 1
-        echo "Usage: stow-add <package>" >&2
+        echo "stow-add: usage - stow-add <package> (e.g. stow-add ghostty)" >&2
         return 1
     end
 
