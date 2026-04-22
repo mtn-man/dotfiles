@@ -4,21 +4,11 @@ function gr --description 'Jump to a git repo root via fzf'
     set -l tab (printf '\t')
 
     # Dependency checks
-    if not command -q git
-        echo "gr: git not found" >&2
-        return 127
-    end
-    if not command -q eza
-        echo "gr: eza not found" >&2
-        return 127
-    end
-    if not command -q fzf
-        echo "gr: fzf not found (brew install fzf)" >&2
-        return 127
-    end
-    if not command -q fd
-        echo "gr: fd not found (brew install fd)" >&2
-        return 127
+    for tool in git eza fzf fd
+        if not command -q $tool
+            echo "gr: $tool not found" >&2
+            return 127
+        end
     end
 
     # Find repo roots by exact .git directory match
