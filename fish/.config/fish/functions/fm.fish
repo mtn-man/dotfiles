@@ -1,7 +1,18 @@
 function fm --description 'Open file in micro via fd search (fzf when multiple matches)'
 # Always searches ~/dev first, then falls back to cwd if no matches (by design)
+    for tool in fd fzf micro bat
+        if not command -q $tool
+            echo "fm: required tool missing: $tool" >&2
+            return 1
+        end
+    end
+
     if test (count $argv) -eq 0
         echo "Usage: fm <pattern>"
+        return 1
+    end
+    if test (count $argv) -gt 1
+        echo "fm: too many arguments" >&2
         return 1
     end
 
@@ -13,6 +24,7 @@ function fm --description 'Open file in micro via fd search (fzf when multiple m
 
     # Fallback: search current working directory if no matches
     if test (count $matches) -eq 0
+        echo "fm: no matches in ~/dev, searching cwd..."
         set matches (fd $fd_opts "$argv[1]" .)
     end
 
@@ -31,11 +43,12 @@ function fm --description 'Open file in micro via fd search (fzf when multiple m
                 --preview='bat --color=always --style=plain --theme="ansi" {}' \
                 --preview-window='right:60%:wrap')
 
-            if test (count $chosen) -eq 0
+            if test -z "$chosen"
                 echo "fm: cancelled"
                 return 1
             end
 
             micro $chosen
+            return
     end
 end
