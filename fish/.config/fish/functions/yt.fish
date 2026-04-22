@@ -20,21 +20,21 @@ function yt --description 'Download YouTube videos with options'
     # Show help
     if set -q _flag_help
         echo "Usage: yt [OPTIONS] [URL]"
-        echo ""
+        echo
         echo "Options:"
         echo "  -o, --open         Open video after download"
         echo "  -i, --interactive  Choose resolution and codec"
         echo "  -h, --help         Show this help"
-        echo ""
+        echo
         echo "If no URL provided, uses clipboard content"
-        echo ""
+        echo
         echo "Cookies are read automatically from Safari via --cookies-from-browser"
         return
     end
 
     # Get URL from remaining args or clipboard
     set -l url
-    if test (count $argv) -gt 0
+    if set -q argv[1]
         set url (string trim -- $argv[1])
     else
         set url (pbpaste | string trim)
@@ -73,7 +73,7 @@ function yt --description 'Download YouTube videos with options'
                 set max_h 1440
         end
 
-        echo ""
+        echo
         echo "Select Preferred Codec:"
         echo "  [1] VP9 (Default)"
         echo "  [2] AV1"
@@ -90,7 +90,7 @@ function yt --description 'Download YouTube videos with options'
                 set codec_pref vp9
         end
 
-        echo ""
+        echo
         set -l codec_name
         switch $codec_pref
             case vp9
@@ -104,7 +104,7 @@ function yt --description 'Download YouTube videos with options'
         end
 
         echo "Downloading: "$max_h"p / $codec_name / MP4"
-        echo ""
+        echo
     end
 
     # Build yt-dlp command
