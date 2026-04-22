@@ -7,12 +7,8 @@ function fm --description 'Open file in micro via fd search (fzf when multiple m
         end
     end
 
-    if test (count $argv) -eq 0
-        echo "Usage: fm <pattern>"
-        return 1
-    end
-    if test (count $argv) -gt 1
-        echo "fm: too many arguments" >&2
+    if test (count $argv) -ne 1
+        echo "fm: usage - fm <filename> (e.g. fm config.fish)" >&2
         return 1
     end
 
@@ -34,7 +30,7 @@ function fm --description 'Open file in micro via fd search (fzf when multiple m
             return 1
 
         case 1
-            micro $matches[1]
+            micro $matches
             return
 
         case '*'
