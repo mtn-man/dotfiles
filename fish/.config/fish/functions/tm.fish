@@ -67,7 +67,7 @@ function tm --description 'Manage Transmission-CLI services and magnet links'
         end
         if transmission-remote "$host" -n "$rpc_user:$pass" -a "$input"
             echo "tm: torrent added"
-            echo "Track progress at http://$host/transmission/web/"
+            echo "tm: track progress at http://$host/transmission/web/"
         end
         return
     end
@@ -83,7 +83,7 @@ function tm --description 'Manage Transmission-CLI services and magnet links'
     end
 
     if transmission-remote "$host" -n "$rpc_user:$pass" -a "$input"
-        echo "Magnet added to Transmission."
-        echo "Track progress at http://$host/transmission/web/"
+        echo "tm: magnet added"
+        echo "tm: track progress at http://$host/transmission/web/"
     end
 end
