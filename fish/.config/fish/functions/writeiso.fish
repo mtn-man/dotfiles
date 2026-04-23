@@ -41,6 +41,7 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
     # single pass: extract disk IDs and partition counts together
     set -l disk_ids
     set -l disk_part_counts
+    set -l disk_byte_counts
     set -l cur_disk ""
     set -l cur_parts 0
 
@@ -72,14 +73,18 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
         set -l part_count $disk_part_counts[$i]
         set -l name Unknown
         set -l size ""
+        set -l bytes 0
 
         for line in (diskutil info /dev/$disk 2>/dev/null)
             if string match -qr 'Device / Media Name:' $line
                 set name (string replace -r '.*Device / Media Name:\s+' '' $line)
             else if string match -qr 'Disk Size:' $line
                 set size (string replace -r '.*Disk Size:\s+' '' $line | string replace -r '\s+\(.*' '')
+                set bytes (string replace -r '.*\((\d+) Bytes\).*' '$1' $line)
             end
         end
+
+        set disk_byte_counts $disk_byte_counts $bytes
 
         set -l part_str "$part_count partitions"
         test $part_count -eq 1; and set part_str "1 partition"
@@ -108,6 +113,14 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
     set -l iso_size_bytes (stat -f %z "$iso_abs")
     set -l iso_size_gb (math --scale=1 "$iso_size_bytes / 1000000000")
 
+    set -l disk_idx (contains -i -- $disk_id $disk_ids)
+    set -l disk_bytes $disk_byte_counts[$disk_idx]
+    if test "$disk_bytes" -gt 0 -a "$iso_size_bytes" -gt "$disk_bytes"
+        set -l disk_size_gb (math --scale=1 "$disk_bytes / 1000000000")
+        echo "writeiso: ISO ($iso_size_gb GB) exceeds disk capacity ($disk_size_gb GB) -- aborted" >&2
+        return 1
+    end
+
     echo
     echo "  ISO:   $iso_abs  ($iso_size_gb GB)"
     echo "  Disk:  $disk_dev"
@@ -124,6 +137,11 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
     if set -q _flag_dry_run
         echo "[dry-run] Skipping write"
         return 0
+    end
+
+    if not diskutil info $disk_dev >/dev/null 2>&1
+        echo "writeiso: $disk_id is no longer present" >&2
+        return 1
     end
 
     if not diskutil unmountDisk $disk_dev
