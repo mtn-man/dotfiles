@@ -1,6 +1,6 @@
 function lf --description 'lf with quit-and-cd integration'
     set -l tmp (mktemp)
-    set -lx LF_PREVIEW_CACHE_DIR "$HOME/Library/Caches/lf"
+    set -lx LF_PREVIEW_CACHE_DIR "$HOME/.cache/lf"
 
     if test -z "$tmp"
         set tmp "/tmp/lf-last-dir-$fish_pid"

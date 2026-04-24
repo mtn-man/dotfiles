@@ -8,7 +8,7 @@ prefer_graphics_protocol() {
     [ "${TERM_PROGRAM:-}" = "ghostty" ] || [ -n "${KITTY_WINDOW_ID:-}" ] || [ "${TERM:-}" = "xterm-kitty" ]
 }
 
-cache_dir="${LF_PREVIEW_CACHE_DIR:-$HOME/Library/Caches/lf}"
+cache_dir="${LF_PREVIEW_CACHE_DIR:-$HOME/.cache/lf}"
 marker="$cache_dir/.needs_graphics_clear"
 
 have_cmd kitten || exit 0

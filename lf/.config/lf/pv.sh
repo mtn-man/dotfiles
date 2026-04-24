@@ -27,7 +27,7 @@ PX_PER_COL=12       # pixel-per-column estimate for font width scaling
 HEIC_JPEG_QUALITY=80
 
 # Environment & Caching
-PREVIEW_CACHE_DIR="${LF_PREVIEW_CACHE_DIR:-$HOME/Library/Caches/lf}"
+PREVIEW_CACHE_DIR="${LF_PREVIEW_CACHE_DIR:-$HOME/.cache/lf}"
 DEP_CACHE_FILE="${PREVIEW_CACHE_DIR}/.dep_cache"
 GRAPHICS_CLEAR_MARKER="${PREVIEW_CACHE_DIR}/.needs_graphics_clear"
 mkdir -p "$PREVIEW_CACHE_DIR/thumbs" 2>/dev/null
