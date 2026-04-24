@@ -110,6 +110,11 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
     set -l disk_name   (string replace -r '^[^ ]+ -- (.+) \[.*' '$1' $choice)
     set -l disk_detail (string replace -r '.*\[(.+)\].*' '$1' $choice)
 
+    if diskutil info $disk_dev | string match -q "*Internal: Yes*"
+        echo "writeiso: refusing to operate on internal disk: $disk_dev" >&2
+        return 1
+    end
+
     set -l iso_size_bytes (stat -f %z "$iso_abs")
     set -l iso_size_gb (math --scale=1 "$iso_size_bytes / 1000000000")
 
