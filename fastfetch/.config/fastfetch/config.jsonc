@@ -33,11 +33,6 @@
     "publicip",
     "battery",
     "poweradapter",
-    "break",
-    {
-      "type": "colors",
-      "symbol": "block",
-      "block": { "width": 3 }
-    }
+    "break"
   ]
 }
