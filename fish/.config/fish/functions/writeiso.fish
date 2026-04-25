@@ -4,17 +4,16 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
         return 127
     end
 
-    set -l usage "Usage: writeiso [-n] [-h] <image.iso>"
+    set -l usage "writeiso: usage: writeiso [-n] [-h] <image.iso>"
 
     argparse -n writeiso 'n/dry-run' 'h/help' -- $argv
     or return 1
 
     if set -q _flag_help
         echo $usage
-        echo
-        echo "Options:"
-        echo "  -n  Dry run: complete all steps but skip the actual write"
-        echo "  -h  Show this help"
+        echo "writeiso: options:"
+        echo "writeiso:   -n  dry run: complete all steps but skip the actual write"
+        echo "writeiso:   -h  show this help"
         return
     end
 
@@ -30,7 +29,7 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
         return 1
     end
 
-    if not string match -q '*.iso' -- "$iso_path"
+    if not string match -qi '*.iso' -- "$iso_path"
         echo "writeiso: file does not have .iso extension: $iso_path" >&2
         return 1
     end
@@ -127,20 +126,19 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
     end
 
     echo
-    echo "  ISO:   $iso_abs  ($iso_size_gb GB)"
-    echo "  Disk:  $disk_dev"
-    echo "         $disk_name -- $disk_detail"
+    echo "writeiso: ISO:   $iso_abs  ($iso_size_gb GB)"
+    echo "writeiso: Disk:  $disk_dev"
+    echo "writeiso:        $disk_name -- $disk_detail"
+    echo "writeiso: WARNING: all data on $disk_dev will be destroyed."
     echo
-    echo "  WARNING: All data on $disk_dev will be destroyed."
-
-    read -P "  Type the disk identifier to confirm ($disk_id): " confirm
+    read -P "writeiso: type the disk identifier to confirm ($disk_id): " confirm
     if test "$confirm" != "$disk_id"
         echo "writeiso: confirmation did not match -- aborted" >&2
         return 1
     end
 
     if set -q _flag_dry_run
-        echo "[dry-run] Skipping write"
+        echo "writeiso: dry-run -- skipping write"
         return 0
     end
 
@@ -149,7 +147,10 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
         return 1
     end
 
-    if not diskutil unmountDisk $disk_dev
+    sudo -v
+    or return 1
+
+    if not diskutil unmountDisk $disk_dev >/dev/null
         echo "writeiso: unmount failed" >&2
         return 1
     end
@@ -158,8 +159,6 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
     sudo dd if="$iso_abs" of="$rdisk_dev" bs=1m status=progress
     set -l dd_exit $status
     set -l t_end (date +%s)
-
-    diskutil eject $disk_dev 2>/dev/null
 
     if test $dd_exit -ne 0
         echo "writeiso: dd exited with status $dd_exit" >&2
@@ -170,5 +169,11 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
     set -l elapsed_min (math --scale=0 "$elapsed / 60")
     set -l elapsed_sec (math --scale=0 "$elapsed % 60")
 
-    echo "Done. $iso_size_gb GB written in "$elapsed_min"m"$elapsed_sec"s."
+    if not diskutil eject $disk_dev >/dev/null
+        echo "writeiso: eject failed -- you may need to eject $disk_dev manually" >&2
+    else
+        echo "writeiso: $disk_dev is safe to remove."
+    end
+
+    printf "writeiso: done. %s GB written in %sm%ss.\n" $iso_size_gb $elapsed_min $elapsed_sec
 end
