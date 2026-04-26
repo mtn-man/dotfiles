@@ -143,7 +143,7 @@ function doctor --description 'Report system status and verify transmission VPN 
                         (set_color red) $bind_addr (set_color normal) >&2
                     set ok 0
                 else
-                    printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color yellow) $bind_addr (set_color normal)
+                    printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color green) $bind_addr (set_color normal)
                     printf 'doctor: %swarning: transmission running without VPN — kill switch active%s\n' \
                         (set_color yellow) (set_color normal)
                 end
