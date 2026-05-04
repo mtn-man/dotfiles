@@ -44,7 +44,7 @@ function vpn --description 'Manage network mode (normal/media) and VPN service'
     switch "$sub"
 
         case on
-            # Enforce normal mode: Tailscale down, VPN connected
+            # Enforce VPN mode: Tailscale down, VPN connected
 
             # Unmount media share first — it routes via Tailscale and won't survive the transition
             if set -q MEDIA_SHARE
@@ -70,7 +70,7 @@ function vpn --description 'Manage network mode (normal/media) and VPN service'
 
             set -l vpn_state (scutil --nc status "$VPN_SVC")
             if test "$vpn_state[1]" = Connected
-                echo "vpn: normal mode already active"
+                echo "vpn: vpn mode already active"
                 __vpn_print_ip
                 return 0
             end
@@ -89,12 +89,12 @@ function vpn --description 'Manage network mode (normal/media) and VPN service'
             return 1
 
         case off
-            # Enforce media mode: VPN disconnected, Tailscale up
+            # Enforce Tailscale mode: VPN disconnected, Tailscale up
             set -l vpn_state (scutil --nc status "$VPN_SVC")
             set -l ts_state (__vpn_tailscale_state)
 
             if test "$vpn_state[1]" = Disconnected; and test "$ts_state" = Running
-                echo "vpn: media mode already active"
+                echo "vpn: tailscale mode already active"
                 return 0
             end
 
@@ -117,7 +117,7 @@ function vpn --description 'Manage network mode (normal/media) and VPN service'
                 echo "vpn: Tailscale up"
             end
 
-            echo "vpn: media mode active"
+            echo "vpn: tailscale mode active"
             return 0
 
         case status
@@ -130,20 +130,20 @@ function vpn --description 'Manage network mode (normal/media) and VPN service'
             test "$ts_state" = Running; and set ts_running yes
 
             if test "$vpn_connected" = yes; and test "$ts_running" = no
-                echo "vpn: normal mode active"
+                echo "vpn: vpn mode active"
                 __vpn_print_ip
             else if test "$vpn_connected" = no; and test "$ts_running" = yes
-                echo "vpn: media mode active"
+                echo "vpn: tailscale mode active"
                 set -l ts_ip (echo $ts_json | jq -r '.Self.TailscaleIPs[0]' 2>/dev/null)
                 if test -n "$ts_ip"
                     echo "vpn: Tailscale IP: $ts_ip"
                 end
             else if test "$vpn_connected" = yes; and test "$ts_running" = yes
                 echo "vpn: warning: invalid state — both VPN and Tailscale are active" >&2
-                echo "vpn: run 'vpn on' to resolve" >&2
+                echo "vpn: run 'vpn on' to enter vpn mode" >&2
             else
                 echo "vpn: warning: invalid state — neither VPN nor Tailscale is active" >&2
-                echo "vpn: run 'vpn on' to resolve" >&2
+                echo "vpn: run 'vpn on' to enter vpn mode" >&2
             end
 
         case toggle
@@ -157,7 +157,7 @@ function vpn --description 'Manage network mode (normal/media) and VPN service'
                 vpn on
                 return $status
             else
-                echo "vpn: invalid state detected — resolving to normal mode"
+                echo "vpn: invalid state detected — resolving to vpn mode"
                 vpn on
                 return $status
             end

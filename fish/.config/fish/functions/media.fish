@@ -45,9 +45,9 @@ function media --description 'Manage homelab media share and networking state'
     switch "$argv[1]"
         case on
             if not set -q _flag_local
-                # Enforce media mode: VPN down + Tailscale up
+                # Enforce Tailscale mode: VPN down + Tailscale up
                 if not __media_vpn off
-                    echo "media: error: failed to enter media mode" >&2
+                    echo "media: error: failed to enter tailscale mode" >&2
                     return 1
                 end
             end
@@ -88,9 +88,9 @@ function media --description 'Manage homelab media share and networking state'
                 echo "media: $MEDIA_SHARE is not mounted, skipping"
             end
 
-            # Enforce normal mode: Tailscale down + VPN up
+            # Enforce VPN mode: Tailscale down + VPN up
             if not __media_vpn on
-                echo "media: error: failed to enter normal mode — run 'vpn on' manually" >&2
+                echo "media: error: failed to enter vpn mode — run 'vpn on' manually" >&2
                 return 1
             end
 
