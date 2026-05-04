@@ -45,24 +45,14 @@ function media --description 'Manage homelab media share and networking state'
     switch "$argv[1]"
         case on
             if not set -q _flag_local
-                # 1. Turn off VPN so Tailscale can route to the homelab
+                # Enforce media mode: VPN down + Tailscale up
                 if not __media_vpn off
-                    echo "media: error: failed to disconnect VPN" >&2
+                    echo "media: error: failed to enter media mode" >&2
                     return 1
-                end
-
-                # 2. Ensure Tailscale backend is active
-                set -l state (tailscale status --json 2>/dev/null | jq -r .BackendState)
-                if test "$state" != "Running"
-                    if not tailscale up 2>/dev/null
-                        echo "media: error: tailscale up failed" >&2
-                        return 1
-                    end
-                    echo "media: Tailscale started"
                 end
             end
 
-            # 3. Wait for SMB availability
+            # Wait for SMB availability
             #    nc -w is unreliable on macOS when DNS blocks, so enforce
             #    a hard wall-clock deadline via background job.
             if not __media_smb_reachable $host
@@ -70,7 +60,7 @@ function media --description 'Manage homelab media share and networking state'
                 return 1
             end
 
-            # 4. Mount volume via Finder to utilize Keychain credentials
+            # Mount volume via Finder to utilize Keychain credentials
             set -l mount_timeout 10
             if not __media_run_with_timeout $mount_timeout \
                     osascript -e "tell application \"Finder\" to mount volume \"$smb_url\""
@@ -86,7 +76,7 @@ function media --description 'Manage homelab media share and networking state'
             end
 
         case off
-            # 1. Unmount the share
+            # Unmount the share
             if test -d "$mountpoint"
                 if diskutil unmount "$mountpoint" >/dev/null 2>&1
                     echo "media: unmounted"
@@ -98,23 +88,10 @@ function media --description 'Manage homelab media share and networking state'
                 echo "media: $MEDIA_SHARE is not mounted, skipping"
             end
 
-            # 2. Shut down Tailscale interface if active
-            set -l ts_state (tailscale status --json 2>/dev/null | jq -r .BackendState)
-            if test "$ts_state" = Running
-                if not tailscale down >/dev/null 2>&1
-                    echo "media: error: tailscale down failed" >&2
-                    return 1
-                end
-                echo "media: Tailscale disconnected"
-            end
-
-            # 3. Re-enable VPN if not already connected
-            set -l vpn_state (scutil --nc status "$VPN_SVC" 2>/dev/null)
-            if test "$vpn_state[1]" != Connected
-                if not __media_vpn on
-                    echo "media: error: failed to reconnect VPN — run 'vpn on' manually" >&2
-                    return 1
-                end
+            # Enforce normal mode: Tailscale down + VPN up
+            if not __media_vpn on
+                echo "media: error: failed to enter normal mode — run 'vpn on' manually" >&2
+                return 1
             end
 
         case '*'
