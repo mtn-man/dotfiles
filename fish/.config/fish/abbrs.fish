@@ -17,7 +17,7 @@ abbr -a --global batt 'system_profiler SPPowerDataType | rg -i "cycle count|maxi
 abbr -a --global gt 'after -q 3m; and say "your tea is ready now"'
 abbr -a --global bt 'after -q 4m; and say "your tea is ready now"'
 abbr -a --global l 'eza --git --group-directories-first'
-abbr -a --global lab 'media on; and ssh lab'
+abbr -a --global lab 'vpn off; and ssh lab'
 abbr -a --global src 'source $__fish_config_dir/config.fish'
 abbr -a --global dr 'doctor'
 abbr -a --global ts 'tailscale'
