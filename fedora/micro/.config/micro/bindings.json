@@ -1,0 +1,9 @@
+{
+    "Alt-/": "lua:comment.comment",
+    "CtrlUnderscore": "lua:comment.comment",
+    "Alt-s": "Save,Quit",
+    "Alt-g": "command:term fish -c gcp",
+    "Alt-t": "command:term fish -c 'go test ./...'",
+    "Alt-l": "command:term fish -c 'golangci-lint run'",
+    "Alt-c": "command:term fish -c 'staticcheck ./...'"
+}
