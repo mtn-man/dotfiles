@@ -50,13 +50,18 @@ PKGS=(
     stow
 
     # --- Desktop ---
+    # Most of these ship with the Fedora Sway spin; listed for plain Fedora installs.
     kitty
+    waybar
     rofi
     grim
     slurp
+    sway-contrib
+    wl-clipboard
     pavucontrol
 
     # --- Network ---
+    network-manager-applet
     tailscale
 
     # --- Credentials / SSH ---
@@ -89,10 +94,14 @@ fi
 # -----------------------------------------------------------------------------
 # 3. lf (not in official Fedora repos — install via COPR)
 # -----------------------------------------------------------------------------
-info "Installing lf..."
-sudo dnf copr enable -y pennbauman/ports
-sudo dnf install -y lf
-success "lf installed"
+if rpm -q lf &>/dev/null; then
+    success "lf already installed"
+else
+    info "Installing lf..."
+    sudo dnf copr enable -y pennbauman/ports
+    sudo dnf install -y lf
+    success "lf installed"
+fi
 
 # -----------------------------------------------------------------------------
 # 4. Stow dotfiles
