@@ -1,0 +1,153 @@
+/* https://github.com/Alexays/Waybar/wiki/Styling */
+
+* {
+    font-family: 'FiraCode Nerd Font Mono', monospace;
+    font-size: 14px;
+    min-height: 0;
+    border: none;
+    border-radius: 0;
+}
+
+window#waybar {
+    background-color: rgba(28, 28, 28, 0.92);
+    border-top: 1px solid rgba(150, 203, 254, 0.12);
+    color: #DEDEDE;
+}
+
+/* ── Workspaces ─────────────────────────────────────────── */
+
+#workspaces {
+    margin: 0 4px;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    background-color: transparent;
+    color: #DEDEDE;
+    opacity: 0.6;
+    box-shadow: none;
+}
+
+#workspaces button:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    opacity: 0.85;
+    box-shadow: none;
+}
+
+#workspaces button.focused,
+#workspaces button.active {
+    color: #96CBFE;
+    opacity: 1;
+    background-color: rgba(150, 203, 254, 0.08);
+    box-shadow: inset 0 2px #96CBFE;
+}
+
+#workspaces button.urgent {
+    color: #FF6C60;
+    opacity: 1;
+}
+
+/* ── Common module padding ──────────────────────────────── */
+
+#clock,
+#battery,
+#cpu,
+#pulseaudio,
+#idle_inhibitor,
+#scratchpad,
+#power-profiles-daemon,
+#custom-power,
+#tray,
+#mode {
+    padding: 0 12px;
+    color: #DEDEDE;
+}
+
+#window {
+    padding: 0 8px;
+    color: #DEDEDE;
+    opacity: 0.65;
+}
+
+/* ── Mode (resize / passthrough) ────────────────────────── */
+
+#mode {
+    color: #FFFFB6;
+    box-shadow: inset 0 -2px #FFFFB6;
+}
+
+/* ── Idle inhibitor ─────────────────────────────────────── */
+
+#idle_inhibitor.activated {
+    color: #A8FF60;
+}
+
+/* ── Pulseaudio ─────────────────────────────────────────── */
+
+#pulseaudio.muted {
+    color: #555753;
+}
+
+/* ── Battery ────────────────────────────────────────────── */
+
+#battery.charging,
+#battery.plugged {
+    color: #A8FF60;
+}
+
+#battery.warning:not(.charging) {
+    color: #FFFFB6;
+}
+
+#battery.critical:not(.charging) {
+    color: #FF6C60;
+    animation-name: blink;
+    animation-duration: 1s;
+    animation-timing-function: steps(1);
+    animation-iteration-count: infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0.4; }
+}
+
+/* ── Power profiles ─────────────────────────────────────── */
+
+#power-profiles-daemon.performance {
+    color: #FF6C60;
+}
+
+#power-profiles-daemon.power-saver {
+    color: #A8FF60;
+}
+
+/* ── Power button ───────────────────────────────────────── */
+
+#custom-power {
+    color: #DEDEDE;
+    font-size: 16px;
+}
+
+/* ── Power menu ─────────────────────────────────────────── */
+
+menu {
+    background-color: #1C1C1C;
+}
+
+menuitem {
+    color: #DEDEDE;
+}
+
+menuitem:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Tray ───────────────────────────────────────────────── */
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}

@@ -1,0 +1,107 @@
+// https://github.com/Alexays/Waybar/wiki/Configuration
+{
+    "position": "top",
+    "height": 32,
+    "spacing": 0,
+    "modules-left": [
+        "sway/workspaces",
+        "sway/mode",
+        "sway/scratchpad"
+    ],
+    "modules-center": [
+        "sway/window"
+    ],
+    "modules-right": [
+        "idle_inhibitor",
+        "pulseaudio",
+        "cpu",
+        "power-profiles-daemon",
+        "battery",
+        "clock",
+        "tray",
+        "custom/power"
+    ],
+
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true
+    },
+    "sway/mode": {
+        "format": " {}"
+    },
+    "sway/scratchpad": {
+        "format": "{icon} {count}",
+        "show-empty": false,
+        "format-icons": ["", ""],
+        "tooltip": true,
+        "tooltip-format": "{app}: {title}"
+    },
+    "sway/window": {
+        "max-length": 60
+    },
+
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "󰅶",
+            "deactivated": "󰾪"
+        },
+        "tooltip-format-activated": "Idle inhibited",
+        "tooltip-format-deactivated": "Idle allowed"
+    },
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟",
+        "format-icons": {
+            "default": ["󰕿", "󰖀", "󰕾"]
+        },
+        "on-click": "pavucontrol",
+        "tooltip": false
+    },
+    "power-profiles-daemon": {
+        "format": "{icon}",
+        "tooltip-format": "Power profile: {profile}",
+        "format-icons": {
+            "performance": "󱐌",
+            "balanced": "󰗑",
+            "power-saver": "󰌪"
+        }
+    },
+    "cpu": {
+        "format": "󰘚 {usage}%",
+        "tooltip": false,
+        "interval": 5,
+        "on-click": "kitty btop"
+    },
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": "󰚥 {capacity}%",
+        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "tooltip-format": "{timeTo}\n{power:.1f}W"
+    },
+    "clock": {
+        "format": "󰸗 {:%H:%M}",
+        "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
+        "format-alt": "󰸗 {:%a %b %d, %Y}"
+    },
+    "custom/power": {
+        "format": "󰐥",
+        "tooltip": false,
+        "menu": "on-click",
+        "menu-file": "$HOME/.config/waybar/power_menu.xml",
+        "menu-actions": {
+            "lock":     "loginctl lock-session",
+            "suspend":  "systemctl suspend",
+            "reboot":   "systemctl reboot",
+            "shutdown": "systemctl poweroff"
+        }
+    },
+    "tray": {
+        "spacing": 8
+    }
+}
