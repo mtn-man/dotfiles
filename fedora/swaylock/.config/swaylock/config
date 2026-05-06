@@ -1,6 +1,6 @@
 # https://github.com/swaywm/swaylock
 
-image=/home/eli/Pictures/F34_default_wallpaper_night.jpg
+image=~/Pictures/F34_default_wallpaper_night.jpg
 color=1c1c1cff
 
 font=FiraCode Nerd Font Mono
