@@ -1,0 +1,42 @@
+# https://github.com/swaywm/swaylock
+
+image=/home/eli/Pictures/F34_default_wallpaper_night.jpg
+color=1c1c1cff
+
+font=FiraCode Nerd Font Mono
+font-size=16
+
+indicator-radius=60
+indicator-thickness=8
+
+# Hide separator lines
+line-color=00000000
+line-clear-color=00000000
+line-ver-color=00000000
+line-wrong-color=00000000
+separator-color=00000000
+
+# Inside of indicator (semi-transparent dark)
+inside-color=1c1c1c99
+inside-clear-color=1c1c1c99
+inside-ver-color=1c1c1c99
+inside-wrong-color=1c1c1c99
+
+# Ring — Dark Pastel palette
+ring-color=96cbfeff
+ring-clear-color=a8ff60ff
+ring-ver-color=ffffb6ff
+ring-wrong-color=ff6c60ff
+
+# Key highlights
+key-hl-color=96cbfeff
+bs-hl-color=ff6c60ff
+
+# Text
+text-color=dededeff
+text-clear-color=dededeff
+text-ver-color=dededeff
+text-wrong-color=ff6c60ff
+
+show-failed-attempts
+ignore-empty-password
