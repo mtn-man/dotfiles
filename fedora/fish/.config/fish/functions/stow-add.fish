@@ -5,7 +5,7 @@ function stow-add --description 'Move a ~/.config package into dotfiles and stow
     end
 
     set -l package $argv[1]
-    set -l dotfiles $HOME/dev/dotfiles
+    set -l dotfiles $HOME/dev/dotfiles/fedora
     set -l src $HOME/.config/$package
     set -l dest $dotfiles/$package/.config/$package
 
