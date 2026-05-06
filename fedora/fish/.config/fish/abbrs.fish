@@ -1,7 +1,8 @@
+abbr -a --global a 'after'
+abbr -a --global a_num --regex '^a([1-9][0-9]*)$' --function __abbr_timer_minutes
 abbr -a --global u 'update'
 abbr -a --global ff 'fastfetch'
 abbr -a --global lg 'lazygit'
-abbr -a --global mm 'mintmedia'
 abbr -a --global m 'micro'
 abbr -a --global gs 'git status'
 abbr -a --global l 'eza --git --group-directories-first'
