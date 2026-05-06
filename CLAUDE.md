@@ -45,7 +45,7 @@ For Fedora, run `fedora/fedora-bootstrap.sh` (installs via dnf + RPM Fusion, ena
 - **`mintmedia/`** — Config for the `mintmedia` Go tool: watches `~/Downloads/MintDrop`, routes media files to `/Volumes/media/{Movies,Shows}` (the homelab SMB share), integrates with Transmission at `localhost:9091`
 - **`fastfetch/`** — System info display config
 - **`server/`** — CentOS homelab: Fish config + `server.backup.sh` (rsync cold backup script)
-- **`fedora/`** — Fedora Sway workstation: bootstrap script + fish/lf/kitty configs, Sway compositor, swaylock, waybar
+- **`fedora/`** — Fedora Sway workstation: bootstrap script + fish/lf/kitty/micro configs, Sway compositor, swaylock, waybar
 
 ## Network Architecture (VPN Two-Mode Model)
 
