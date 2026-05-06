@@ -9,7 +9,7 @@ function yt --description 'Download YouTube videos with options'
 
     # Check for yt-dlp
     if not command -q yt-dlp
-        echo "yt: yt-dlp not found. Install with: pacman -S yt-dlp" >&2
+        echo "yt: yt-dlp not found. Install with: dnf install yt-dlp" >&2
         return 127
     end
 

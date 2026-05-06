@@ -58,5 +58,5 @@ history_file = "history.jsonl"
 enabled = true
 host = "localhost:9091"
 transmission_remote_path = "/opt/homebrew/bin/transmission-remote"
-# auth = "user:pass"   # only if required
+auth = "user:root"   # only if required
 auto_cleanup_completed_torrents = false
