@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install script for Fedora KDE setup.
+# Install script for Fedora Sway setup.
 # Run once from inside the dotfiles repo on a fresh Fedora install.
 set -euo pipefail
 
@@ -41,12 +41,20 @@ PKGS=(
     fd-find
     zoxide
     micro
+    btop
     lazygit
     fastfetch
     yt-dlp
     ffmpeg
     trash-cli
     stow
+
+    # --- Desktop ---
+    kitty
+    rofi
+    grim
+    slurp
+    pavucontrol
 
     # --- Network ---
     tailscale
@@ -66,8 +74,17 @@ PKGS=(
     google-noto-emoji-fonts
 )
 
-sudo dnf install -y "${PKGS[@]}"
-success "Packages installed"
+MISSING=()
+for pkg in "${PKGS[@]}"; do
+    rpm -q "$pkg" &>/dev/null || MISSING+=("$pkg")
+done
+
+if [[ ${#MISSING[@]} -eq 0 ]]; then
+    success "All packages already installed"
+else
+    sudo dnf install -y "${MISSING[@]}"
+    success "Packages installed"
+fi
 
 # -----------------------------------------------------------------------------
 # 3. lf (not in official Fedora repos — install via COPR)
@@ -82,7 +99,7 @@ success "lf installed"
 # -----------------------------------------------------------------------------
 info "Stowing dotfiles..."
 
-PACKAGES=(fish lf ghostty)
+PACKAGES=(fish lf micro kitty sway swaylock waybar)
 
 for pkg in "${PACKAGES[@]}"; do
     if [[ -d "$DOTFILES/../$pkg" ]]; then
@@ -128,6 +145,10 @@ success "Font cache rebuilt"
 # -----------------------------------------------------------------------------
 info "Creating XDG user directories..."
 xdg-user-dirs-update
+mkdir -p "$HOME/Pictures/Screenshots"
+if ! grep -q 'XDG_SCREENSHOTS_DIR' "$HOME/.config/user-dirs.dirs"; then
+    echo 'XDG_SCREENSHOTS_DIR="$HOME/Pictures/Screenshots"' >> "$HOME/.config/user-dirs.dirs"
+fi
 success "XDG user directories created"
 
 # -----------------------------------------------------------------------------
