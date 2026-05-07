@@ -13,13 +13,14 @@
     ],
     "modules-right": [
         "idle_inhibitor",
+        "custom/dunst",
+        "power-profiles-daemon",
         "pulseaudio",
         "cpu",
-        "power-profiles-daemon",
         "battery",
-        "clock",
         "tray",
-        "custom/power"
+        "custom/power",
+        "clock"
     ],
 
     "sway/workspaces": {
@@ -40,6 +41,12 @@
         "max-length": 60
     },
 
+    "custom/dunst": {
+        "exec": "dunstctl is-paused | grep -q true && echo '{\"text\":\"󰂠\",\"class\":\"paused\",\"tooltip\":\"Notifications paused\"}' || echo '{\"text\":\"󰂞\",\"class\":\"\",\"tooltip\":\"Notifications active\"}'",
+        "return-type": "json",
+        "interval": 2,
+        "on-click": "dunstctl set-paused toggle"
+    },
     "idle_inhibitor": {
         "format": "{icon}",
         "format-icons": {
