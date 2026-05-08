@@ -22,6 +22,9 @@ set $rofi_cmd rofi \
 # executables from PATH.
 set $menu $rofi_cmd -show combi -combi-modes drun#run -modes combi
 
+xwayland enable
+gaps inner 4
+
 ### Window rules
 #
 default_border none
@@ -137,6 +140,8 @@ input "1133:16500:Logitech_G305" {
     # Cycle workspaces
     bindsym $mod+ctrl+Left workspace prev
     bindsym $mod+ctrl+Right workspace next
+    bindgesture swipe:3:right workspace prev
+    bindgesture swipe:3:left workspace next
     # Note: workspaces can have any name you want, not just numbers.
     # We just use 1-10 as the default.
 #
