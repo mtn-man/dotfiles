@@ -11,7 +11,7 @@ set $right l
 # Recommends: foot
 set $term kitty
 # Your preferred web-browser
-set $browser chromium-browser
+set $browser flatpak run io.github.ungoogled_software.ungoogled_chromium --enable-features=UseOzonePlatform,VaapiVideoDecoder --ozone-platform=wayland
 # Your preferred application launcher
 # Note: pass the final command to swaymsg so that the resulting window can be opened
 # on the original workspace that the command was run on.
@@ -33,6 +33,7 @@ default_floating_border none
 ### Output configuration
 #
 output * bg ~/Pictures/artemisii-eclipse.jpeg fill
+output DP-2 adaptive_sync on
 
 ### Input configuration
 input "1739:0:Synaptics_TM3471-020" {
@@ -230,19 +231,20 @@ bindsym $mod+r mode "resize"
 include '$(/usr/libexec/sway/layered-include "/usr/share/sway/config.d/*.conf" "/etc/sway/config.d/*.conf" "${XDG_CONFIG_HOME:-$HOME/.config}/sway/config.d/*.conf")'
 
 exec $HOME/.local/bin/inactive-windows-transparency.py 0.75
+exec dunstctl set-paused true
 
 # Lid switch -- disable internal display when closed
 bindswitch --reload --locked lid:on output eDP-1 disable
 bindswitch --reload --locked lid:off output eDP-1 enable
 
 # Prefer external display for workspaces when docked
-workspace 1 output DP-1 eDP-1
-workspace 2 output DP-1 eDP-1
-workspace 3 output DP-1 eDP-1
-workspace 4 output DP-1 eDP-1
-workspace 5 output DP-1 eDP-1
-workspace 6 output DP-1 eDP-1
-workspace 7 output DP-1 eDP-1
-workspace 8 output DP-1 eDP-1
-workspace 9 output DP-1 eDP-1
-workspace 10 output DP-1 eDP-1
+workspace 1 output DP-2 eDP-1
+workspace 2 output DP-2 eDP-1
+workspace 3 output DP-2 eDP-1
+workspace 4 output DP-2 eDP-1
+workspace 5 output DP-2 eDP-1
+workspace 6 output DP-2 eDP-1
+workspace 7 output DP-2 eDP-1
+workspace 8 output DP-2 eDP-1
+workspace 9 output DP-2 eDP-1
+workspace 10 output DP-2 eDP-1
