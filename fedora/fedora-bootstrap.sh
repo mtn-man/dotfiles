@@ -111,8 +111,8 @@ info "Stowing dotfiles..."
 PACKAGES=(fish lf micro kitty sway swaylock waybar yt-dlp)
 
 for pkg in "${PACKAGES[@]}"; do
-    if [[ -d "$DOTFILES/../$pkg" ]]; then
-        stow -vt "$HOME" -d "$DOTFILES/.." "$pkg"
+    if [[ -d "$DOTFILES/$pkg" ]]; then
+        stow -vt "$HOME" -d "$DOTFILES" "$pkg"
         success "Stowed $pkg"
     else
         warn "$pkg directory not found, skipping"
