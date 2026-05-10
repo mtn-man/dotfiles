@@ -92,9 +92,9 @@
         "tooltip-format": "{timeTo}\n{power:.1f}W"
     },
     "clock": {
-        "format": "󰸗 {:%H:%M}",
+        "format": "󰸗 {:%d/%m/%y %H:%M:%S}",
         "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
-        "format-alt": "󰸗 {:%a %b %d, %Y}"
+        "interval": 1
     },
     "custom/power": {
         "format": "󰐥",
@@ -102,6 +102,7 @@
         "menu": "on-click",
         "menu-file": "$HOME/.config/waybar/power_menu.xml",
         "menu-actions": {
+            "logout":   "swaymsg exit",
             "lock":     "loginctl lock-session",
             "suspend":  "systemctl suspend",
             "reboot":   "systemctl reboot",
