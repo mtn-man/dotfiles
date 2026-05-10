@@ -44,8 +44,9 @@
     "custom/dunst": {
         "exec": "dunstctl is-paused | grep -q true && echo '{\"text\":\"󰂠\",\"class\":\"paused\",\"tooltip\":\"Notifications paused\"}' || echo '{\"text\":\"󰂞\",\"class\":\"\",\"tooltip\":\"Notifications active\"}'",
         "return-type": "json",
-        "interval": 2,
-        "on-click": "dunstctl set-paused toggle"
+        "interval": 0,
+        "signal": 8,
+        "on-click": "dunstctl set-paused toggle && pkill -SIGRTMIN+8 waybar"
     },
     "idle_inhibitor": {
         "format": "{icon}",
