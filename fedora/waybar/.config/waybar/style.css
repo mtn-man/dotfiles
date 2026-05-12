@@ -10,7 +10,7 @@
 
 window#waybar {
     background-color: rgba(28, 28, 28, 0.92);
-    border-top: 1px solid rgba(150, 203, 254, 0.12);
+    border-bottom: 1px solid rgba(150, 203, 254, 0.12);
     color: #DEDEDE;
 }
 
@@ -132,7 +132,6 @@ window#waybar {
 
 #custom-power {
     color: #DEDEDE;
-    font-size: 16px;
 }
 
 /* ── Power menu ─────────────────────────────────────────── */

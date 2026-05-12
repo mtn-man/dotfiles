@@ -90,7 +90,8 @@
         "format-charging": "󰂄 {capacity}%",
         "format-plugged": "󰚥 {capacity}%",
         "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
-        "tooltip-format": "{timeTo}\n{power:.1f}W"
+        "tooltip-format": "{timeTo}\n{power:.1f}W",
+        "on-click": "kitty --hold fish -c batt"
     },
     "clock": {
         "format": "󰸗 {:%m/%d/%y %H:%M:%S}",
