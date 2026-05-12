@@ -93,9 +93,9 @@
         "tooltip-format": "{timeTo}\n{power:.1f}W"
     },
     "clock": {
-        "format": "󰸗 {:%d/%m/%y %H:%M}",
+        "format": "󰸗 {:%m/%d/%y %H:%M:%S}",
         "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
-        "interval": 60
+        "interval": 1
     },
     "custom/power": {
         "format": "󰐥",
