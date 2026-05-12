@@ -12,12 +12,12 @@
         "sway/window"
     ],
     "modules-right": [
-        "idle_inhibitor",
-        "custom/dunst",
-        "power-profiles-daemon",
         "pulseaudio",
         "cpu",
         "battery",
+        "idle_inhibitor",
+        "custom/dunst",
+        "power-profiles-daemon",
         "tray",
         "clock",
         "custom/power"
