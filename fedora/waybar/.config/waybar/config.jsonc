@@ -19,8 +19,8 @@
         "cpu",
         "battery",
         "tray",
-        "custom/power",
-        "clock"
+        "clock",
+        "custom/power"
     ],
 
     "sway/workspaces": {
