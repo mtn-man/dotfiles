@@ -11,7 +11,7 @@ set $right l
 # Recommends: foot
 set $term kitty
 # Your preferred web-browser
-set $browser flatpak run io.github.ungoogled_software.ungoogled_chromium --enable-features=VaapiVideoDecoder --ozone-platform=wayland
+set $browser brave-origin-beta
 # Your preferred application launcher
 # Note: pass the final command to swaymsg so that the resulting window can be opened
 # on the original workspace that the command was run on.
