@@ -1,6 +1,6 @@
 // https://github.com/Alexays/Waybar/wiki/Configuration
 {
-    "position": "bottom",
+    "position": "top",
     "height": 32,
     "spacing": 0,
     "modules-left": [
