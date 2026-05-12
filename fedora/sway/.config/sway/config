@@ -13,22 +13,19 @@ set $term kitty
 # Your preferred web-browser
 set $browser brave-origin-beta
 # Your preferred application launcher
-# Note: pass the final command to swaymsg so that the resulting window can be opened
-# on the original workspace that the command was run on.
 # Recommends: rofi-wayland
-set $rofi_cmd rofi \
-        -terminal '$term'
-# Shows a combined list of the applications with desktop files and
-# executables from PATH.
-set $menu $rofi_cmd -show combi -combi-modes drun#run -modes combi
+set $menu rofi -show drun -show-icons
 
 xwayland enable
 gaps inner 4
+smart_gaps on
 
 ### Window rules
 #
 default_border none
 default_floating_border none
+focus_on_window_activation smart
+for_window [app_id="mpv"] inhibit_idle fullscreen
 
 ### Output configuration
 #
@@ -46,6 +43,8 @@ input "1739:0:Synaptics_TM3471-020" {
 input "1133:16500:Logitech_G305" {
     pointer_accel -0.5
 }
+
+seat * hide_cursor 3000
 
 ### Key bindings
 #
@@ -139,6 +138,7 @@ input "1133:16500:Logitech_G305" {
     bindsym $mod+Shift+9 move container to workspace number 9
     bindsym $mod+Shift+0 move container to workspace number 10
     # Cycle workspaces
+    workspace_auto_back_and_forth yes
     bindsym $mod+ctrl+Left workspace prev
     bindsym $mod+ctrl+Right workspace next
     bindgesture swipe:3:right workspace prev
