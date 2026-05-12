@@ -44,7 +44,7 @@
     "custom/dunst": {
         "exec": "dunstctl is-paused | grep -q true && echo '{\"text\":\"󰂠\",\"class\":\"paused\",\"tooltip\":\"Notifications paused\"}' || echo '{\"text\":\"󰂞\",\"class\":\"\",\"tooltip\":\"Notifications active\"}'",
         "return-type": "json",
-        "interval": 0,
+        "interval": 3600,
         "signal": 8,
         "on-click": "dunstctl set-paused toggle && pkill -SIGRTMIN+8 waybar"
     },
@@ -93,9 +93,9 @@
         "tooltip-format": "{timeTo}\n{power:.1f}W"
     },
     "clock": {
-        "format": "󰸗 {:%d/%m/%y %H:%M:%S}",
+        "format": "󰸗 {:%d/%m/%y %H:%M}",
         "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
-        "interval": 1
+        "interval": 60
     },
     "custom/power": {
         "format": "󰐥",
