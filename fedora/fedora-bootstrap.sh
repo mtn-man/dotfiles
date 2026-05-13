@@ -52,6 +52,7 @@ PKGS=(
     # --- Desktop ---
     # Most of these ship with the Fedora Sway spin; listed for plain Fedora installs.
     kitty
+    swaylock
     waybar
     rofi
     grim
