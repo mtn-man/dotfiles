@@ -109,7 +109,7 @@ fi
 # -----------------------------------------------------------------------------
 info "Stowing dotfiles..."
 
-PACKAGES=(fish lf micro kitty sway swaylock waybar yt-dlp)
+PACKAGES=(fish lf micro kitty sway swaylock waybar yt-dlp fastfetch)
 
 for pkg in "${PACKAGES[@]}"; do
     if [[ -d "$DOTFILES/$pkg" ]]; then
