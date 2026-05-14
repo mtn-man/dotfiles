@@ -13,17 +13,36 @@ success() { printf '\e[32m✓\e[0m %s\n' "$*"; }
 warn()    { printf '\e[33m!\e[0m %s\n' "$*"; }
 die()     { printf '\e[31mERROR:\e[0m %s\n' "$*" >&2; exit 1; }
 
+# install_extra PKG LABEL REPO_CMD... — skip if already installed, otherwise
+# run REPO_CMD to add the source, then dnf install PKG.
+install_extra() {
+    local pkg=$1 label=$2; shift 2
+    if rpm -q "$pkg" &>/dev/null; then
+        success "$label already installed"
+    else
+        info "Installing $label..."
+        "$@"
+        sudo dnf install -y "$pkg"
+        success "$label installed"
+    fi
+}
+
 [[ $EUID -eq 0 ]] && die "Do not run this script as root"
 [[ -f /etc/fedora-release ]] || die "This script is for Fedora only"
 
 # -----------------------------------------------------------------------------
 # 1. RPM Fusion
 # -----------------------------------------------------------------------------
-info "Enabling RPM Fusion repositories..."
-sudo dnf install -y \
-    "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm" \
-    "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
-success "RPM Fusion enabled"
+if rpm -q rpmfusion-free-release &>/dev/null && rpm -q rpmfusion-nonfree-release &>/dev/null; then
+    success "RPM Fusion already enabled"
+else
+    fedora_ver=$(rpm -E %fedora)
+    info "Enabling RPM Fusion repositories..."
+    sudo dnf install -y \
+        "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${fedora_ver}.noarch.rpm" \
+        "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${fedora_ver}.noarch.rpm"
+    success "RPM Fusion enabled"
+fi
 
 # -----------------------------------------------------------------------------
 # 2. Package installation
@@ -31,6 +50,9 @@ success "RPM Fusion enabled"
 info "Installing packages..."
 
 PKGS=(
+    # --- System ---
+    dnf-plugins-core
+
     # --- Shell ---
     fish
 
@@ -63,7 +85,6 @@ PKGS=(
 
     # --- Network ---
     network-manager-applet
-    tailscale
 
     # --- Credentials / SSH ---
     openssh-askpass
@@ -73,9 +94,6 @@ PKGS=(
     golang
 
     # --- Fonts ---
-    # Note: FiraCode Nerd Font is not in official repos.
-    # Install manually from https://github.com/ryanoasis/nerd-fonts/releases
-    # or via the nerd-fonts COPR: copr.fedorainfracloud.org/coprs/atim/nerd-fonts/
     fira-code-fonts
     google-noto-emoji-fonts
 )
@@ -93,16 +111,12 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 3. lf (not in official Fedora repos — install via COPR)
+# 3. Extra packages (not in official Fedora repos)
 # -----------------------------------------------------------------------------
-if rpm -q lf &>/dev/null; then
-    success "lf already installed"
-else
-    info "Installing lf..."
-    sudo dnf copr enable -y pennbauman/ports
-    sudo dnf install -y lf
-    success "lf installed"
-fi
+install_extra lf                  "lf"                 sudo dnf copr enable -y pennbauman/ports
+install_extra firacode-nerd-fonts "FiraCode Nerd Font" sudo dnf copr enable -y atim/nerd-fonts
+install_extra brave-origin-beta   "Brave browser"      sudo dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-beta.s3.brave.com/brave-browser-beta.repo
+install_extra tailscale           "Tailscale"          sudo dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
 
 # -----------------------------------------------------------------------------
 # 4. Stow dotfiles
@@ -175,7 +189,5 @@ printf '\n'
 printf '  Next steps:\n'
 printf '  1. Log out and back in so the shell change takes effect.\n'
 printf '  2. Run: tailscale up        (authenticate Tailscale)\n'
-printf '  3. Install FiraCode Nerd Font from https://github.com/ryanoasis/nerd-fonts/releases\n'
-printf '     or enable the nerd-fonts COPR: sudo dnf copr enable atim/nerd-fonts\n'
 
 printf '\n'
