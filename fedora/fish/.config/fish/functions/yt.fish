@@ -4,8 +4,8 @@ function yt --description 'Download YouTube videos with options'
 
     # Default format settings
     set -l min_h 720
-    set -l max_h 1440
-    set -l codec_pref vp9
+    set -l max_h 1080
+    set -l codec_pref avc1
 
     # Check for yt-dlp
     if not command -q yt-dlp
