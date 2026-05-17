@@ -25,6 +25,7 @@ smart_gaps on
 default_border none
 default_floating_border none
 focus_on_window_activation smart
+focus_follows_mouse no
 for_window [app_id="mpv"] inhibit_idle fullscreen
 
 ### Output configuration
