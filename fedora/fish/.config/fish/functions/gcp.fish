@@ -45,7 +45,7 @@ function gcp --description "Review changes, stage all, commit (message or editor
 
     # 6. Commit: Use message if provided, otherwise open editor
     if test (count $argv) -gt 0
-        git commit -m (string join " " -- $argv); or return 1
+        git commit -m (string join " " -- "$argv"); or return 1
     else
         git commit; or return 1
     end
