@@ -3,6 +3,7 @@
     "height": 32,
     "spacing": 0,
     "modules-left": [
+        "custom/power",
         "sway/workspaces",
         "sway/mode",
         "sway/scratchpad"
@@ -18,8 +19,7 @@
         "custom/dunst",
         "power-profiles-daemon",
         "tray",
-        "clock",
-        "custom/power"
+        "clock"
     ],
 
     "sway/workspaces": {
