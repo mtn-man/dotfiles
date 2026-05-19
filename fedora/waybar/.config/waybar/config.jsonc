@@ -93,7 +93,7 @@
         "on-click": "kitty --hold fish -c batt"
     },
     "clock": {
-        "format": "󰸗 {:%m/%d/%y %H:%M}",
+        "format": "{:%a %B %e %H:%M}",
         "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
         "interval": 60
     },
