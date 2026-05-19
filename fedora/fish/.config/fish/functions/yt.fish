@@ -56,8 +56,8 @@ function yt --description 'Download YouTube videos with options'
     if set -q _flag_interactive
         echo "Select Max Resolution:"
         echo "  [1] 720p"
-        echo "  [2] 1080p"
-        echo "  [3] 1440p (Default)"
+        echo "  [2] 1080p (Default)"
+        echo "  [3] 1440p"
         echo "  [4] 2160p (4K)"
         read -n 1 -P "Choice > " res_choice
         echo
@@ -65,12 +65,12 @@ function yt --description 'Download YouTube videos with options'
         switch $res_choice
             case 1
                 set max_h 720
-            case 2
-                set max_h 1080
+            case 3
+                set max_h 1440
             case 4
                 set max_h 2160
             case '*'
-                set max_h 1440
+                set max_h 1080
         end
 
         echo
