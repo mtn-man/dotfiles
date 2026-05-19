@@ -15,7 +15,6 @@
         "pulseaudio",
         "cpu",
         "battery",
-        "idle_inhibitor",
         "custom/dunst",
         "power-profiles-daemon",
         "tray",
@@ -46,15 +45,6 @@
         "interval": 3600,
         "signal": 8,
         "on-click": "dunstctl set-paused toggle && pkill -SIGRTMIN+8 waybar"
-    },
-    "idle_inhibitor": {
-        "format": "{icon}",
-        "format-icons": {
-            "activated": "󰅶",
-            "deactivated": "󰾪"
-        },
-        "tooltip-format-activated": "Idle inhibited",
-        "tooltip-format-deactivated": "Idle allowed"
     },
     "pulseaudio": {
         "format": "{icon} {volume}%",
