@@ -4,5 +4,7 @@
     "clipboard": "external",
     "autoreload": true,
     "scrollbar": true,
-    "tabstospaces": false
+    "tabstospaces": false,
+    "lsp.server": "json=vscode-json-language-server --stdio,jsonc=vscode-json-language-server --stdio",
+    "lsp.tabcompletion": true
 }
