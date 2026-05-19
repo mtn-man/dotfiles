@@ -132,6 +132,7 @@ window#waybar {
 
 #custom-power {
     color: #DEDEDE;
+    font-size: 20px;
 }
 
 /* ── Power menu ─────────────────────────────────────────── */

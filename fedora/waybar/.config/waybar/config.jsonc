@@ -1,6 +1,5 @@
 // https://github.com/Alexays/Waybar/wiki/Configuration
 {
-    "position": "top",
     "height": 32,
     "spacing": 0,
     "modules-left": [
@@ -94,9 +93,9 @@
         "on-click": "kitty --hold fish -c batt"
     },
     "clock": {
-        "format": "󰸗 {:%m/%d/%y %H:%M:%S}",
+        "format": "󰸗 {:%m/%d/%y %H:%M}",
         "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
-        "interval": 1
+        "interval": 60
     },
     "custom/power": {
         "format": "󰐥",
