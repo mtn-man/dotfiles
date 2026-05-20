@@ -109,6 +109,8 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/waybar/style.css" ~/.config/waybar/style.css css
         __snap_file "~/.config/waybar/power_menu.xml" ~/.config/waybar/power_menu.xml xml
 
+        __snap_file "~/.config/autostart/nm-applet.desktop" ~/.config/autostart/nm-applet.desktop text
+
         # 8. rofi
         __snap_file "~/.config/rofi/config.rasi" ~/.config/rofi/config.rasi text
         __snap_file "~/.config/rofi/quicklinks" ~/.config/rofi/quicklinks text
