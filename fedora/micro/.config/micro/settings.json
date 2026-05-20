@@ -1,10 +1,11 @@
 {
-    "colorscheme": "solarized",
+    "colorscheme": "monokai-dark",
     "autosave": false,
     "clipboard": "external",
     "autoreload": true,
     "scrollbar": true,
     "tabstospaces": false,
     "lsp.server": "json=vscode-json-language-server --stdio,jsonc=vscode-json-language-server --stdio",
-    "lsp.tabcompletion": true
+    "lsp.tabcompletion": true,
+    "lsp.formatOnSave": false
 }
