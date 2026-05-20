@@ -53,6 +53,7 @@ window#waybar {
 #battery,
 #cpu,
 #pulseaudio,
+#memory,
 #custom-dunst,
 #scratchpad,
 #power-profiles-daemon,
