@@ -57,7 +57,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         echo
         echo "System note: Fedora 44 Sway spin on ThinkPad T14 Gen 1 (i5-10210U, 16GB RAM)."
         echo "Dotfiles managed with GNU Stow from ~/dev/dotfiles/fedora/."
-        echo "Packages stowed: fish, lf, micro, kitty, sway, swaylock, waybar, fastfetch, yt-dlp."
+        echo "Packages stowed: fish, lf, micro, kitty, sway, swaylock, waybar, rofi, fastfetch, yt-dlp."
         echo "Tailscale is the only VPN on this machine — no NordVPN."
         echo "Notification daemon is dunst; idle/lock is swayidle — both provided by the Fedora Sway spin."
         echo "Full package list is in fedora-bootstrap.sh."
@@ -109,7 +109,12 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/waybar/style.css" ~/.config/waybar/style.css css
         __snap_file "~/.config/waybar/power_menu.xml" ~/.config/waybar/power_menu.xml xml
 
-        # 8. yt-dlp
+        # 8. rofi
+        __snap_file "~/.config/rofi/config.rasi" ~/.config/rofi/config.rasi text
+        __snap_file "~/.config/rofi/quicklinks" ~/.config/rofi/quicklinks text
+        __snap_file "~/.config/rofi/quicklinks.sh" ~/.config/rofi/quicklinks.sh bash
+
+        # 9. yt-dlp
         __snap_file "~/.config/yt-dlp/config" ~/.config/yt-dlp/config text
 
     end > $outfile
