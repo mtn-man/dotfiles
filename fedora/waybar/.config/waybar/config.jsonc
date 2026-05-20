@@ -90,7 +90,6 @@
     "custom/power": {
         "format": "󰐥",
         "tooltip": false,
-        "on-click-right": "systemctl poweroff",
         "menu": "on-click",
         "menu-file": "$HOME/.config/waybar/power_menu.xml",
         "menu-actions": {
