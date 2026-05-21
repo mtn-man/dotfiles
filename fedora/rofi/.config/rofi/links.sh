@@ -2,7 +2,7 @@
 links="$HOME/.config/rofi/links"
 if [[ "$ROFI_RETV" -eq 1 ]]; then
     url=$(awk -v k="$1" '$1==k{print $2}' "$links")
-    [[ -n "$url" ]] && (sleep 0.1 && xdg-open "$url") >/dev/null 2>&1 &
+    [[ -n "$url" ]] && systemd-run --user --no-block xdg-open "$url" >/dev/null 2>&1
 else
     icon=""
     brave_icon=(/usr/share/icons/hicolor/48x48/apps/brave*.png)
