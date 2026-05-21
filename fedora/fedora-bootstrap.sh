@@ -66,6 +66,7 @@ PKGS=(
     btop
     lazygit
     fastfetch
+    tealdeer
     yt-dlp
     ffmpeg
     trash-cli
