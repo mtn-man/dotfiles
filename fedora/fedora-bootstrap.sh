@@ -177,7 +177,20 @@ fi
 success "XDG user directories created"
 
 # -----------------------------------------------------------------------------
-# 9. Suppress login message
+# 9. Home directory permissions for SDDM
+# -----------------------------------------------------------------------------
+# SDDM runs as its own user and needs execute permission on $HOME to traverse
+# the path to wallpapers stored in ~/Pictures.
+if [[ "$(stat -c '%a' "$HOME")" != "711" ]]; then
+    info "Setting home directory permissions for SDDM wallpaper access..."
+    chmod 711 "$HOME"
+    success "Home directory set to 711"
+else
+    success "Home directory permissions already correct"
+fi
+
+# -----------------------------------------------------------------------------
+# 10. Suppress login message
 # -----------------------------------------------------------------------------
 touch "$HOME/.hushlogin"
 
