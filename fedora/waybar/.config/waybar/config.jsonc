@@ -30,9 +30,8 @@
         "format": "{}"
     },
     "sway/scratchpad": {
-        "format": "{icon} {count}",
+        "format": "{count}",
         "show-empty": false,
-        "format-icons": ["", ""],
         "tooltip": true,
         "tooltip-format": "{app}: {title}"
     },
