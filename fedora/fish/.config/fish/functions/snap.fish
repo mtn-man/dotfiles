@@ -113,8 +113,8 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
 
         # 8. rofi
         __snap_file "~/.config/rofi/config.rasi" ~/.config/rofi/config.rasi text
-        __snap_file "~/.config/rofi/quicklinks" ~/.config/rofi/quicklinks text
-        __snap_file "~/.config/rofi/quicklinks.sh" ~/.config/rofi/quicklinks.sh bash
+        __snap_file "~/.config/rofi/quicklinks" ~/.config/rofi/links text
+        __snap_file "~/.config/rofi/quicklinks.sh" ~/.config/rofi/links.sh bash
 
         # 9. yt-dlp
         __snap_file "~/.config/yt-dlp/config" ~/.config/yt-dlp/config text
