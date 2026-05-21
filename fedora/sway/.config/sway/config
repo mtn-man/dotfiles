@@ -88,7 +88,7 @@ seat * hide_cursor 3000
     bindsym $mod+Shift+n exec dunstctl set-paused toggle && pkill -SIGRTMIN+8 waybar
 
     # Exit sway (logs you out of your Wayland session)
-    bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
+    bindsym $mod+Shift+e exec sh -c "printf 'Log out' | rofi -dmenu -p 'Exit sway?' | grep -q . && swaymsg exit"
 
     # Shut down
     bindsym $mod+Shift+Delete exec sh -c "printf 'Shut down' | rofi -dmenu -p 'Power off?' | grep -q . && systemctl poweroff"
