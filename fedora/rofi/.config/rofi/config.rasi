@@ -3,6 +3,6 @@
 
 configuration {
     modes: "combi,window";
-    combi-modes: "drun,links:/home/eli/.config/rofi/quicklinks.sh";
+    combi-modes: "drun,links:/home/eli/.config/rofi/links.sh";
     show-icons: true;
 }
