@@ -5,7 +5,8 @@ if [[ "$ROFI_RETV" -eq 1 ]]; then
     [[ -n "$url" ]] && (sleep 0.1 && xdg-open "$url") >/dev/null 2>&1 &
 else
     icon=""
-    [[ -f /usr/share/icons/hicolor/48x48/apps/brave-origin-beta.png ]] && icon="brave-origin-beta"
+    brave_icon=(/usr/share/icons/hicolor/48x48/apps/brave*.png)
+    [[ -f "${brave_icon[0]}" ]] && icon=$(basename "${brave_icon[0]}" .png)
     awk -v icon="$icon" '{
         if (icon != "") printf "%s\0icon\x1f%s\n", $1, icon
         else print $1
