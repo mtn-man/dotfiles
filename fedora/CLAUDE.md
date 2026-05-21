@@ -10,13 +10,14 @@ Notes on the Fedora Sway spin that aren't obvious from the code.
 
 ## Packages
 
-Deployed via GNU Stow from the `fedora/` subdirectory: `fish`, `lf`, `kitty`, `micro`, `sway`, `swaylock`, `waybar`, `yt-dlp`, `fastfetch`.
+Deployed via GNU Stow from the `fedora/` subdirectory: `fish`, `lf`, `micro`, `kitty`, `sway`, `swaylock`, `waybar`, `rofi`, `yt-dlp`, `fastfetch`.
 
-All four out-of-repo packages are handled by bootstrap section 3 via COPR / external repos:
-- **lf** — `pennbauman/ports` COPR
+Out-of-repo packages are handled by bootstrap section 3 via COPR / external repos:
+- **lf** — `lsevcik/lf` COPR
 - **FiraCode Nerd Font** — `atim/nerd-fonts` COPR
 - **Brave browser** — `brave-browser-beta.repo`
 - **Tailscale** — `pkgs.tailscale.com/stable/fedora/tailscale.repo`
+- **throttled** — `abn/throttled` COPR
 
 ## Theme
 

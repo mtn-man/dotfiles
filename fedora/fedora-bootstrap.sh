@@ -47,8 +47,6 @@ fi
 # -----------------------------------------------------------------------------
 # 2. Package installation
 # -----------------------------------------------------------------------------
-info "Installing packages..."
-
 PKGS=(
     # --- System ---
     dnf-plugins-core
@@ -71,11 +69,24 @@ PKGS=(
     ffmpeg
     trash-cli
     stow
+    gh
+    bc
+    tree
+    rsync
+    unzip
+    zip
+    nmap-ncat
+    wev
+    nvme-cli
+    smartmontools
+    nodejs22
+    playerctl
 
     # --- Desktop ---
     # Most of these ship with the Fedora Sway spin; listed for plain Fedora installs.
     kitty
     swaylock
+    swayidle
     waybar
     rofi
     grim
@@ -83,6 +94,10 @@ PKGS=(
     sway-contrib
     wl-clipboard
     pavucontrol
+    kanshi
+    nwg-wrapper
+    imv
+    mpv
 
     # --- Network ---
     network-manager-applet
@@ -107,6 +122,7 @@ done
 if [[ ${#MISSING[@]} -eq 0 ]]; then
     success "All packages already installed"
 else
+    info "Installing packages..."
     sudo dnf install -y "${MISSING[@]}"
     success "Packages installed"
 fi
@@ -114,17 +130,36 @@ fi
 # -----------------------------------------------------------------------------
 # 3. Extra packages (not in official Fedora repos)
 # -----------------------------------------------------------------------------
-install_extra lf                  "lf"                 sudo dnf copr enable -y pennbauman/ports
+install_extra lf                  "lf"                 sudo dnf copr enable -y lsevcik/lf
 install_extra firacode-nerd-fonts "FiraCode Nerd Font" sudo dnf copr enable -y atim/nerd-fonts
 install_extra brave-origin-beta   "Brave browser"      sudo dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-beta.s3.brave.com/brave-browser-beta.repo
 install_extra tailscale           "Tailscale"          sudo dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+install_extra throttled           "ThinkPad throttle fix" sudo dnf copr enable -y abn/throttled
 
 # -----------------------------------------------------------------------------
-# 4. Stow dotfiles
+# 4. LSP tools for micro
+# -----------------------------------------------------------------------------
+# Ensure npm installs to ~/.local so global installs never need root.
+if ! grep -qF 'prefix=' "$HOME/.npmrc" 2>/dev/null; then
+    info "Setting npm prefix to ~/.local..."
+    npm config set prefix "$HOME/.local"
+    success "npm prefix set"
+fi
+
+if npm list -g vscode-langservers-extracted &>/dev/null; then
+    success "vscode-langservers-extracted already installed"
+else
+    info "Installing vscode-langservers-extracted for micro LSP..."
+    npm install -g vscode-langservers-extracted
+    success "LSP tools installed"
+fi
+
+# -----------------------------------------------------------------------------
+# 5. Stow dotfiles
 # -----------------------------------------------------------------------------
 info "Stowing dotfiles..."
 
-PACKAGES=(fish lf micro kitty sway swaylock waybar yt-dlp fastfetch)
+PACKAGES=(fish lf micro kitty sway swaylock waybar rofi yt-dlp fastfetch)
 
 for pkg in "${PACKAGES[@]}"; do
     if [[ -d "$DOTFILES/$pkg" ]]; then
@@ -136,15 +171,42 @@ for pkg in "${PACKAGES[@]}"; do
 done
 
 # -----------------------------------------------------------------------------
-# 5. System services
+# 6. System services
 # -----------------------------------------------------------------------------
 info "Enabling system services..."
 
 sudo systemctl enable --now tailscaled.service
+sudo systemctl enable --now throttled.service
+sudo systemctl enable --now sshd.service
+sudo systemctl enable --now smartd.service
 success "System services enabled"
 
 # -----------------------------------------------------------------------------
-# 6. Default shell
+# 7. Battery charge threshold
+# -----------------------------------------------------------------------------
+BATTERY_SERVICE="/etc/systemd/system/battery-charge-threshold.service"
+if systemctl is-enabled battery-charge-threshold.service &>/dev/null; then
+    success "Battery charge threshold service already enabled"
+else
+    info "Creating battery charge threshold service (85%)..."
+    sudo tee "$BATTERY_SERVICE" > /dev/null << 'EOF'
+[Unit]
+Description=Set battery charge threshold
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'echo 85 > /sys/class/power_supply/BAT0/charge_control_end_threshold'
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    sudo systemctl enable --now battery-charge-threshold.service
+    success "Battery charge threshold service created and enabled"
+fi
+
+# -----------------------------------------------------------------------------
+# 8. Default shell
 # -----------------------------------------------------------------------------
 if [[ "$SHELL" != "$(command -v fish)" ]]; then
     info "Setting fish as default shell..."
@@ -159,14 +221,14 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 7. Font cache
+# 9. Font cache
 # -----------------------------------------------------------------------------
 info "Rebuilding font cache..."
 fc-cache -f
 success "Font cache rebuilt"
 
 # -----------------------------------------------------------------------------
-# 8. XDG user directories
+# 10. XDG user directories
 # -----------------------------------------------------------------------------
 info "Creating XDG user directories..."
 xdg-user-dirs-update
@@ -177,7 +239,7 @@ fi
 success "XDG user directories created"
 
 # -----------------------------------------------------------------------------
-# 9. Home directory permissions for SDDM
+# 11. Home directory permissions for SDDM
 # -----------------------------------------------------------------------------
 # SDDM runs as its own user and needs execute permission on $HOME to traverse
 # the path to wallpapers stored in ~/Pictures.
@@ -190,7 +252,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 10. Suppress login message
+# 12. Suppress login message
 # -----------------------------------------------------------------------------
 touch "$HOME/.hushlogin"
 
@@ -203,5 +265,6 @@ printf '\n'
 printf '  Next steps:\n'
 printf '  1. Log out and back in so the shell change takes effect.\n'
 printf '  2. Run: tailscale up        (authenticate Tailscale)\n'
+printf '  3. Run: tailscale up --exit-node=<node>  (optional: route through homelab)\n'
 
 printf '\n'
