@@ -90,8 +90,8 @@ seat * hide_cursor 3000
     # Exit sway (logs you out of your Wayland session)
     bindsym $mod+Shift+e exec swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
 
-    # Shut down immediately
-    bindsym $mod+Shift+Delete exec systemctl poweroff
+    # Shut down
+    bindsym $mod+Shift+Delete exec sh -c "printf 'Shut down' | rofi -dmenu -p 'Power off?' | grep -q . && systemctl poweroff"
 #
 # Moving around:
 #
