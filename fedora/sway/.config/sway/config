@@ -27,6 +27,8 @@ default_floating_border none
 focus_on_window_activation focus
 focus_follows_mouse no
 for_window [app_id="mpv"] inhibit_idle fullscreen
+for_window [app_id="org.jellyfin.JellyfinDesktop"] inhibit_idle fullscreen
+for_window [app_id="brave-origin-beta"] inhibit_idle fullscreen
 
 ### Output configuration
 #
