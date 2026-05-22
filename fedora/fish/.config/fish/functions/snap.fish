@@ -33,7 +33,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         # 1. System info
         echo '```bash'
         fastfetch \
-            | string replace -ra '\x1b\[[0-9;]*m' '' \
+            | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' '' \
             | string match -rv '█'
         echo '```'
 
