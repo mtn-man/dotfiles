@@ -142,6 +142,21 @@ fi
 install_extra brave-origin-beta   "Brave browser"      sudo dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-beta.s3.brave.com/brave-browser-beta.repo
 install_extra tailscale           "Tailscale"          sudo dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
 install_extra throttled           "ThinkPad throttle fix" sudo dnf copr enable -y abn/throttled
+if rpm -q claude-code &>/dev/null; then
+    success "Claude Code already installed"
+else
+    info "Installing Claude Code..."
+    sudo tee /etc/yum.repos.d/claude-code.repo > /dev/null << 'EOF'
+[claude-code]
+name=Claude Code
+baseurl=https://downloads.claude.ai/claude-code/rpm/stable
+enabled=1
+gpgcheck=1
+gpgkey=https://downloads.claude.ai/keys/claude-code.asc
+EOF
+    sudo dnf install -y claude-code
+    success "Claude Code installed"
+fi
 
 # -----------------------------------------------------------------------------
 # 4. LSP tools for micro
