@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install script for Fedora Sway setup.
 # Run once from inside the dotfiles repo on a fresh Fedora install.
-set -euo pipefail
+set -uo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -131,7 +131,14 @@ fi
 # 3. Extra packages (not in official Fedora repos)
 # -----------------------------------------------------------------------------
 install_extra lf                  "lf"                 sudo dnf copr enable -y lsevcik/lf
-install_extra firacode-nerd-fonts "FiraCode Nerd Font" sudo dnf copr enable -y atim/nerd-fonts
+if rpm -q firacode-nerd-fonts &>/dev/null || [[ -d "$HOME/.local/share/fonts/FiraCode" ]]; then
+    success "FiraCode Nerd Font already installed"
+else
+    info "Installing FiraCode Nerd Font..."
+    sudo dnf copr enable -y atim/nerd-fonts
+    sudo dnf install -y firacode-nerd-fonts
+    success "FiraCode Nerd Font installed"
+fi
 install_extra brave-origin-beta   "Brave browser"      sudo dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-beta.s3.brave.com/brave-browser-beta.repo
 install_extra tailscale           "Tailscale"          sudo dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
 install_extra throttled           "ThinkPad throttle fix" sudo dnf copr enable -y abn/throttled
