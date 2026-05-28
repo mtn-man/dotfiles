@@ -1,5 +1,5 @@
 {
-  "$schema" : "https:\/\/schema.linearmouse.app\/0.10.4",
+  "$schema" : "https:\/\/schema.linearmouse.app\/0.11.2",
   "schemes" : [
     {
       "buttons" : {
@@ -10,9 +10,11 @@
             "right" : "missionControl.spaceLeft",
             "up" : "missionControl"
           },
-          "button" : 2,
           "enabled" : true,
-          "threshold" : 50
+          "threshold" : 50,
+          "trigger" : {
+            "button" : 2
+          }
         },
         "universalBackForward" : true
       },
@@ -25,6 +27,7 @@
         }
       },
       "pointer" : {
+        "acceleration" : 1.3,
         "disableAcceleration" : true
       },
       "scrolling" : {
