@@ -1,50 +1,21 @@
 function tm --description 'Manage Transmission-CLI services and magnet links'
-    set -l host "127.0.0.1:9091"
-    set -l rpc_user "user"
+    set -l host "$HOMELAB_HOST:9091"
 
-    # 1. Check if the first argument is a service management subcommand
-    if contains -- "$argv[1]" on off re restart ping
-        if not command -q brew
-            echo "tm: brew not found" >&2
-            return 127
-        end
-    end
-
-    switch "$argv[1]"
-        case on
-            brew services start transmission-cli
-            return
-        case off
-            brew services stop transmission-cli
-            return
-        case re restart
-            brew services restart transmission-cli
-            return
-    end
-
-    # 2. All remaining commands need transmission-remote and keychain credentials
     if not command -q transmission-remote
         echo "tm: transmission-remote not found (brew install transmission-cli)" >&2
         return 127
     end
 
-    set -l pass (security find-generic-password -s transmission-rpc -a $rpc_user -w 2>/dev/null)
-    if test -z "$pass"
-        echo "tm: credentials not found in keychain" >&2
-        echo "tm: run: security add-generic-password -s transmission-rpc -a $rpc_user -w" >&2
-        return 1
-    end
-
     switch "$argv[1]"
         case ping
-            transmission-remote "$host" -n "$rpc_user:$pass" -st
+            transmission-remote "$host" -st
             return
     end
 
-    # Preflight: ensure Transmission daemon is running and RPC is reachable
-    if not transmission-remote "$host" -n "$rpc_user:$pass" -l >/dev/null 2>&1
+    # Preflight: ensure Transmission RPC is reachable
+    if not transmission-remote "$host" -l >/dev/null 2>&1
         echo "tm: Transmission RPC not reachable at $host" >&2
-        echo "tm: start the daemon/app, then try again." >&2
+        echo "tm: ensure tailscale mode is active and homelab is up." >&2
         return 1
     end
 
@@ -65,7 +36,7 @@ function tm --description 'Manage Transmission-CLI services and magnet links'
             echo "tm: file not found: $input" >&2
             return 1
         end
-        if transmission-remote "$host" -n "$rpc_user:$pass" -a "$input"
+        if transmission-remote "$host" -a "$input"
             echo "tm: torrent added"
             echo "tm: track progress at http://$host/transmission/web/"
         end
@@ -82,7 +53,7 @@ function tm --description 'Manage Transmission-CLI services and magnet links'
         return 1
     end
 
-    if transmission-remote "$host" -n "$rpc_user:$pass" -a "$input"
+    if transmission-remote "$host" -a "$input"
         echo "tm: magnet added"
         echo "tm: track progress at http://$host/transmission/web/"
     end

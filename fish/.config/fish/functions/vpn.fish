@@ -30,7 +30,9 @@ function __vpn_tailscale_state
     tailscale status --json 2>/dev/null | jq -r .BackendState 2>/dev/null
 end
 
-function vpn --description 'Manage network mode (normal/media) and VPN service'
+function vpn --description '[DEPRECATED] Manage network mode (normal/media) and VPN service'
+    printf 'vpn: %sdeprecated%s: VPN is now managed via GUI; scutil control is unreliable on this macOS version\n' \
+        (set_color yellow) (set_color normal) >&2
 
     set -l sub $argv[1]
 

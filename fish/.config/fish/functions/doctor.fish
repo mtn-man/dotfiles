@@ -1,8 +1,8 @@
-function doctor --description 'Report system status and verify transmission VPN safety'
+function doctor --description 'Report system status and verify connectivity'
     set -l ok 1
 
     # Env var checks
-    for var in VPN_SVC HOMELAB_HOST HOMELAB_HOST_LOCAL MEDIA_SHARE
+    for var in HOMELAB_HOST HOMELAB_HOST_LOCAL MEDIA_SHARE
         if not set -q $var
             printf 'doctor: %serror: $%s is not set%s\n' (set_color red) $var (set_color normal) >&2
             set ok 0
@@ -10,10 +10,10 @@ function doctor --description 'Report system status and verify transmission VPN 
     end
 
     # Toolchain checks
-    # Required by doctor: jq, transmission-remote
+    # Required by doctor: jq (tailscale JSON parsing)
     # System toolchain (used by other functions): fd, rg, fzf, bat, eza
     set -l doctor_tools_ok 1
-    for tool in jq transmission-remote
+    for tool in jq
         if not command -q $tool
             printf 'doctor: %s%s missing: proceeding in degraded state%s\n' (set_color red) $tool (set_color normal) >&2
             set ok 0
@@ -32,26 +32,32 @@ function doctor --description 'Report system status and verify transmission VPN 
         printf 'doctor: toolchain: %sok%s\n' (set_color green) (set_color normal)
     end
 
-    # Collect raw signals
-    set -l vpn_state (scutil --nc status "$VPN_SVC" 2>/dev/null)
-    set -l vpn_iface (string match -rg 'InterfaceName : (\S+)' $vpn_state)
-    set -l vpn_status $vpn_state[1]
-    test -z "$vpn_status"; and set vpn_status unknown
-    set -l tx_pass (security find-generic-password -s transmission-rpc -a user -w 2>/dev/null)
-    set -l tx_up no
-    set -l tx_checked no
-    if test -z "$tx_pass"
-        printf 'doctor: %swarning: transmission RPC credentials not found in keychain%s\n' (set_color yellow) (set_color normal)
-    else
-        set tx_checked yes
-        transmission-remote "127.0.0.1:9091" -n "user:$tx_pass" -l >/dev/null 2>&1
-            and set tx_up yes
-    end
-    set -l tx_settings /opt/homebrew/var/transmission/settings.json
+    # Media mount
     set -l media_mounted no
     if mount | string match -q "* on /Volumes/$MEDIA_SHARE (*"
         set media_mounted yes
     end
+    if test "$media_mounted" = yes
+        printf 'doctor: %s is mounted at /Volumes/%s\n' $MEDIA_SHARE $MEDIA_SHARE
+    else
+        printf 'doctor: %s is not mounted\n' $MEDIA_SHARE
+    end
+
+    # Tailscale connectivity
+    set -l ts_json (tailscale status --json 2>/dev/null)
+    set -l ts_state (echo $ts_json | jq -r .BackendState 2>/dev/null)
+    if test "$ts_state" = Running
+        set -l ts_ip (echo $ts_json | jq -r '.Self.TailscaleIPs[0]' 2>/dev/null)
+        if test -n "$ts_ip"
+            printf 'doctor: tailscale: %sup%s (%s)\n' (set_color green) (set_color normal) $ts_ip
+        else
+            printf 'doctor: tailscale: %sup%s\n' (set_color green) (set_color normal)
+        end
+    else
+        printf 'doctor: tailscale: %sdown%s\n' (set_color yellow) (set_color normal)
+    end
+
+    # Security flags
     set -l sip_on no
     csrutil status 2>/dev/null | string match -q "*enabled*"
         and set sip_on yes
@@ -74,71 +80,6 @@ function doctor --description 'Report system status and verify transmission VPN 
     test "$_au" = 1
         and set autoupdate_on yes
 
-    # Display: mount, network mode (delegated to vpn status)
-    if test "$media_mounted" = yes
-        printf 'doctor: %s is mounted at /Volumes/%s\n' $MEDIA_SHARE $MEDIA_SHARE
-    else
-        printf 'doctor: %s is not mounted\n' $MEDIA_SHARE
-    end
-    vpn status 2>&1 | string replace --regex '^vpn:' 'doctor:'
-
-    # Display: transmission
-    if test "$tx_checked" = yes
-        if test "$tx_up" = yes
-            printf 'doctor: transmission-daemon is on\n'
-        else
-            printf 'doctor: transmission-daemon is off\n'
-        end
-    end
-
-    if test "$tx_up" = yes; and test $doctor_tools_ok -eq 1
-        if not test -f $tx_settings
-            printf 'doctor: %swarning: transmission settings.json not found: %s%s\n' \
-                (set_color yellow) $tx_settings (set_color normal)
-        else
-            set -l bind_addr (jq -r '.["bind-address-ipv4"]' $tx_settings 2>/dev/null)
-            if test "$vpn_status" = Connected
-                if test -z "$vpn_iface"
-                    printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color yellow) $bind_addr (set_color normal)
-                    printf 'doctor: %serror: VPN connected but interface name unknown; cannot verify transmission bind address%s\n' \
-                        (set_color red) (set_color normal) >&2
-                    set ok 0
-                else
-                    set -l expected_vpn_ip (ifconfig "$vpn_iface" 2>/dev/null | string match -rg '\binet (\S+)')[1]
-                    if test -z "$expected_vpn_ip"
-                        printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color yellow) $bind_addr (set_color normal)
-                        printf 'doctor: %serror: could not read IP for VPN interface %s; cannot verify transmission bind address%s\n' \
-                            (set_color red) "$vpn_iface" (set_color normal) >&2
-                        set ok 0
-                    else if test "$bind_addr" != "$expected_vpn_ip"
-                        printf 'doctor: %serror: transmission not bound to VPN interface (got: %s, expected: %s)%s\n' \
-                            (set_color red) $bind_addr $expected_vpn_ip (set_color normal) >&2
-                        set ok 0
-                    else
-                        printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color green) $bind_addr (set_color normal)
-                    end
-                end
-            else
-                if test "$bind_addr" = "0.0.0.0"
-                    printf 'doctor: transmission bind-address-ipv4: %s\n' $bind_addr
-                    printf 'doctor: %serror: transmission running unprotected — bind address is 0.0.0.0%s\n' \
-                        (set_color red) (set_color normal) >&2
-                    set ok 0
-                else if ifconfig 2>/dev/null | string match -q "*inet $bind_addr *"
-                    printf 'doctor: transmission bind-address-ipv4: %s\n' $bind_addr
-                    printf 'doctor: %serror: transmission running unprotected — bind address %s is reachable%s\n' \
-                        (set_color red) $bind_addr (set_color normal) >&2
-                    set ok 0
-                else
-                    printf 'doctor: transmission bind-address-ipv4: %s%s%s\n' (set_color green) $bind_addr (set_color normal)
-                    printf 'doctor: %swarning: transmission running without VPN — kill switch active%s\n' \
-                        (set_color yellow) (set_color normal)
-                end
-            end
-        end
-    end
-
-    # Display: security
     set -l sec_labels SIP filevault firewall "firewall stealth" gatekeeper "auto updates"
     set -l sec_flags $sip_on $filevault_on $firewall_on $stealth_on $gatekeeper_on $autoupdate_on
     for i in (seq (count $sec_labels))

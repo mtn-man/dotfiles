@@ -1,9 +1,6 @@
 abbr -a --global a_num --regex '^a([1-9][0-9]*)$' --function __abbr_timer_minutes
 abbr -a --global u 'update'
 abbr -a --global a 'after'
-abbr -a --global vn 'vpn on'
-abbr -a --global vf 'vpn off'
-abbr -a --global vs 'vpn status'
 abbr -a --global mn 'media on'
 abbr -a --global mnl 'media on -l'
 abbr -a --global mf 'media off'
@@ -17,7 +14,6 @@ abbr -a --global batt 'system_profiler SPPowerDataType | rg -i "cycle count|maxi
 abbr -a --global gt 'after -q 3m; and say "your tea is ready now"'
 abbr -a --global bt 'after -q 3m45s; and say "your tea is ready now"'
 abbr -a --global l 'eza --git --group-directories-first'
-abbr -a --global lab 'vpn off; and ssh lab'
 abbr -a --global src 'source $__fish_config_dir/config.fish'
 abbr -a --global dr 'doctor'
 abbr -a --global ts 'tailscale'

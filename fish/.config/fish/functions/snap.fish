@@ -55,8 +55,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         echo '```bash'
         doctor 2>/dev/null \
             | string replace -ra '\x1b\[[0-9;]*m' '' \
-            | string replace -r 'public IP: \S+' 'public IP: censored' \
-            | string replace -r 'tailscale IP: \S+' 'tailscale IP: censored'
+            | string replace -r 'tailscale: up \([^)]+\)' 'tailscale: up (censored)'
         echo '```'
 
         echo
@@ -112,8 +111,6 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/micro/bindings.json" $dotfiles/micro/.config/micro/bindings.json json
         __snap_file "~/.config/micro/settings.json" $dotfiles/micro/.config/micro/settings.json json
         __snap_file "~/.config/fastfetch/config.jsonc" $dotfiles/fastfetch/.config/fastfetch/config.jsonc jsonc
-        __snap_file "/opt/homebrew/var/transmission/settings.json" ~/dev/transmission/settings.json json
-
     end \
         | string replace -ra -- "$HOMELAB_HOST" 'censored' \
         | string replace -ra -- "$HOMELAB_HOST_LOCAL" 'censored' \

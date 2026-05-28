@@ -1,8 +1,3 @@
-function __media_vpn --argument-names subcmd
-    vpn $subcmd 2>&1 | string replace --regex '^vpn:' 'media:'
-    return $pipestatus[1]
-end
-
 function __media_smb_reachable --argument-names host
     set -l retries 5
     set -l probe_budget 3
@@ -45,22 +40,19 @@ function media --description 'Manage homelab media share and networking state'
     switch "$argv[1]"
         case on
             if not set -q _flag_local
-                # Enforce Tailscale mode: VPN down + Tailscale up
-                if not __media_vpn off
-                    echo "media: error: failed to enter tailscale mode" >&2
+                # Verify Tailscale is up — required to reach the homelab over the VPN
+                set -l ts_state (tailscale status --json 2>/dev/null | jq -r .BackendState 2>/dev/null)
+                if test "$ts_state" != Running
+                    echo "media: error: tailscale is not up — connect via GUI before mounting" >&2
                     return 1
                 end
             end
 
-            # Wait for SMB availability
-            #    nc -w is unreliable on macOS when DNS blocks, so enforce
-            #    a hard wall-clock deadline via background job.
             if not __media_smb_reachable $host
                 echo "media: error: server unreachable" >&2
                 return 1
             end
 
-            # Mount volume via Finder to utilize Keychain credentials
             set -l mount_timeout 10
             if not __media_run_with_timeout $mount_timeout \
                     osascript -e "tell application \"Finder\" to mount volume \"$smb_url\""
@@ -76,7 +68,6 @@ function media --description 'Manage homelab media share and networking state'
             end
 
         case off
-            # Unmount the share
             if test -d "$mountpoint"
                 if diskutil unmount "$mountpoint" >/dev/null 2>&1
                     echo "media: unmounted"
@@ -86,12 +77,6 @@ function media --description 'Manage homelab media share and networking state'
                 end
             else
                 echo "media: $MEDIA_SHARE is not mounted, skipping"
-            end
-
-            # Enforce VPN mode: Tailscale down + VPN up
-            if not __media_vpn on
-                echo "media: error: failed to enter vpn mode — run 'vpn on' manually" >&2
-                return 1
             end
 
         case '*'

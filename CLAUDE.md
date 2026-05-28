@@ -35,44 +35,46 @@ For Fedora, run `fedora/fedora-bootstrap.sh` (installs via dnf + RPM Fusion, ena
 
 ## Packages
 
-- **`fish/`** — Shell config: `config.fish` (env vars, PATH), `abbrs.fish`, `functions/`, `completions/` (vpn, media, tm)
+- **`fish/`** — Shell config: `config.fish` (env vars, PATH), `abbrs.fish`, `functions/`, `completions/` (media, tm)
 - **`ghostty/`** — Terminal emulator config
 - **`micro/`** — Editor (Solarized theme, Go tool keybindings in `bindings.json`)
 - **`lf/`** — File manager: fish-compatible zoxide integration via custom `z`/`cd` commands in `lfrc`, `pv.sh`/`clean.sh` for preview/cleanup, `e` bound to micro
 - **`hammerspoon/`** — macOS automation: auto-launches/quits LinearMouse on Logitech USB receiver plug/unplug; runs `tailscale up` automatically when joining the home WiFi network
 - **`linearmouse/`** — Mouse config (managed by Hammerspoon automation)
 - **`btop/`** — Resource monitor config
-- **`mintmedia/`** — Config for the `mintmedia` Go tool: watches `~/Downloads/MintDrop`, routes media files to `/Volumes/media/{Movies,Shows}` (the homelab SMB share), integrates with Transmission at `localhost:9091`
+- **`mintmedia/`** — Config for the `mintmedia` Go tool; the ingest pipeline runs on the homelab, watching `/mnt/storage/Downloads/MintDrop` for completed Transmission downloads
 - **`fastfetch/`** — System info display config
 - **`server/`** — CentOS homelab: Fish config + `server.backup.sh` (rsync cold backup script)
 - **`fedora/`** — Fedora Sway workstation: bootstrap script + fish/lf/kitty/micro configs, Sway compositor, swaylock, waybar
 
-## Network Architecture (VPN Two-Mode Model)
+## Network Architecture
 
-The system enforces one of two mutually exclusive network modes via `vpn.fish`:
+**macOS:** Tailscale is always on and is the sole networking requirement for homelab access. NordVPN is managed via the GUI and has no scripted integration. `vpn.fish` is deprecated — macOS changes made `scutil --nc` control unreliable, and the Mac-side Transmission kill switch it supported broke when NordVPN changed its tunnel interface IP after an update.
 
-- **VPN mode** (`vpn on`): NordVPN connected via `scutil --nc`, Tailscale brought down. Used for general browsing.
-- **Tailscale mode** (`vpn off`): Tailscale up, NordVPN disconnected. Required for homelab access.
+`media on` verifies Tailscale is running (`BackendState == Running`) before mounting the SMB share, and aborts with a clear error if not. `media on -l` skips this check (local network). Hammerspoon auto-runs `tailscale up` when joining the home WiFi network.
 
-`media on` calls `vpn off` first (entering Tailscale mode) before mounting the SMB share. `media off` calls `vpn on` after unmounting. The `vpn on` path also proactively unmounts the media share before switching — SMB over Tailscale won't survive the routing change. Hammerspoon reinforces this: joining the home WiFi automatically runs `tailscale up`.
+**Homelab torrenting stack** (Podman + systemd, CentOS Stream 10):
 
-`doctor` verifies the current mode (delegating to `vpn status`) and checks the Transmission `bind-address-ipv4` against the active VPN interface IP as a kill-switch audit (see below).
+A two-container Podman stack runs as root and is managed by systemd:
 
-## Transmission VPN Kill Switch
+- `nordvpn` container: owns the network namespace, establishes a NordLynx/WireGuard tunnel. All traffic in the namespace exits through `10.5.0.2` (the NordLynx interface). Kill switch enabled in NordVPN — if the tunnel drops, traffic stops. Authentication uses a NordVPN access token stored as a Podman secret (`nordvpn_token`).
+- `transmission` container: shares the nordvpn network namespace (`--network container:nordvpn`), so all torrent peer traffic is bound to the VPN tunnel. RPC is published exclusively to `100.106.45.25:9091` (Tailscale interface). RPC authentication is disabled — Tailscale enforces access control.
 
-`~/dev/transmission/settings.json` is symlinked to `/opt/homebrew/var/transmission/settings.json` (not version-controlled, not in repo). `bind-address-ipv4` is set to the NordVPN tunnel interface IP (`10.5.0.2`). If the VPN drops, the daemon loses its bind address and peer traffic stops — no leak through the default interface.
+Two subnets are allowlisted in NordVPN to bypass VPN routing: `10.88.0.0/16` (Podman bridge) and `100.64.0.0/10` (Tailscale CGNAT range), so the RPC port remains reachable over Tailscale.
 
-`doctor` audits this at runtime: when VPN is active it verifies the bind address matches the VPN interface IP; when VPN is inactive it checks the bind address is unreachable.
+`transmission.service` polls `nordvpn status` for up to 2 minutes waiting for `Status: Connected` before starting, and stops if nordvpn stops (`PartOf=nordvpn.service`). Both services start on boot and handle unclean shutdowns via pre-start container cleanup.
+
+`tm.fish` on the Mac sends magnet links and torrents to the homelab at `$HOMELAB_HOST:9091` via `transmission-remote`.
 
 ## Key Fish Functions
 
 | Function | Purpose |
 |----------|---------|
-| `vpn.fish` | Enforce VPN/Tailscale two-mode model via `scutil --nc` and `tailscale` |
-| `media.fish` | Homelab SMB mount with automatic network mode transitions |
-| `doctor.fish` | System health check: toolchain, mount status, VPN mode, transmission kill-switch, macOS security flags |
+| `vpn.fish` | [DEPRECATED] Formerly enforced VPN/Tailscale two-mode model; VPN now managed via GUI |
+| `media.fish` | Homelab SMB mount with Tailscale connectivity check |
+| `doctor.fish` | System health check: toolchain, mount status, Tailscale connectivity, macOS security flags |
 | `snap.fish` | Rebuild `~/dev/snapshot.md` with live system data (censors IPs and credentials) |
-| `tm.fish` | Transmission-CLI service management and magnet/torrent link handler |
+| `tm.fish` | Send magnet links and torrents to homelab Transmission via `transmission-remote` |
 | `writeiso.fish` | Write ISO to USB: fzf disk picker, safety checks, `dd` with progress |
 | `update.fish` | Homebrew upgrade wrapper |
 | `yt.fish` | YouTube download via yt-dlp |
