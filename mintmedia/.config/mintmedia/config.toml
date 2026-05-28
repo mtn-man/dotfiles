@@ -1,5 +1,5 @@
 [paths]
-drop_folder = "~/Downloads/MintDrop"
+drop_folder = "/Volumes/media/Downloads/MintDrop"
 state_dir   = "~/.local/state/mintmedia"
 
 [destinations]
@@ -56,7 +56,7 @@ history_file = "history.jsonl"
 
 [torrent]
 enabled = true
-host = "localhost:9091"
+host = "$HOMELAB_HOST:9091"
 transmission_remote_path = "/opt/homebrew/bin/transmission-remote"
-auth = "user:root"   # only if required
+# auth = "user:root"   # only if required
 auto_cleanup_completed_torrents = false
