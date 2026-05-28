@@ -112,8 +112,8 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/micro/settings.json" $dotfiles/micro/.config/micro/settings.json json
         __snap_file "~/.config/fastfetch/config.jsonc" $dotfiles/fastfetch/.config/fastfetch/config.jsonc jsonc
     end \
-        | string replace -ra -- "$HOMELAB_HOST" 'censored' \
-        | string replace -ra -- "$HOMELAB_HOST_LOCAL" 'censored' \
+        | string replace -ra -- "$HOMELAB" 'censored' \
+        | string replace -ra -- "$HOMELAB_LOCAL" 'censored' \
         # Redacts the rpc-password value in transmission settings.
         # Note: this line self-censors in the snapshot output, so the pattern shown there is not the source.
         | string replace -ra '"rpc-password": "[^"]*"' '"rpc-password": "censored"' \

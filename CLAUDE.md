@@ -64,7 +64,7 @@ Two subnets are allowlisted in NordVPN to bypass VPN routing: `10.88.0.0/16` (Po
 
 `transmission.service` polls `nordvpn status` for up to 2 minutes waiting for `Status: Connected` before starting, and stops if nordvpn stops (`PartOf=nordvpn.service`). Both services start on boot and handle unclean shutdowns via pre-start container cleanup.
 
-`tm.fish` on the Mac sends magnet links and torrents to the homelab at `$HOMELAB_HOST:9091` via `transmission-remote`.
+`tm.fish` on the Mac sends magnet links and torrents to the homelab at `$HOMELAB:9091` via `transmission-remote`.
 
 ## Key Fish Functions
 

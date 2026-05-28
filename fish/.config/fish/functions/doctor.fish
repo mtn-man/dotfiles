@@ -2,7 +2,7 @@ function doctor --description 'Report system status and verify connectivity'
     set -l ok 1
 
     # Env var checks
-    for var in HOMELAB_HOST HOMELAB_HOST_LOCAL MEDIA_SHARE
+    for var in HOMELAB HOMELAB_LOCAL MEDIA_SHARE
         if not set -q $var
             printf 'doctor: %serror: $%s is not set%s\n' (set_color red) $var (set_color normal) >&2
             set ok 0

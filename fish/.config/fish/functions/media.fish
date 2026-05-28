@@ -31,9 +31,9 @@ function media --description 'Manage homelab media share and networking state'
     argparse 'l/local' -- $argv
 
     set -l mountpoint "/Volumes/$MEDIA_SHARE"
-    set -l host $HOMELAB_HOST
+    set -l host $HOMELAB
     if set -q _flag_local
-        set host $HOMELAB_HOST_LOCAL
+        set host $HOMELAB_LOCAL
     end
     set -l smb_url "smb://$host/$MEDIA_SHARE"
 

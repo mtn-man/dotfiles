@@ -1,5 +1,5 @@
 function tm --description 'Manage Transmission-CLI services and magnet links'
-    set -l host "$HOMELAB_HOST:9091"
+    set -l host "$HOMELAB:9091"
 
     if not command -q transmission-remote
         echo "tm: transmission-remote not found (brew install transmission-cli)" >&2

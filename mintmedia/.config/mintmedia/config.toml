@@ -56,7 +56,7 @@ history_file = "history.jsonl"
 
 [torrent]
 enabled = true
-host = "$HOMELAB_HOST:9091"
+host = "$HOMELAB:9091"
 transmission_remote_path = "/opt/homebrew/bin/transmission-remote"
 # auth = "user:root"   # only if required
 auto_cleanup_completed_torrents = false
