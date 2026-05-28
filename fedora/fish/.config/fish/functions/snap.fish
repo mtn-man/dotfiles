@@ -66,7 +66,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         # 2. Installed packages
         echo "## DNF user-installed packages"
         echo '```bash'
-        dnf repoquery --userinstalled --qf "%{name}" 2>/dev/null | sort; or echo "(dnf not available)"
+        dnf repoquery --userinstalled --qf "%{name}\n" 2>/dev/null | sort | pr -3 -t
         echo '```'
 
         echo
