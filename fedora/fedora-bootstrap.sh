@@ -70,6 +70,7 @@ PKGS=(
     trash-cli
     stow
     gh
+    transmission-cli
     bc
     tree
     rsync
