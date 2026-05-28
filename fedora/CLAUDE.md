@@ -52,7 +52,7 @@ The wallpaper (`~/Pictures/artemisii-eclipse.jpeg`) is shared between Sway and S
 
 ## Fish Shell
 
-Stripped-down compared to macOS — no VPN, media, doctor, tm, or snap functions. Fedora-specific functions:
+Stripped-down compared to macOS — no VPN, media, doctor, or snap functions. Fedora-specific functions:
 
 | Function | Purpose |
 |----------|---------|
@@ -64,6 +64,7 @@ Stripped-down compared to macOS — no VPN, media, doctor, tm, or snap functions
 | `gcp` | Stage all, confirm, commit (message or editor), push |
 | `lf` | Wraps lf with quit-and-cd integration, evicts old thumbnails (30d+) and stale tmp files (1d+) |
 | `stow-add` | Moves `~/.config/<pkg>` into dotfiles and stows it |
+| `tm` | Send magnet links and torrents to homelab Transmission via `transmission-remote` (shared with macOS) |
 
 ## lf Preview (`pv.sh`)
 
