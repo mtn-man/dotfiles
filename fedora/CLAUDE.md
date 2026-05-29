@@ -5,7 +5,7 @@ Notes on the Fedora Sway spin that aren't obvious from the code.
 ## System Services (provided by Fedora Sway spin, not configured in dotfiles)
 
 - **Notification daemon:** `dunst` — use `dunstctl set-paused toggle` for DND, `dunstctl is-paused` to check state
-- **Idle/lock:** `swayidle` — auto-lock and screen-off handled via `/usr/share/sway/config.d/`; `config.d/90-swayidle.conf` overrides with `swaylock -f` for the lock command and powers displays off after 5 min
+- **Idle/lock:** `swayidle` — `config.d/90-swayidle.conf` powers displays off after 5 min; no auto-lock. Lock is triggered explicitly via the power menu (`$mod+Shift+Escape`) which calls `swaylock -f`
 - **Media/brightness keys:** bound via `/usr/share/sway/config.d/`
 
 ## Packages
@@ -40,7 +40,7 @@ The wallpaper (`~/Pictures/artemisii-eclipse.jpeg`) is shared between Sway and S
 - **Signal 8** — the dunst DND custom module uses `signal: 8` to refresh; `$mod+Shift+n` in sway sends `pkill -SIGRTMIN+8 waybar` after toggling dunst
 - **cpu module** — click opens btop in kitty
 - **battery module** — click opens the `batt` fish function in kitty
-- **custom/power** — GTK XML power menu (`power_menu.xml`): lock / suspend / logout / reboot / shutdown
+- **custom/power** — click runs `~/.config/sway/power-menu.sh` (rofi dmenu: Shutdown / Restart / Sleep / Logout / Lock)
 
 ## Sway Config
 

@@ -96,15 +96,7 @@
     "custom/power": {
         "format": "󰐥",
         "tooltip": false,
-        "menu": "on-click",
-        "menu-file": "$HOME/.config/waybar/power_menu.xml",
-        "menu-actions": {
-            "logout":   "swaymsg exit",
-            "lock":     "loginctl lock-session",
-            "suspend":  "systemctl suspend",
-            "reboot":   "systemctl reboot",
-            "shutdown": "systemctl poweroff"
-        }
+        "on-click": "~/.config/sway/power-menu.sh"
     },
     "tray": {
         "spacing": 8

@@ -108,7 +108,6 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/swaylock/config" ~/.config/swaylock/config text
         __snap_file "~/.config/waybar/config.jsonc" ~/.config/waybar/config.jsonc jsonc
         __snap_file "~/.config/waybar/style.css" ~/.config/waybar/style.css css
-        __snap_file "~/.config/waybar/power_menu.xml" ~/.config/waybar/power_menu.xml xml
 
         __snap_file "~/.config/autostart/nm-applet.desktop" ~/.config/autostart/nm-applet.desktop text
 
