@@ -93,7 +93,7 @@ seat * hide_cursor 3000
     bindsym $mod+Shift+e exec sh -c "printf 'Log out' | rofi -dmenu -p 'Exit sway?' | grep -q . && swaymsg exit"
 
     # Shut down
-    bindsym $mod+Shift+Delete exec sh -c "printf 'Shut down' | rofi -dmenu -p 'Power off?' | grep -q . && systemctl poweroff"
+    bindsym $mod+Shift+Delete exec sh -c "choice=\$(printf 'Shut down\nRestart' | rofi -dmenu -p 'Power off?'); case \"\$choice\" in 'Shut down') systemctl poweroff;; 'Restart') systemctl reboot;; esac"
 #
 # Moving around:
 #
