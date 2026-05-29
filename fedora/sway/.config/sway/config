@@ -8,7 +8,7 @@ set $down k
 set $up i
 set $right l
 # Your preferred terminal emulator
-# Recommends: foot
+# Recommends: kitty
 set $term kitty
 # Your preferred web-browser
 set $browser brave-origin-beta
@@ -87,7 +87,7 @@ seat * hide_cursor 3000
     bindsym $mod+Shift+n exec dunstctl set-paused toggle && pkill -SIGRTMIN+8 waybar
 
     # Power menu: shut down / restart / log out
-    bindsym $mod+Shift+Escape exec ~/.config/sway/power-menu.sh
+    bindsym $mod+Escape exec ~/.config/sway/power-menu.sh
 #
 # Moving around:
 #
