@@ -275,7 +275,40 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 12. Suppress login message
+# 12. Auto-login (SDDM)
+# -----------------------------------------------------------------------------
+# The Fedora Sway spin installer may already configure this; skip if so.
+if grep -q "^User=$USER" /etc/sddm.conf 2>/dev/null || grep -rq "^User=$USER" /etc/sddm.conf.d/ 2>/dev/null; then
+    success "SDDM auto-login already configured for $USER"
+else
+    info "Configuring SDDM auto-login for $USER..."
+    sudo mkdir -p /etc/sddm.conf.d
+    sudo tee /etc/sddm.conf.d/autologin.conf > /dev/null << EOF
+[Autologin]
+User=$USER
+Session=sway
+EOF
+    success "SDDM auto-login configured"
+fi
+
+# -----------------------------------------------------------------------------
+# 13. Passwordless keyring (gnome-keyring PAM unlock)
+# -----------------------------------------------------------------------------
+# With auto-login there is no PAM auth token to unlock the keyring, so add the
+# gnome-keyring auth line — it will unlock using an empty password. The login
+# keyring is removed so it is recreated fresh without a password; on a new
+# install it will not exist yet so rm -f is a no-op.
+if grep -q 'auth.*optional.*pam_gnome_keyring' /etc/pam.d/sddm-autologin 2>/dev/null; then
+    success "gnome-keyring PAM auth already configured"
+else
+    info "Configuring silent keyring unlock for auto-login..."
+    sudo sed -i '/auth.*pam_permit\.so/a auth       optional    pam_gnome_keyring.so' /etc/pam.d/sddm-autologin
+    success "gnome-keyring PAM auth configured"
+fi
+rm -f "$HOME/.local/share/keyrings/login.keyring"
+
+# -----------------------------------------------------------------------------
+# 14. Suppress login message
 # -----------------------------------------------------------------------------
 touch "$HOME/.hushlogin"
 
