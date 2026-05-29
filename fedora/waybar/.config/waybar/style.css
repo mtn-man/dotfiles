@@ -9,9 +9,9 @@
 }
 
 window#waybar {
-    background-color: rgba(28, 28, 28, 0.92);
+    background-color: rgba(0, 0, 0, 0.92);
     border-bottom: 1px solid rgba(150, 203, 254, 0.12);
-    color: #DEDEDE;
+    color: #FFFFFF;
 }
 
 /* ── Workspaces ─────────────────────────────────────────── */
@@ -23,7 +23,7 @@ window#waybar {
 #workspaces button {
     padding: 0 8px;
     background-color: transparent;
-    color: #DEDEDE;
+    color: #FFFFFF;
     opacity: 0.6;
     box-shadow: none;
 }
@@ -61,12 +61,12 @@ window#waybar {
 #tray,
 #mode {
     padding: 0 12px;
-    color: #DEDEDE;
+    color: #FFFFFF;
 }
 
 #window {
     padding: 0 8px;
-    color: #DEDEDE;
+    color: #FFFFFF;
     opacity: 0.65;
 }
 
@@ -125,22 +125,8 @@ window#waybar {
 /* ── Power button ───────────────────────────────────────── */
 
 #custom-power {
-    color: #DEDEDE;
+    color: #FFFFFF;
     font-size: 20px;
-}
-
-/* ── Power menu ─────────────────────────────────────────── */
-
-menu {
-    background-color: #1C1C1C;
-}
-
-menuitem {
-    color: #DEDEDE;
-}
-
-menuitem:hover {
-    background-color: rgba(255, 255, 255, 0.08);
 }
 
 /* ── Tray ───────────────────────────────────────────────── */
