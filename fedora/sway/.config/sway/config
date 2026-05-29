@@ -80,20 +80,14 @@ seat * hide_cursor 3000
     # Reload the configuration file
     bindsym $mod+Shift+c reload
 
-    # Lock the screen
-    bindsym $mod+Shift+Escape exec loginctl lock-session
-
     # Empty trash
     bindsym $mod+Shift+t exec trash-empty -f
 
     # Toggle do-not-disturb
     bindsym $mod+Shift+n exec dunstctl set-paused toggle && pkill -SIGRTMIN+8 waybar
 
-    # Exit sway (logs you out of your Wayland session)
-    bindsym $mod+Shift+e exec sh -c "printf 'Log out' | rofi -dmenu -p 'Exit sway?' | grep -q . && swaymsg exit"
-
-    # Shut down
-    bindsym $mod+Shift+Delete exec sh -c "choice=\$(printf 'Shut down\nRestart' | rofi -dmenu -p 'Power off?'); case \"\$choice\" in 'Shut down') systemctl poweroff;; 'Restart') systemctl reboot;; esac"
+    # Power menu: shut down / restart / log out
+    bindsym $mod+Shift+Escape exec ~/.config/sway/power-menu.sh
 #
 # Moving around:
 #
