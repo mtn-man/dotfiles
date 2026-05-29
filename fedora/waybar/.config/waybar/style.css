@@ -57,7 +57,6 @@ window#waybar {
 #custom-dunst,
 #scratchpad,
 #power-profiles-daemon,
-#custom-power,
 #tray,
 #mode {
     padding: 0 12px;
@@ -120,13 +119,6 @@ window#waybar {
 
 #power-profiles-daemon.power-saver {
     color: #A8FF60;
-}
-
-/* ── Power button ───────────────────────────────────────── */
-
-#custom-power {
-    color: #FFFFFF;
-    font-size: 20px;
 }
 
 /* ── Tray ───────────────────────────────────────────────── */

@@ -3,7 +3,6 @@
     "height": 32,
     "spacing": 0,
     "modules-left": [
-        "custom/power",
         "sway/workspaces",
         "sway/mode",
         "sway/scratchpad"
@@ -92,11 +91,6 @@
         "format": "{:%a %B %e %H:%M}",
         "tooltip": false,
         "interval": 60
-    },
-    "custom/power": {
-        "format": "󰐥",
-        "tooltip": false,
-        "on-click": "~/.config/sway/power-menu.sh"
     },
     "tray": {
         "spacing": 8

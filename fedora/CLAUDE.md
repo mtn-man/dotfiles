@@ -40,7 +40,7 @@ The wallpaper (`~/Pictures/artemisii-eclipse.jpeg`) is shared between Sway and S
 - **Signal 8** — the dunst DND custom module uses `signal: 8` to refresh; `$mod+Shift+n` in sway sends `pkill -SIGRTMIN+8 waybar` after toggling dunst
 - **cpu module** — click opens btop in kitty
 - **battery module** — click opens the `batt` fish function in kitty
-- **custom/power** — click runs `~/.config/sway/power-menu.sh` (rofi dmenu: Shutdown / Restart / Sleep / Logout / Lock)
+- **custom/power** — removed; power menu is now keyboard-only via `$mod+Esc` in sway
 
 ## Sway Config
 
