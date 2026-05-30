@@ -303,9 +303,11 @@ if grep -q 'auth.*optional.*pam_gnome_keyring' /etc/pam.d/sddm-autologin 2>/dev/
 else
     info "Configuring silent keyring unlock for auto-login..."
     sudo sed -i '/auth.*pam_permit\.so/a auth       optional    pam_gnome_keyring.so' /etc/pam.d/sddm-autologin
+    grep -q 'auth.*optional.*pam_gnome_keyring' /etc/pam.d/sddm-autologin \
+        || warn "pam_permit.so anchor not found — gnome-keyring line was NOT inserted"
+    rm -f "$HOME/.local/share/keyrings/login.keyring"
     success "gnome-keyring PAM auth configured"
 fi
-rm -f "$HOME/.local/share/keyrings/login.keyring"
 
 # -----------------------------------------------------------------------------
 # 14. Suppress login message
