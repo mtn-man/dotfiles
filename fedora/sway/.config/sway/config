@@ -60,7 +60,7 @@ seat * hide_cursor 3000
     bindsym $mod+q kill
 
     # Start your launcher
-    bindsym $mod+space exec $menu
+    bindsym $mod+space exec pgrep -x rofi && pkill -x rofi || $menu
 
     # Browser
     bindsym $mod+c exec $browser
