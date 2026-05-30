@@ -1,3 +1,5 @@
+fish_add_path -gP ~/bin
+fish_add_path -gP ~/go/bin
 if status is-interactive
     switch "$TERM"
         case tailscaled xterm-256
@@ -7,10 +9,13 @@ if status is-interactive
     set -g fish_greeting "Welcome back to your server, Eli"
     fastfetch
 
-    set -gx EDITOR nano
-    alias c='bat'
-    alias ff='fastfetch'
+    set -gx EDITOR micro
     alias update='sudo dnf upgrade --refresh -y'
+    abbr -a --global c 'bat'
+    abbr -a --global mm 'mintmedia'
+    abbr -a --global ts 'tailscale'
+    abbr -a --global m 'micro'
+    abbr -a --global ff 'fastfetch'
 end
 
 function drive-temp
