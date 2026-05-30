@@ -17,6 +17,7 @@
         "battery",
         "custom/dunst",
         "power-profiles-daemon",
+        "network",
         "tray",
         "clock"
     ],
@@ -86,6 +87,17 @@
         "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
         "tooltip-format": "{timeTo}\n{power:.1f}W",
         "on-click": "kitty --hold fish -c batt"
+    },
+    "network": {
+        "format-wifi": "{icon}",
+        "format-ethernet": "󰈀 {ifname}",
+        "format-linked": "󰈀 {ifname}",
+        "format-disconnected": "󰤭",
+        "format-icons": ["󰤟", "󰤢", "󰤥", "󰤨"],
+        "tooltip-format-wifi": "{essid}  {signalStrength}%\n{ipaddr}/{cidr}",
+        "tooltip-format-ethernet": "{ifname}\n{ipaddr}/{cidr}",
+        "tooltip-format-disconnected": "Disconnected",
+        "on-click": "nm-connection-editor"
     },
     "clock": {
         "format": "{:%a %B %e %H:%M}",

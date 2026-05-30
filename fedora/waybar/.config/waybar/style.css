@@ -63,6 +63,12 @@ window#waybar {
     color: #FFFFFF;
 }
 
+#network {
+    padding: 0 12px;
+    color: #FFFFFF;
+    font-size: 20px;
+}
+
 #window {
     padding: 0 8px;
     color: #FFFFFF;
