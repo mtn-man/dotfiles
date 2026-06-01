@@ -109,6 +109,7 @@ PKGS=(
     # --- Dev ---
     git
     golang
+    gopls
 
     # --- Fonts ---
     fira-code-fonts
