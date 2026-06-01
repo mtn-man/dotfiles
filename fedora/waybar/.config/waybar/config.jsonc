@@ -90,8 +90,8 @@
     },
     "network": {
         "format-wifi": "{icon}",
-        "format-ethernet": "󰈀 {ifname}",
-        "format-linked": "󰈀 {ifname}",
+        "format-ethernet": "󰈀",
+        "format-linked": "󰈀",
         "format-disconnected": "󰤭",
         "format-icons": ["󰤟", "󰤢", "󰤥", "󰤨"],
         "tooltip-format-wifi": "{essid}  {signalStrength}%\n{ipaddr}/{cidr}",
