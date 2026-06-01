@@ -5,7 +5,7 @@
     "autoreload": true,
     "scrollbar": true,
     "tabstospaces": false,
-    "lsp.server": "json=vscode-json-language-server --stdio,jsonc=vscode-json-language-server --stdio",
+    "lsp.server": "go=gopls,json=vscode-json-language-server --stdio,jsonc=vscode-json-language-server --stdio",
     "lsp.tabcompletion": true,
     "lsp.formatOnSave": false
 }
