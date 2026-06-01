@@ -1,5 +1,5 @@
 #!/bin/bash
-functions_file="$HOME/.config/rofi/functions"
+functions_file="$HOME/.config/rofi/actions"
 
 if [[ "$ROFI_RETV" -eq 1 ]]; then
     systemd-run --user --no-block kitty fish -c "$1; exec fish" >/dev/null 2>&1

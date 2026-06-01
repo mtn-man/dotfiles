@@ -3,7 +3,7 @@
 
 configuration {
     modes: "combi,window";
-    combi-modes: "drun,links:/home/eli/.config/rofi/links.sh,functions:/home/eli/.config/rofi/functions.sh";
+    combi-modes: "drun,links:/home/eli/.config/rofi/links.sh,actions:/home/eli/.config/rofi/actions.sh";
     show-icons: true;
 }
 
