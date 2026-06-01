@@ -3,8 +3,9 @@
 
 configuration {
     modes: "combi,window";
-    combi-modes: "drun,links:/home/eli/.config/rofi/links.sh,actions:/home/eli/.config/rofi/actions.sh";
+    combi-modes: "drun,actions:/home/eli/.config/rofi/actions.sh,bookmarks:/home/eli/.config/rofi/bookmarks.sh";
     show-icons: true;
+    sort: true;
 }
 
 @theme "/usr/share/rofi/themes/material.rasi"
