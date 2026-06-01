@@ -1,5 +1,5 @@
 #!/bin/bash
-actions_file="$HOME/.config/rofi/actions"
+actions="$HOME/.config/rofi/actions"
 
 if [[ "$ROFI_RETV" -eq 1 ]]; then
     if [[ "$ROFI_INFO" == "silent" ]]; then
@@ -24,5 +24,5 @@ else
         else
             printf "%s\0info\x1f%s\n" "$name" "$info"
         fi
-    done < "$actions_file"
+    done < "$actions"
 fi
