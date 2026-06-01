@@ -5,7 +5,7 @@ Notes on the Fedora Sway spin that aren't obvious from the code.
 ## System Services (provided by Fedora Sway spin, not configured in dotfiles)
 
 - **Notification daemon:** `dunst` — use `dunstctl set-paused toggle` for DND, `dunstctl is-paused` to check state
-- **Idle/lock:** `swayidle` — `config.d/90-swayidle.conf` powers displays off after 5 min; no auto-lock. Lock is triggered explicitly via the power menu (`$mod+Shift+Escape`) which calls `swaylock -f`
+- **Idle/lock:** `swayidle` — `config.d/90-swayidle.conf` powers displays off after 5 min; no auto-lock. Lock is triggered explicitly via the power menu (`$mod+Escape`) which calls `swaylock -f`
 - **Media/brightness keys:** bound via `/usr/share/sway/config.d/`
 
 ## Packages
