@@ -145,7 +145,7 @@ preview_image() {
     if [[ "$HAS_FFMPEG" -eq 1 ]]; then
         local tmp="${cached}.tmp.$$"
         if ffmpeg -hide_banner -loglevel error -y -i "$file" \
-            -vf "scale='min(500,iw)':-1" -frames:v 1 -q:v 3 "$tmp" >/dev/null 2>&1; then
+            -vf "scale='min(500,iw)':-1" -frames:v 1 -q:v 10 -f mjpeg "$tmp" >/dev/null 2>&1; then
             mv "$tmp" "$cached"
             render_graphics_file "$cached"
             return 0
