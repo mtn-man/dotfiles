@@ -16,6 +16,8 @@ if status is-interactive
     abbr -a --global ts 'tailscale'
     abbr -a --global m 'micro'
     abbr -a --global ff 'fastfetch'
+    abbr -a --global src 'source $__fish_config_dir/config.fish'
+    abbr -a --global u 'update'
 end
 
 function drive-temp
