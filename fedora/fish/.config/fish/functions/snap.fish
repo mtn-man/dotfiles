@@ -105,6 +105,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/sway/config" ~/.config/sway/config text
         __snap_file "~/.config/sway/config.d/90-swayidle.conf" ~/.config/sway/config.d/90-swayidle.conf text
         __snap_file "~/.config/sway/power-menu.sh" ~/.config/sway/power-menu.sh bash
+        __snap_file "~/.config/sway/trash-empty.sh" ~/.config/sway/trash-empty.sh bash
         __snap_file "~/.config/swaylock/config" ~/.config/swaylock/config text
         __snap_file "~/.config/waybar/config.jsonc" ~/.config/waybar/config.jsonc jsonc
         __snap_file "~/.config/waybar/style.css" ~/.config/waybar/style.css css

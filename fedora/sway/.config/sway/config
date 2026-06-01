@@ -81,7 +81,7 @@ seat * hide_cursor 3000
     bindsym $mod+Shift+c reload
 
     # Empty trash
-    bindsym $mod+Shift+t exec trash-empty -f
+    bindsym $mod+Shift+t exec ~/.config/sway/trash-empty.sh
 
     # Toggle do-not-disturb
     bindsym $mod+Shift+n exec dunstctl set-paused toggle && pkill -SIGRTMIN+8 waybar
@@ -234,8 +234,6 @@ include '$(/usr/libexec/sway/layered-include "/usr/share/sway/config.d/*.conf" "
 
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
-
-exec dunstctl set-paused true
 
 # Lid switch -- disable internal display when closed
 bindswitch --reload --locked lid:on output eDP-1 disable
