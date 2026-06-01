@@ -10,7 +10,7 @@ function lf --description 'lf with quit-and-cd integration'
     command mkdir -p "$LF_PREVIEW_CACHE_DIR/thumbs" 2>/dev/null
 
     # Evict thumbnails not accessed in 30 days and any stale tmp files older than 1 day
-    find "$LF_PREVIEW_CACHE_DIR/thumbs" -maxdepth 1 -name "*.jpg" -atime +30 -delete 2>/dev/null
+    find "$LF_PREVIEW_CACHE_DIR/thumbs" -maxdepth 1 -name "*.jpg" -mtime +30 -delete 2>/dev/null
     find "$LF_PREVIEW_CACHE_DIR/thumbs" -maxdepth 1 -name "*.tmp.*" -mtime +1 -delete 2>/dev/null
 
     command lf -last-dir-path="$tmp" $argv
