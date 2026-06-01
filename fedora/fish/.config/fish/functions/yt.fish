@@ -75,19 +75,19 @@ function yt --description 'Download YouTube videos with options'
 
         echo
         echo "Select Preferred Codec:"
-        echo "  [1] VP9 (Default)"
+        echo "  [1] VP9"
         echo "  [2] AV1"
-        echo "  [3] H.264"
+        echo "  [3] H.264 (Default)"
         read -n 1 -P "Choice > " codec_choice
         echo
 
         switch $codec_choice
+            case 1
+                set codec_pref vp9
             case 2
                 set codec_pref av01
-            case 3
-                set codec_pref avc1
             case '*'
-                set codec_pref vp9
+                set codec_pref avc1
         end
 
         echo
