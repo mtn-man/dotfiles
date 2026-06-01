@@ -6,4 +6,4 @@ configuration {
     sort: true;
 }
 
-@theme "/usr/share/rofi/themes/material.rasi"
+@theme "/home/eli/.config/rofi/dark-pastel.rasi"
