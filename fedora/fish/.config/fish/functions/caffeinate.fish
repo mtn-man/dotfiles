@@ -3,6 +3,5 @@ function caffeinate
         echo "caffeinate: systemd-inhibit not found" >&2
         return 127
     end
-    systemd-inhibit --what=idle --who=fish --why=caffeinate sleep infinity 2>/dev/null
-    return 0
+    systemd-inhibit --what=idle --who=fish --why=caffeinate sleep infinity
 end
