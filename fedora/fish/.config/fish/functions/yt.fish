@@ -28,7 +28,7 @@ function yt --description 'Download YouTube videos with options'
         echo
         echo "If no URL provided, uses clipboard content"
         echo
-        echo "Cookies are read automatically from Firefox via --cookies-from-browser"
+        echo "Cookies are read automatically from Brave via --cookies-from-browser"
         return
     end
 
@@ -136,7 +136,7 @@ function yt --description 'Download YouTube videos with options'
         --buffer-size 1M \
         -o "%(title)s.%(ext)s" \
         --paths "$outdir" \
-        --cookies-from-browser firefox \
+        --cookies-from-browser brave \
         --no-overwrites
 
     # Add --exec flag if opening after download
