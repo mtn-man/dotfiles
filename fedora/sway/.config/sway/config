@@ -32,7 +32,7 @@ for_window [app_id="brave-origin-beta"] inhibit_idle fullscreen
 
 ### Output configuration
 #
-output * bg ~/Pictures/artemisii-eclipse.jpeg fill
+output * bg ~/Pictures/wallhaven-28zr39_2560x1440.png fill
 output DP-2 adaptive_sync on
 
 ### Input configuration
