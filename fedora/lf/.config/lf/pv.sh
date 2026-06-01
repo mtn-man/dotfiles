@@ -131,6 +131,31 @@ preview_video_ytdlp() {
     return 1
 }
 
+preview_image() {
+    can_use_kitten_graphics || return 1
+
+    local cached
+    cached=$(thumb_cache_path "$file")
+    if [[ -s "$cached" ]]; then
+        touch "$cached"
+        render_graphics_file "$cached"
+        return 0
+    fi
+
+    if [[ "$HAS_FFMPEG" -eq 1 ]]; then
+        local tmp="${cached}.tmp.$$"
+        if ffmpeg -hide_banner -loglevel error -y -i "$file" \
+            -vf "scale='min(500,iw)':-1" -frames:v 1 -q:v 3 "$tmp" >/dev/null 2>&1; then
+            mv "$tmp" "$cached"
+            render_graphics_file "$cached"
+            return 0
+        fi
+        rm -f "$tmp"
+    fi
+
+    render_graphics_file "$file"
+}
+
 # --- SECTION 4: MAIN DISPATCH ---
 mimetype=$(file --mime-type -b "$file" 2>/dev/null || echo "application/octet-stream")
 
@@ -139,7 +164,7 @@ case "$mimetype" in
         preview_text
         ;;
     image/*)
-        render_graphics_file "$file" && exit 1
+        preview_image && exit 1
         ;;
     video/*)
         # Optimized: only attempt embedded yt-dlp thumbnail extraction

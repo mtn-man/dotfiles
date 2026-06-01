@@ -115,6 +115,27 @@ preview_heic() {
     [[ -s "$cached" ]] && render_graphics_file "$cached"
 }
 
+preview_image() {
+    local cached
+    cached=$(thumb_cache_path "$file")
+    if [[ -s "$cached" ]]; then
+        touch "$cached"
+        render_graphics_file "$cached"
+        return 0
+    fi
+
+    local px_w=$(( w * PX_PER_COL ))
+    local tmp="${cached}.tmp.$$"
+    if sips -s format jpeg -s formatOptions "$HEIC_JPEG_QUALITY" \
+        --resampleWidth "$px_w" "$file" --out "$tmp" >/dev/null 2>&1; then
+        mv "$tmp" "$cached"
+        render_graphics_file "$cached"
+        return 0
+    fi
+    rm -f "$tmp"
+    render_graphics_file "$file"
+}
+
 preview_video_ytdlp() {
     [[ "$HAS_FFMPEG" -eq 1 && "$HAS_FFPROBE" -eq 1 ]] || return 1
     can_use_kitten_graphics || return 1
@@ -164,7 +185,7 @@ case "$mimetype" in
         preview_heic && [[ "$GRAPHICS_RENDERED" -eq 1 ]] && exit 1
         ;;
     image/*)
-        render_graphics_file "$file" && exit 1
+        preview_image && exit 1
         ;;
     video/*)
         # Optimized: only attempt embedded yt-dlp thumbnail extraction
