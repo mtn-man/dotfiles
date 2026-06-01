@@ -1,9 +1,7 @@
 
-//@theme "/usr/share/rofi/themes/glue_pro_blue.rasi"
-
 configuration {
     modes: "combi,window";
-    combi-modes: "drun,actions:/home/eli/.config/rofi/actions.sh,bookmarks:/home/eli/.config/rofi/bookmarks.sh";
+    combi-modes: "drun,actions:/home/eli/.config/rofi/actions.sh,places:/home/eli/.config/rofi/places.sh,bookmarks:/home/eli/.config/rofi/bookmarks.sh";
     show-icons: true;
     sort: true;
 }

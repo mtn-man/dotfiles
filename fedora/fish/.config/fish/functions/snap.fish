@@ -115,6 +115,8 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/rofi/config.rasi" ~/.config/rofi/config.rasi text
         __snap_file "~/.config/rofi/bookmarks" ~/.config/rofi/bookmarks text
         __snap_file "~/.config/rofi/bookmarks.sh" ~/.config/rofi/bookmarks.sh bash
+        __snap_file "~/.config/rofi/places" ~/.config/rofi/places text
+        __snap_file "~/.config/rofi/places.sh" ~/.config/rofi/places.sh bash
         __snap_file "~/.config/rofi/actions" ~/.config/rofi/actions text
         __snap_file "~/.config/rofi/actions.sh" ~/.config/rofi/actions.sh bash
 
