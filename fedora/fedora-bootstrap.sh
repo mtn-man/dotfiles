@@ -59,6 +59,7 @@ PKGS=(
     bat
     fzf
     fd-find
+    ripgrep
     zoxide
     micro
     btop
@@ -199,32 +200,36 @@ done
 # -----------------------------------------------------------------------------
 info "Enabling system services..."
 
-sudo systemctl enable --now tailscaled.service
-sudo systemctl enable --now throttled.service
-sudo systemctl enable --now sshd.service
-sudo systemctl enable --now smartd.service
-success "System services enabled"
+for svc in tailscaled.service throttled.service sshd.service smartd.service; do
+    if systemctl is-enabled "$svc" &>/dev/null; then
+        success "$svc already enabled"
+    else
+        sudo systemctl enable --now "$svc"
+        success "$svc enabled"
+    fi
+done
 
 # -----------------------------------------------------------------------------
 # 7. Battery charge threshold
 # -----------------------------------------------------------------------------
 BATTERY_SERVICE="/etc/systemd/system/battery-charge-threshold.service"
-if systemctl is-enabled battery-charge-threshold.service &>/dev/null; then
-    success "Battery charge threshold service already enabled"
-else
-    info "Creating battery charge threshold service (85%)..."
-    sudo tee "$BATTERY_SERVICE" > /dev/null << 'EOF'
+info "Writing battery charge threshold service (75–85%)..."
+sudo tee "$BATTERY_SERVICE" > /dev/null << 'EOF'
 [Unit]
 Description=Set battery charge threshold
 After=multi-user.target
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash -c 'echo 85 > /sys/class/power_supply/BAT0/charge_control_end_threshold'
+ExecStart=/bin/bash -c 'echo 75 > /sys/class/power_supply/BAT0/charge_control_start_threshold; echo 85 > /sys/class/power_supply/BAT0/charge_control_end_threshold'
 
 [Install]
 WantedBy=multi-user.target
 EOF
+sudo systemctl daemon-reload
+if systemctl is-enabled battery-charge-threshold.service &>/dev/null; then
+    success "Battery charge threshold service updated"
+else
     sudo systemctl enable --now battery-charge-threshold.service
     success "Battery charge threshold service created and enabled"
 fi
