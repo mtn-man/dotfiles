@@ -17,7 +17,7 @@ set $browser brave-origin-beta
 set $menu rofi -show combi
 
 xwayland enable
-gaps inner 4
+gaps inner 0
 smart_gaps on
 
 ### Window rules
