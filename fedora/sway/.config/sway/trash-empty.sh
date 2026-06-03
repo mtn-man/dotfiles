@@ -1,6 +1,6 @@
 #!/bin/bash
-if pgrep -f "rofi -dmenu -p Empty Trash" > /dev/null; then
-    pkill -f "rofi -dmenu -p Empty Trash"
+if pgrep -x rofi > /dev/null; then
+    pkill -x rofi
     exit
 fi
 choice=$(printf 'Yes\nNo' | rofi -dmenu -p 'Empty Trash?')

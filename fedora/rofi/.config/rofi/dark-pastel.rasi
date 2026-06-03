@@ -102,7 +102,6 @@ element {
 element-text, element-icon {
 	background-color: inherit;
 	text-color:       inherit;
-	foreground-color: inherit;
 }
 
 element normal {
@@ -111,9 +110,6 @@ element normal {
 
 element selected {
 	background-color: @base0D;
-}
-
-element alternate {
 }
 
 element normal normal, element selected normal, element alternate normal {

@@ -1,6 +1,6 @@
 #!/bin/bash
-if pgrep -f "rofi -dmenu -p Power off" > /dev/null; then
-    pkill -f "rofi -dmenu -p Power off"
+if pgrep -x rofi > /dev/null; then
+    pkill -x rofi
     exit
 fi
 choice=$(printf 'Shutdown\nRestart\nSleep\nLogout\nLock' | rofi -dmenu -p 'Power off?')

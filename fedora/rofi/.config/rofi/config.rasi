@@ -3,7 +3,6 @@ configuration {
     modes: "combi,window";
     combi-modes: "drun,actions:/home/eli/.config/rofi/actions.sh,places:/home/eli/.config/rofi/places.sh,bookmarks:/home/eli/.config/rofi/bookmarks.sh";
     show-icons: true;
-    sort: true;
 }
 
 @theme "/home/eli/.config/rofi/dark-pastel.rasi"
