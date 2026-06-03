@@ -234,6 +234,7 @@ include '$(/usr/libexec/sway/layered-include "/usr/share/sway/config.d/*.conf" "
 
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
+exec autotiling
 
 # Lid switch -- disable internal display when closed
 bindswitch --reload --locked lid:on output eDP-1 disable
