@@ -103,7 +103,7 @@ PKGS=(
     mpv
 
     # --- Network ---
-    network-manager-applet
+    firefox
 
     # --- Credentials / SSH ---
     openssh-askpass
