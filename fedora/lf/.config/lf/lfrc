@@ -18,6 +18,7 @@ map x cut
 map C clear
 set previewer ~/.config/lf/pv.sh
 set cleaner ~/.config/lf/clean.sh
+set hidden!
 
 # --- zoxide integration (fish-compatible) ---
 
