@@ -83,6 +83,7 @@ PKGS=(
     smartmontools
     nodejs22
     playerctl
+    pipx
 
     # --- Desktop ---
     # Most of these ship with the Fedora Sway spin; listed for plain Fedora installs.
@@ -180,7 +181,18 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 5. Stow dotfiles
+# 5. pipx tools
+# -----------------------------------------------------------------------------
+if pipx list 2>/dev/null | grep -q 'package autotiling'; then
+    success "autotiling already installed"
+else
+    info "Installing autotiling (dynamic tiling for sway)..."
+    pipx install autotiling
+    success "autotiling installed"
+fi
+
+# -----------------------------------------------------------------------------
+# 6. Stow dotfiles
 # -----------------------------------------------------------------------------
 info "Stowing dotfiles..."
 
@@ -196,7 +208,7 @@ for pkg in "${PACKAGES[@]}"; do
 done
 
 # -----------------------------------------------------------------------------
-# 6. System services
+# 7. System services
 # -----------------------------------------------------------------------------
 info "Enabling system services..."
 
@@ -210,7 +222,7 @@ for svc in tailscaled.service throttled.service sshd.service smartd.service; do
 done
 
 # -----------------------------------------------------------------------------
-# 7. Battery charge threshold
+# 8. Battery charge threshold
 # -----------------------------------------------------------------------------
 BATTERY_SERVICE="/etc/systemd/system/battery-charge-threshold.service"
 info "Writing battery charge threshold service (75–85%)..."
@@ -235,7 +247,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 8. Default shell
+# 9. Default shell
 # -----------------------------------------------------------------------------
 if [[ "$SHELL" != "$(command -v fish)" ]]; then
     info "Setting fish as default shell..."
@@ -250,14 +262,14 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 9. Font cache
+# 10. Font cache
 # -----------------------------------------------------------------------------
 info "Rebuilding font cache..."
 fc-cache -f
 success "Font cache rebuilt"
 
 # -----------------------------------------------------------------------------
-# 10. XDG user directories
+# 11. XDG user directories
 # -----------------------------------------------------------------------------
 info "Creating XDG user directories..."
 xdg-user-dirs-update
@@ -268,7 +280,7 @@ fi
 success "XDG user directories created"
 
 # -----------------------------------------------------------------------------
-# 11. Home directory permissions for SDDM
+# 12. Home directory permissions for SDDM
 # -----------------------------------------------------------------------------
 # SDDM runs as its own user and needs execute permission on $HOME to traverse
 # the path to wallpapers stored in ~/Pictures.
@@ -281,7 +293,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 12. Auto-login (SDDM)
+# 13. Auto-login (SDDM)
 # -----------------------------------------------------------------------------
 # The Fedora Sway spin installer may already configure this; skip if so.
 if grep -q "^User=$USER" /etc/sddm.conf 2>/dev/null || grep -rq "^User=$USER" /etc/sddm.conf.d/ 2>/dev/null; then
@@ -298,7 +310,7 @@ EOF
 fi
 
 # -----------------------------------------------------------------------------
-# 13. Passwordless keyring (gnome-keyring PAM unlock)
+# 14. Passwordless keyring (gnome-keyring PAM unlock)
 # -----------------------------------------------------------------------------
 # With auto-login there is no PAM auth token to unlock the keyring, so add the
 # gnome-keyring auth line — it will unlock using an empty password. The login
@@ -316,7 +328,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 14. Suppress login message
+# 15. Suppress login message
 # -----------------------------------------------------------------------------
 touch "$HOME/.hushlogin"
 
