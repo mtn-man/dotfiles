@@ -1,5 +1,6 @@
 set sortby time
 set reverse true
+set icons true
 map o &xdg-open "$fx"
 map <enter> &xdg-open "$fx"
 map . set hidden!
