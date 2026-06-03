@@ -103,6 +103,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
 
         # 5. lf config
         __snap_file "~/.config/lf/lfrc" $dotfiles/lf/.config/lf/lfrc text
+        __snap_file "~/.config/lf/icons" $dotfiles/lf/.config/lf/icons text
         __snap_file "~/.config/lf/pv.sh" $dotfiles/lf/.config/lf/pv.sh bash
         __snap_file "~/.config/lf/clean.sh" $dotfiles/lf/.config/lf/clean.sh bash
 
