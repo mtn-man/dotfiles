@@ -1,0 +1,28 @@
+[Unit]
+Description=Jellyfin Media Server Container (Podman)
+Requires=mnt-storage.mount
+After=mnt-storage.mount
+PartOf=mnt-storage.mount
+
+[Service]
+Type=exec
+User=eli
+Group=eli
+ExecStartPre=/bin/sh -lc 'for i in $(seq 1 180); do mountpoint -q /mnt/storage && exit 0; sleep 1; done; exit 1'
+ExecStart=/usr/bin/podman run --name jellyfin-systemd \
+  --replace \
+  --network host \
+  --device /dev/dri:/dev/dri:rwm \
+  -e LIBVA_DRIVER_NAME=iHD \
+  --volume /mnt/storage:/media \
+  --volume /var/lib/jellyfin/config:/config \
+  --volume /var/lib/jellyfin/cache:/cache \
+  --volume /usr/lib64/dri:/usr/lib64/dri:ro \
+  --pull=never \
+  docker.io/jellyfin/jellyfin:latest
+ExecStop=/usr/bin/podman stop -t 10 jellyfin-systemd
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

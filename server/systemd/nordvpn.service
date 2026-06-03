@@ -1,0 +1,27 @@
+[Unit]
+Description=NordVPN Container
+Requires=mnt-storage.mount
+After=mnt-storage.mount network-online.target
+PartOf=mnt-storage.mount
+
+[Service]
+Type=exec
+ExecStartPre=/bin/sh -lc 'for i in $(seq 1 180); do mountpoint -q /mnt/storage && exit 0; sleep 1; done; exit 1'
+ExecStartPre=-/usr/bin/podman rm -f transmission
+ExecStartPre=-/usr/bin/podman rm -f nordvpn
+ExecStart=/usr/bin/podman run \
+  --name nordvpn \
+  --replace \
+  --cap-add=NET_ADMIN \
+  --sysctl net.ipv6.conf.all.disable_ipv6=1 \
+  --secret nordvpn_token \
+  --device /dev/net/tun \
+  -p 100.106.45.25:9091:9091 \
+  --pull=never \
+  localhost/nordvpn-custom:latest
+ExecStop=/usr/bin/podman stop -t 15 nordvpn
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
