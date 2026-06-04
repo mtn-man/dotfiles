@@ -1,0 +1,6 @@
+mnt-storage.mount is generated from /etc/fstab, not a static unit file.
+Recreate by adding this line to /etc/fstab on the new machine:
+
+UUID=d477f156-a70d-4aba-ab3d-5fa6d194e982  /mnt/storage  xfs  defaults,nofail  0  0
+
+The override.conf in this directory (Wants=jellyfin.service) is applied on top.
