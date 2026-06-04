@@ -6,6 +6,8 @@ set -g  MEDIA_SHARE "media"
 # Suppress Homebrew hints and cleanup messages
 set -gx HOMEBREW_NO_ENV_HINTS 1
 set -gx HOMEBREW_NO_INSTALL_CLEANUP 1
+# Require explicit trust for Homebrew taps
+set -gx HOMEBREW_REQUIRE_TAP_TRUST 1
 
 # 2. Homebrew Initialization
 # Homebrew (Apple Silicon):
