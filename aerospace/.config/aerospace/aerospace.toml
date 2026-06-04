@@ -115,7 +115,7 @@ alt-shift-semicolon = 'mode service'
 # --- Launch terminal ---
 # Adjust the app path to match your terminal (Ghostty, kitty, iTerm2, etc.)
 # Using open -n to always open a new window rather than focus an existing one
-# alt-enter = 'exec-and-forget open -n /Applications/Ghostty.app'
+cmd-enter = 'exec-and-forget open /Applications/Ghostty.app'
 
 # --------------------------------------------------------------------------
 # Service mode: rarely-used management commands behind a mode prefix
