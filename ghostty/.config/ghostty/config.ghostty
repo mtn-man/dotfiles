@@ -32,3 +32,4 @@ macos-titlebar-style = transparent
 macos-non-native-fullscreen = visible-menu
 
 keybind = global:ctrl+alt+t=toggle_quick_terminal
+keybind = cmd+enter=unbind
