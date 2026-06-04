@@ -16,7 +16,7 @@ set $browser brave-origin-beta
 # Recommends: rofi-wayland
 set $menu rofi -show combi
 
-xwayland enable
+xwayland disable
 gaps inner 0
 smart_gaps on
 
