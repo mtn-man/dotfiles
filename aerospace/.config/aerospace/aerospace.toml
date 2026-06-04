@@ -1,0 +1,151 @@
+# ~/.config/aerospace/aerospace.toml
+# AeroSpace config — config-version is required
+config-version = 2
+
+# Launch AeroSpace at login
+start-at-login = true
+
+# Commands to run after AeroSpace starts (optional)
+after-startup-command = []
+
+# Normalizations keep the window tree sane by collapsing degenerate containers.
+# Leave these enabled unless you have a specific reason to disable them.
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+# When macOS hides an app (cmd-h), AeroSpace can automatically unhide it when
+# you focus one of its windows.
+automatically-unhide-macos-hidden-apps = true
+
+# Move the mouse cursor to the center of the newly focused monitor when you
+# switch monitors or workspaces. Handy on multi-monitor setups.
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+# --------------------------------------------------------------------------
+# Persistent workspaces: always keep these alive even when empty.
+# Remove numbers you don't plan to use.
+# --------------------------------------------------------------------------
+persistent-workspaces = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+# --------------------------------------------------------------------------
+# Key mapping preset. Options: qwerty | dvorak | colemak
+# --------------------------------------------------------------------------
+[key-mapping]
+preset = 'qwerty'
+
+# --------------------------------------------------------------------------
+# Gaps (pixels). inner = between windows, outer = between windows and edges.
+# --------------------------------------------------------------------------
+[gaps]
+inner.horizontal = 0
+inner.vertical   = 0
+outer.left       = 0
+outer.right      = 0
+outer.top        = 0
+outer.bottom     = 0
+
+# --------------------------------------------------------------------------
+# Main binding mode — all your everyday keybindings live here.
+# alt = Option key on macOS.
+# --------------------------------------------------------------------------
+[mode.main.binding]
+
+# --- Focus ---
+# Move focus between windows (vim-style hjkl)
+alt-h = 'focus left'
+alt-j = 'focus down'
+alt-k = 'focus up'
+alt-l = 'focus right'
+
+# --- Move windows ---
+alt-shift-h = 'move left'
+alt-shift-j = 'move down'
+alt-shift-k = 'move up'
+alt-shift-l = 'move right'
+
+# --- Resize ---
+alt-minus     = 'resize smart -50'
+alt-equal     = 'resize smart +50'
+
+# --- Layout ---
+# Cycle through horizontal / vertical / accordion layouts
+alt-slash     = 'layout tiles horizontal vertical'
+alt-comma     = 'layout accordion horizontal vertical'
+
+# Toggle a window between floating and tiling
+alt-shift-space = 'layout floating tiling'
+
+# Fullscreen (AeroSpace-style, not macOS native fullscreen)
+alt-f = 'fullscreen'
+
+# --- Workspaces ---
+alt-1 = 'workspace 1'
+alt-2 = 'workspace 2'
+alt-3 = 'workspace 3'
+alt-4 = 'workspace 4'
+alt-5 = 'workspace 5'
+alt-6 = 'workspace 6'
+alt-7 = 'workspace 7'
+alt-8 = 'workspace 8'
+alt-9 = 'workspace 9'
+
+# Send focused window to a workspace (and follow it)
+alt-shift-1 = ['move-node-to-workspace 1', 'workspace 1']
+alt-shift-2 = ['move-node-to-workspace 2', 'workspace 2']
+alt-shift-3 = ['move-node-to-workspace 3', 'workspace 3']
+alt-shift-4 = ['move-node-to-workspace 4', 'workspace 4']
+alt-shift-5 = ['move-node-to-workspace 5', 'workspace 5']
+alt-shift-6 = ['move-node-to-workspace 6', 'workspace 6']
+alt-shift-7 = ['move-node-to-workspace 7', 'workspace 7']
+alt-shift-8 = ['move-node-to-workspace 8', 'workspace 8']
+alt-shift-9 = ['move-node-to-workspace 9', 'workspace 9']
+
+# Move between workspaces in order
+alt-tab       = 'workspace-back-and-forth'
+alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+
+# --- Service mode (reload, flatten, etc.) ---
+# Enter service mode to access management commands without conflicting with apps
+alt-shift-semicolon = 'mode service'
+
+# --- Launch terminal ---
+# Adjust the app path to match your terminal (Ghostty, kitty, iTerm2, etc.)
+# Using open -n to always open a new window rather than focus an existing one
+# alt-enter = 'exec-and-forget open -n /Applications/Ghostty.app'
+
+# --------------------------------------------------------------------------
+# Service mode: rarely-used management commands behind a mode prefix
+# --------------------------------------------------------------------------
+[mode.service.binding]
+esc       = ['reload-config', 'mode main']              # reload config and exit service mode
+r         = ['flatten-workspace-tree', 'mode main']     # reset/flatten layout
+backspace = ['close-all-windows-but-current', 'mode main']
+f         = ['layout floating tiling', 'mode main']
+
+# Join the focused window with a neighbour (creates nested containers)
+alt-shift-h = ['join-with left',  'mode main']
+alt-shift-j = ['join-with down',  'mode main']
+alt-shift-k = ['join-with up',    'mode main']
+alt-shift-l = ['join-with right', 'mode main']
+
+# --------------------------------------------------------------------------
+# Window rules: apps that should always float or land on a specific workspace
+# --------------------------------------------------------------------------
+
+# System dialogs and utility windows — float by default
+[[on-window-detected]]
+if.app-id = 'com.apple.systempreferences'
+run        = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+run        = 'layout floating'
+
+[[on-window-detected]]
+if.app-id = 'com.apple.ActivityMonitor'
+run        = 'layout floating'
+
+# Example: always send Slack to workspace 9
+# [[on-window-detected]]
+# if.app-id = 'com.tinyspeck.slackmacgap'
+# run        = 'move-node-to-workspace 9'
