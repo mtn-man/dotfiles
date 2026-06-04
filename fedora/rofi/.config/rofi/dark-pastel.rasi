@@ -76,6 +76,7 @@ button, textbox {
 
 button selected {
 	background-color: @base0D;
+	text-color: #000000;
 }
 
 listview {
@@ -112,8 +113,12 @@ element selected {
 	background-color: @base0D;
 }
 
-element normal normal, element selected normal, element alternate normal {
+element normal normal, element alternate normal {
 	text-color: @base07;
+}
+
+element selected normal {
+	text-color: #000000;
 }
 
 element normal urgent, element selected urgent, element alternate urgent {
