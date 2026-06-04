@@ -59,7 +59,6 @@ cd ~/dev/mintmedia && go install ./...
 App Store:
 
 * Hush
-* Folder Peek
 * uBlock Origin Lite
 
 Third-party:
