@@ -95,7 +95,6 @@ defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
 # Software Update
 defaults write com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
 defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
-defaults write com.apple.SoftwareUpdate AutomaticDownload -int 1
 
 killall Dock   # always running; safe to restart
 killall Finder # always running; safe to restart
