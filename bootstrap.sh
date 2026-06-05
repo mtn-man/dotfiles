@@ -11,7 +11,6 @@ fi
 
 echo "==> Trusting third-party taps..."
 brew trust mtn-man/tools
-brew trust nikitabobko/tap
 brew trust xykong/tap
 
 echo "==> Installing packages from Brewfile..."
