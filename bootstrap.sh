@@ -9,6 +9,11 @@ if [[ -x /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+echo "==> Trusting third-party taps..."
+brew trust mtn-man/tools
+brew trust nikitabobko/tap
+brew trust xykong/tap
+
 echo "==> Installing packages from Brewfile..."
 brew bundle install --file="$DOTFILES/Brewfile"
 
