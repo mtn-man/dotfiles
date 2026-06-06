@@ -1,5 +1,5 @@
 function fm --description 'Open file in micro via fd search (fzf when multiple matches)'
-# Searches ~/dev, then ~/.dotfiles, then falls back to cwd if no matches (by design)
+# Searches ~/dev and ~/.dotfiles together, then falls back to cwd if no matches
     for tool in fd fzf micro bat
         if not command -q $tool
             echo "fm: required tool missing: $tool" >&2
@@ -15,18 +15,12 @@ function fm --description 'Open file in micro via fd search (fzf when multiple m
     # Common fd options
     set -l fd_opts --no-ignore -L -H -t f --exclude .git
 
-    # Search under ~/dev
-    set -l matches (fd $fd_opts "$argv[1]" ~/dev)
-
-    # Then ~/.dotfiles
-    if test (count $matches) -eq 0
-        echo "fm: no matches in ~/dev, searching ~/.dotfiles..."
-        set matches (fd $fd_opts "$argv[1]" ~/.dotfiles)
-    end
+    # Search ~/dev and ~/.dotfiles together
+    set -l matches (fd $fd_opts "$argv[1]" ~/dev ~/.dotfiles)
 
     # Fallback: search current working directory if no matches
     if test (count $matches) -eq 0
-        echo "fm: no matches in ~/.dotfiles, searching cwd..."
+        echo "fm: no matches in ~/dev or ~/.dotfiles, searching cwd..."
         set matches (fd $fd_opts "$argv[1]" .)
     end
 
