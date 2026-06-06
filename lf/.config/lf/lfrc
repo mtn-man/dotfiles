@@ -20,6 +20,7 @@ map C clear
 map Q $qlmanage -p -- "$f" >/dev/null 2>&1 &
 set previewer ~/.config/lf/pv.sh
 set cleaner ~/.config/lf/clean.sh
+set hidden!
 
 # --- zoxide integration (fish-compatible) ---
 
