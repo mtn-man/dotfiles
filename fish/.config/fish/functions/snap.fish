@@ -87,9 +87,9 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         echo
 
         # 3. Dotfiles
-        __snap_file "~/dotfiles/Brewfile (also backed-up to dotfiles repo)" $dotfiles/Brewfile ruby
-        __snap_file "~/dotfiles/README.md" $dotfiles/README.md
-        __snap_file "~/dotfiles/bootstrap.sh" $dotfiles/bootstrap.sh bash
+        __snap_file "~/.dotfiles/Brewfile (also backed-up to dotfiles repo)" $dotfiles/Brewfile ruby
+        __snap_file "~/.dotfiles/README.md" $dotfiles/README.md
+        __snap_file "~/.dotfiles/bootstrap.sh" $dotfiles/bootstrap.sh bash
 
         # 4. Fish config
         __snap_file "~/.config/fish/config.fish" $__fish_config_dir/config.fish fish
@@ -108,7 +108,6 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/lf/clean.sh" $dotfiles/lf/.config/lf/clean.sh bash
 
         # 6. App configs
-        __snap_file "~/.config/aerospace/aerospace.toml" $dotfiles/aerospace/.config/aerospace/aerospace.toml toml
         __snap_file "~/.config/ghostty/config.ghostty" $dotfiles/ghostty/.config/ghostty/config.ghostty text
         __snap_file "~/.config/micro/bindings.json" $dotfiles/micro/.config/micro/bindings.json json
         __snap_file "~/.config/micro/settings.json" $dotfiles/micro/.config/micro/settings.json json
