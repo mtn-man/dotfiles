@@ -21,7 +21,7 @@ end
 
 function snap --description 'Rebuild ~/dev/snapshot.md with live data'
     set -l outfile ~/dev/snapshot.md
-    set -l dotfiles ~/dev/dotfiles
+    set -l dotfiles ~/.dotfiles
     set -g __snap_errors
 
     if not command -q fastfetch

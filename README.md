@@ -20,13 +20,13 @@
 ```bash
 brew install gh bitwarden
 gh auth login
-gh repo clone mtn-man/dotfiles ~/dev/dotfiles
+gh repo clone mtn-man/dotfiles ~/.dotfiles
 ```
 
 3. Run bootstrap:
 
 ```bash
-cd ~/dev/dotfiles
+cd ~/.dotfiles
 ./bootstrap.sh
 ```
 

@@ -33,7 +33,7 @@ GRAPHICS_CLEAR_MARKER="${PREVIEW_CACHE_DIR}/.needs_graphics_clear"
 mkdir -p "$PREVIEW_CACHE_DIR/thumbs" 2>/dev/null
 
 # --- SECTION 1: CENTRALIZED DEPENDENCY STATE ---
-BREWFILE="$HOME/dev/dotfiles/Brewfile"
+BREWFILE="$HOME/.dotfiles/Brewfile"
 # Invalidate dep cache if Brewfile is newer (catches installs and removals).
 if [[ -f "$DEP_CACHE_FILE" && -f "$BREWFILE" && "$BREWFILE" -nt "$DEP_CACHE_FILE" ]]; then
     rm -f "$DEP_CACHE_FILE"
