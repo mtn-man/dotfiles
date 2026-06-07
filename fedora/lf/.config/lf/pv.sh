@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 # Optimized Preview script for lf
-# - Compatibility: Ghostty 1.x+ and Kitty
 # - Performance: Cached dependency lookups
 # - Media: yt-dlp style embedded thumbnail extraction only
 # - Text: Simplified bat/color handling for all text
-# Note: image previews require `kitten icat` (from the kitty package) even when
-# using Ghostty, as Ghostty does not ship its own kitten binary.
 set -o pipefail
 
 file="$1"

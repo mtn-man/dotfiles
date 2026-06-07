@@ -33,7 +33,7 @@ All layers share a consistent **Dark Pastel** palette:
 | Red (critical/error) | `#FF6C60` |
 | Cyan / Magenta | `#C6C5FE` / `#FF73FE` |
 
-The wallpaper (`~/Pictures/wallhaven-28zr39_2560x1440.png`) is shared between Sway and Swaylock.
+Sway and Swaylock both use `~/.config/sway/assets/wallhaven-yxyye7_3840x2400.png`.
 
 ## Waybar
 
