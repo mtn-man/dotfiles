@@ -26,11 +26,10 @@ window-save-state = always
 mouse-hide-while-typing = true
 
 # native, transparent, tabs, hidden
-macos-titlebar-style = hidden
+macos-titlebar-style = tabs
 
 # true, false, visible-menu, padded-notch
 macos-non-native-fullscreen = visible-menu
 
 keybind = global:ctrl+alt+t=toggle_quick_terminal
-keybind = cmd+enter=unbind
-keybind = cmd+t=unbind
+
