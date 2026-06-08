@@ -6,6 +6,7 @@
 * `server/` = CentOS Stream 10 homelab
 * `fedora/` = Fedora development/testing machine
 * Everything else targets macOS unless otherwise noted
+* `raycast-scripts/` = Raycast script commands, shortcuts, and config backups
 
 ### Fresh Mac Setup
 
