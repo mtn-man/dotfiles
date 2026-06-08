@@ -88,7 +88,6 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
 
         # 3. Dotfiles
         __snap_file "~/.dotfiles/Brewfile (also backed-up to dotfiles repo)" $dotfiles/Brewfile ruby
-        __snap_file "~/.dotfiles/README.md" $dotfiles/README.md
         __snap_file "~/.dotfiles/bootstrap.sh" $dotfiles/bootstrap.sh bash
 
         # 4. Fish config
@@ -103,7 +102,6 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
 
         # 5. lf config
         __snap_file "~/.config/lf/lfrc" $dotfiles/lf/.config/lf/lfrc text
-        __snap_file "~/.config/lf/icons" $dotfiles/lf/.config/lf/icons text
         __snap_file "~/.config/lf/pv.sh" $dotfiles/lf/.config/lf/pv.sh bash
         __snap_file "~/.config/lf/clean.sh" $dotfiles/lf/.config/lf/clean.sh bash
 
@@ -111,7 +109,6 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/ghostty/config.ghostty" $dotfiles/ghostty/.config/ghostty/config.ghostty text
         __snap_file "~/.config/micro/bindings.json" $dotfiles/micro/.config/micro/bindings.json json
         __snap_file "~/.config/micro/settings.json" $dotfiles/micro/.config/micro/settings.json json
-        __snap_file "~/.config/fastfetch/config.jsonc" $dotfiles/fastfetch/.config/fastfetch/config.jsonc jsonc
     end \
         | string replace -ra -- "$HOMELAB" 'censored' \
         | string replace -ra -- "$HOMELAB_LOCAL" 'censored' \
