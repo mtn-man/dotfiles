@@ -77,11 +77,9 @@ Verify:
 * Media share mounts successfully (`media on`)
 * Raycast hotkeys work
 * Hammerspoon loads successfully
-* AeroSpace starts correctly
 
 Accessibility permissions are required for:
 
-* AeroSpace
 * Ghostty
 * Hammerspoon
 * LinearMouse
