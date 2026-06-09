@@ -67,6 +67,8 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         echo "via the media fish function."
         echo "kitty is kept installed for its kitten icat image rendering;"
         echo "Ghostty is my primary terminal emulator."
+        echo "InstantSpaceSwitcher is a personal fork (~/dev/swift/InstantSpaceSwitcher) with hide-menu-bar-icon"
+        echo "and wrap-around spaces features not yet merged upstream; the homebrew tap entry is intentionally absent."
         echo "On macOS, raw memory utilization is less meaningful than memory pressure — the OS aggressively"
         echo "compresses inactive pages and reclaims memory on demand, so high utilization alone doesn't"
         echo "indicate a problem."
