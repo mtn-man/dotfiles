@@ -32,6 +32,21 @@ function doctor --description 'Report system status and verify connectivity'
         printf 'doctor: toolchain: %sok%s\n' (set_color green) (set_color normal)
     end
 
+    # Brewfile drift check
+    set -l brewfile ~/.dotfiles/Brewfile
+    if test -f $brewfile
+        set -l bundle_out (brew bundle check --file=$brewfile --no-upgrade 2>&1)
+        set -l bundle_status $status
+        if test $bundle_status -eq 0
+            printf 'doctor: brewfile: %sok%s\n' (set_color green) (set_color normal)
+        else
+            printf 'doctor: brewfile: %sdrift detected%s\n' (set_color yellow) (set_color normal)
+            for line in $bundle_out
+                printf 'doctor:   %s\n' $line
+            end
+        end
+    end
+
     # Media mount
     set -l media_mounted no
     if mount | string match -q "* on /Volumes/$MEDIA_SHARE (*"
@@ -80,7 +95,7 @@ function doctor --description 'Report system status and verify connectivity'
     test "$_au" = 1
         and set autoupdate_on yes
 
-    set -l sec_labels SIP filevault firewall "firewall stealth" gatekeeper "auto updates"
+    set -l sec_labels SIP filevault firewall "firewall stealth" gatekeeper "security updates"
     set -l sec_flags $sip_on $filevault_on $firewall_on $stealth_on $gatekeeper_on $autoupdate_on
     for i in (seq (count $sec_labels))
         if test "$sec_flags[$i]" = yes

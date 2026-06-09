@@ -96,9 +96,9 @@ defaults write com.apple.dock showhidden -bool true
 # Photos
 defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
 
-# Software Update
+# Software Update: check automatically, but install security responses only; feature updates are installed manually
 defaults write com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
-defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
+defaults write com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
 
 killall Dock   # always running; safe to restart
 killall Finder # always running; safe to restart
