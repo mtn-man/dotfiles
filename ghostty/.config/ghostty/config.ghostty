@@ -26,7 +26,7 @@ window-save-state = always
 mouse-hide-while-typing = true
 
 # native, transparent, tabs, hidden
-macos-titlebar-style = tabs
+macos-titlebar-style = transparent
 
 # true, false, visible-menu, padded-notch
 macos-non-native-fullscreen = visible-menu
