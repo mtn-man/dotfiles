@@ -41,9 +41,31 @@ function doctor --description 'Report system status and verify connectivity'
             printf 'doctor: brewfile: %sok%s\n' (set_color green) (set_color normal)
         else
             printf 'doctor: brewfile: %sdrift detected%s\n' (set_color yellow) (set_color normal)
-            for line in $bundle_out
+            printf '%s\n' $bundle_out | while read -l line
                 printf 'doctor:   %s\n' $line
             end
+        end
+    end
+
+    # Dotfiles repo check
+    set -l dotfiles ~/.dotfiles
+    if test -d $dotfiles
+        set -l dirty (git -C $dotfiles status --porcelain 2>/dev/null)
+        set -l ahead_behind (git -C $dotfiles rev-list --left-right --count @{upstream}...HEAD 2>/dev/null)
+        if test -n "$dirty"
+            printf 'doctor: dotfiles: %suncommitted changes%s\n' (set_color yellow) (set_color normal)
+        else if test -n "$ahead_behind"
+            set -l behind (string split \t $ahead_behind)[1]
+            set -l ahead (string split \t $ahead_behind)[2]
+            if test "$ahead" -gt 0
+                printf 'doctor: dotfiles: %s%s unpushed commit(s)%s\n' (set_color yellow) $ahead (set_color normal)
+            else if test "$behind" -gt 0
+                printf 'doctor: dotfiles: %s%s unpulled commit(s)%s\n' (set_color yellow) $behind (set_color normal)
+            else
+                printf 'doctor: dotfiles: %sok%s\n' (set_color green) (set_color normal)
+            end
+        else
+            printf 'doctor: dotfiles: %sok%s\n' (set_color green) (set_color normal)
         end
     end
 
@@ -60,9 +82,9 @@ function doctor --description 'Report system status and verify connectivity'
 
     # Tailscale connectivity
     set -l ts_json (tailscale status --json 2>/dev/null)
-    set -l ts_state (echo $ts_json | jq -r .BackendState 2>/dev/null)
+    set -l ts_state (printf '%s\n' $ts_json | jq -r .BackendState 2>/dev/null)
     if test "$ts_state" = Running
-        set -l ts_ip (echo $ts_json | jq -r '.Self.TailscaleIPs[0]' 2>/dev/null)
+        set -l ts_ip (printf '%s\n' $ts_json | jq -r '.Self.TailscaleIPs[0]' 2>/dev/null)
         if test -n "$ts_ip"
             printf 'doctor: tailscale: %sup%s (%s)\n' (set_color green) (set_color normal) $ts_ip
         else
