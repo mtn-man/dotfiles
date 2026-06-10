@@ -26,6 +26,7 @@ function fish_greeting --description 'Display welcome message once per terminal 
         set -U fish_last_greeted_pid "$terminal_key"
         echo "Welcome back, Eli"
         command -q fastfetch; and fastfetch
+        doctor
     else if test -z "$terminal_key"
         echo "Welcome back, Eli"
     end
