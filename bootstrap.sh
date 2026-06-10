@@ -9,10 +9,6 @@ if [[ -x /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-echo "==> Trusting third-party taps..."
-brew trust mtn-man/tools
-brew trust xykong/tap
-
 echo "==> Installing packages from Brewfile..."
 brew bundle install --file="$DOTFILES/Brewfile"
 
@@ -26,13 +22,13 @@ if [ "$SHELL" != /opt/homebrew/bin/fish ]; then
 fi
 
 echo "==> Checking for stow conflicts..."
-if ! stow -nRvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia; then
+if ! stow -nRvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew; then
     echo "error: stow conflict detected — resolve the above before re-running." >&2
     exit 1
 fi
 
 echo "==> Stowing dotfiles..."
-stow -Rvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia
+stow -Rvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew
 
 echo "==> Suppressing login message..."
 touch ~/.hushlogin

@@ -1,0 +1,13 @@
+{
+  "trustedformulae": [
+    "mtn-man/tools/after"
+  ],
+  "trustedcasks": [
+    "jurplel/tap/instant-space-switcher",
+    "xykong/tap/flux-markdown"
+  ],
+  "trustedtaps": [
+    "xykong/tap",
+    "jurplel/tap"
+  ]
+}
