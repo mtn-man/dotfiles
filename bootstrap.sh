@@ -21,6 +21,9 @@ if [ "$SHELL" != /opt/homebrew/bin/fish ]; then
     chsh -s /opt/homebrew/bin/fish
 fi
 
+echo "==> Removing files that Homebrew creates on first run (will be replaced by stow)..."
+rm -f "$HOME/.homebrew/trust.json"
+
 echo "==> Checking for stow conflicts..."
 if ! stow -nRvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew; then
     echo "error: stow conflict detected — resolve the above before re-running." >&2
