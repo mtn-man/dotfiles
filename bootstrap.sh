@@ -97,8 +97,13 @@ defaults write com.apple.dock orientation -string "left"
 defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
 
 # Software Update: check automatically, but install security responses only; feature updates are installed manually
-defaults write com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
-defaults write com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
+# Must write to the system domain (requires sudo) so that `doctor` can read it
+sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
+sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
+
+# Firewall
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
 
 killall Dock   # always running; safe to restart
 killall Finder # always running; safe to restart
