@@ -105,6 +105,36 @@ function doctor --description 'Report system status and verify connectivity'
         end
     end
 
+    # Time Machine recency check (last external backup via SnapshotDates, disk-independent)
+    set -l last_snapshot (defaults export /Library/Preferences/com.apple.TimeMachine - 2>/dev/null | python3 -c "
+import plistlib, sys
+p = plistlib.loads(sys.stdin.buffer.read())
+dates = p['Destinations'][0]['SnapshotDates']
+print(dates[-1].strftime('%Y-%m-%d %H:%M:%S +0000'))
+" 2>/dev/null)
+    if test -n "$last_snapshot" -a "$last_snapshot" != null
+        set -l backup_epoch (date -j -f "%Y-%m-%d %H:%M:%S %z" $last_snapshot "+%s" 2>/dev/null)
+        if test -n "$backup_epoch"
+            set -l now_epoch (date +%s)
+            set -l backup_age_hours (math --scale=0 "($now_epoch - $backup_epoch) / 3600")
+            set -l backup_age_days (math --scale=0 "$backup_age_hours / 24")
+            if test $backup_age_hours -le 336
+                if test $backup_age_days -eq 0
+                    printf 'doctor: time machine: %sok%s (%sh ago)\n' (set_color green) (set_color normal) $backup_age_hours
+                else
+                    printf 'doctor: time machine: %sok%s (%s days ago)\n' (set_color green) (set_color normal) $backup_age_days
+                end
+            else if test $backup_age_hours -le 504
+                printf 'doctor: time machine: %sstale%s (%s days ago)\n' (set_color yellow) (set_color normal) $backup_age_days
+            else
+                printf 'doctor: time machine: %surgent — backup needed%s (%s days ago)\n' (set_color red) (set_color normal) $backup_age_days
+                set ok 0
+            end
+        end
+    else
+        printf 'doctor: time machine: %sno backup found%s\n' (set_color yellow) (set_color normal)
+    end
+
     if test $ok -eq 0
         return 1
     end
