@@ -88,6 +88,7 @@ defaults write com.apple.dock launchanim -bool false
 defaults write com.apple.dock mru-spaces -bool false
 defaults write com.apple.dock show-recents -bool false
 defaults write com.apple.dock showhidden -bool true
+defaults write com.apple.dock orientation -string "left"
 
 # Photos
 defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
