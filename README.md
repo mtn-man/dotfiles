@@ -46,7 +46,18 @@ gh repo clone mtn-man/mintmedia ~/dev/mintmedia
 cd ~/dev/mintmedia && go install ./...
 ```
 
-5. Sign into required services:
+5. Grant accessibility permissions — these apps will not function correctly without them:
+
+   Open **System Settings > Privacy & Security > Accessibility** and enable:
+
+   * Ghostty
+   * Hammerspoon
+   * LinearMouse
+   * Raycast
+
+   Launch each app first so it appears in the list.
+
+6. Sign into required services:
 
 * Bitwarden
 * Tailscale
@@ -73,13 +84,6 @@ Verify:
 * Media share mounts successfully (`media on`)
 * Raycast hotkeys work
 * Hammerspoon loads successfully
-
-Accessibility permissions are required for:
-
-* Ghostty
-* Hammerspoon
-* LinearMouse
-* Raycast
 
 Notes:
 
