@@ -7,13 +7,25 @@ DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 # hasn't been evaluated yet (e.g. opening a new terminal between steps).
 if [[ -x /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
+elif ! command -v brew &>/dev/null; then
+    echo "error: Homebrew not found. Install it first:" >&2
+    echo "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"" >&2
+    exit 1
 fi
+
+sudo -v
+( while kill -0 "$$" 2>/dev/null; do sudo -n true; sleep 50; done ) &
+_SUDO_KEEPALIVE=$!
+trap 'kill "$_SUDO_KEEPALIVE" 2>/dev/null' EXIT
 
 echo "==> Creating standard directories..."
 mkdir -p "$HOME/dev"
 
 echo "==> Installing packages from Brewfile..."
 brew bundle install --file="$DOTFILES/Brewfile"
+
+echo "==> Initializing Rust toolchain..."
+rustup default stable
 
 echo "==> Setting Fish as default shell..."
 if ! grep -qF /opt/homebrew/bin/fish /etc/shells; then
