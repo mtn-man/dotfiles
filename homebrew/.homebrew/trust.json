@@ -1,5 +1,6 @@
 {
   "trustedformulae": [
+    "mtn-man/tap/after"
   ],
   "trustedcasks": [
     "jurplel/tap/instant-space-switcher",
