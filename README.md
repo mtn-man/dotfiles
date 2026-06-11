@@ -48,19 +48,15 @@ cd ~/dev/mintmedia && go install ./...
 
 5. Sign into required services:
 
-* Apple ID
 * Bitwarden
 * Tailscale
 * GitHub
 * NordVPN
 * Spotify
 
+> Apple ID is not required. The only Apple ID dependencies were App Store extensions (Hush, uBlock Origin Lite), which can be replaced by Firefox with uBlock Origin.
+
 ### Manual Applications
-
-App Store:
-
-* Hush
-* uBlock Origin Lite
 
 Third-party:
 
