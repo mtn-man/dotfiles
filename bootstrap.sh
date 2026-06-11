@@ -9,6 +9,9 @@ if [[ -x /opt/homebrew/bin/brew ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+echo "==> Creating standard directories..."
+mkdir -p "$HOME/dev"
+
 echo "==> Installing packages from Brewfile..."
 brew bundle install --file="$DOTFILES/Brewfile"
 
