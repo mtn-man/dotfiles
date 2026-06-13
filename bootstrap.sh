@@ -48,6 +48,10 @@ fi
 echo "==> Stowing dotfiles..."
 stow -Rvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew
 
+echo "==> Setting default apps..."
+duti -s com.colliderli.iina .mkv all
+duti -s com.colliderli.iina .mp4 all
+
 echo "==> Suppressing login message..."
 touch ~/.hushlogin
 
