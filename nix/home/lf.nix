@@ -72,7 +72,7 @@ in {
           end
 
           if test -n "$dir"
-              set -l q (string replace -a "'" "'\\''" -- "$dir")
+              set -l q (string replace -a "'" "'\\'''" -- "$dir")
               lf -remote "send $id cd '$q'"
           end
       }}
