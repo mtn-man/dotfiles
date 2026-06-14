@@ -13,7 +13,6 @@ set $term kitty
 # Your preferred web-browser
 set $browser brave-origin-beta
 # Your preferred application launcher
-# Recommends: rofi-wayland
 set $menu rofi -show combi
 
 xwayland disable
