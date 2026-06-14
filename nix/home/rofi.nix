@@ -7,12 +7,11 @@
   programs.rofi = {
     enable  = true;
     package = pkgs.rofi;
-    # Actual config lives in extraConfig + xdg.configFile (theme, scripts, data).
+    theme   = "${config.xdg.configHome}/rofi/dark-pastel.rasi";
     extraConfig = {
       modes        = "combi,window";
       combi-modes  = "drun,actions:${config.xdg.configHome}/rofi/actions.sh,places:${config.xdg.configHome}/rofi/places.sh,bookmarks:${config.xdg.configHome}/rofi/bookmarks.sh";
       show-icons   = true;
-      theme        = "${config.xdg.configHome}/rofi/dark-pastel.rasi";
     };
   };
 
