@@ -1,0 +1,115 @@
+/*
+ * Dark Pastel rofi theme
+ * Layout adapted from material.rasi (davatorium/rofi)
+ * Colors: Dark Pastel palette
+ */
+
+* {
+	base00: #1C1C1C;
+	base01: #252525;
+	base02: #2E2E2E;
+	base03: #3A3A3A;
+	base04: #666666;
+	base05: #DEDEDE;
+	base06: #DEDEDE;
+	base07: #DEDEDE;
+	base08: #FF6C60;
+	base09: #FFFFB6;
+	base0A: #FFFFB6;
+	base0B: #A8FF60;
+	base0C: #C6C5FE;
+	base0D: #96CBFE;
+	base0E: #FF73FE;
+	base0F: #FF6C60;
+
+	spacing: 0;
+	background-color: transparent;
+}
+
+window {
+	transparency: "real";
+	background-color: #1C1C1CCC;
+}
+
+mainbox {
+	children: [inputbar, message, mode-switcher, listview];
+	spacing: 30px;
+	padding: 30px 0;
+	border: 1px;
+	border-color: @base0D;
+}
+
+inputbar {
+	padding: 0 30px;
+	children: [prompt, textbox-prompt-colon, entry, case-indicator];
+}
+
+prompt { text-color: @base0D; }
+
+textbox-prompt-colon {
+	expand: false;
+	str: ":";
+	margin: 0 1ch 0 0;
+	text-color: @base0D;
+}
+
+entry        { text-color: @base07; }
+case-indicator { text-color: @base0F; }
+
+mode-switcher, message {
+	border: 1px 0;
+	border-color: @base0D;
+}
+
+button, textbox {
+	background-color: @base03;
+	text-color: @base07;
+	padding: 5px;
+}
+
+button selected {
+	background-color: @base0D;
+	text-color: #000000;
+}
+
+listview {
+	scrollbar: true;
+	margin: 0 10px 0 30px;
+}
+
+scrollbar {
+	background-color: @base03;
+	handle-color: @base0D;
+	handle-width: 10px;
+	border: 0 1px;
+	border-color: @base0D;
+	margin: 0 0 0 20px;
+}
+
+element {
+	padding: 5px;
+	spacing: 5px;
+	highlight: bold underline;
+	children: [element-icon, element-text];
+}
+
+element-text, element-icon {
+	background-color: inherit;
+	text-color:       inherit;
+}
+
+element normal              { background-color: transparent; }
+element selected            { background-color: @base0D; }
+
+element normal normal,
+element alternate normal    { text-color: @base07; }
+
+element selected normal     { text-color: #000000; }
+
+element normal urgent,
+element selected urgent,
+element alternate urgent    { text-color: @base0F; }
+
+element normal active,
+element selected active,
+element alternate active    { text-color: @base0B; }
