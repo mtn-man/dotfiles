@@ -50,6 +50,7 @@ function doctor --description 'Report system status and verify connectivity'
     # Dotfiles repo check
     set -l dotfiles ~/.dotfiles
     if test -d $dotfiles
+        git -C $dotfiles fetch --quiet 2>/dev/null
         set -l dirty (git -C $dotfiles status --porcelain 2>/dev/null)
         set -l ahead_behind (git -C $dotfiles rev-list --left-right --count @{upstream}...HEAD 2>/dev/null)
         if test -n "$dirty"
