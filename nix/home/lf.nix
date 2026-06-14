@@ -28,7 +28,6 @@ in {
 
     # Previewer/cleaner scripts are store paths so they're always executable.
     previewer.source = pvScript;
-    cleaner          = cleanScript;
 
     keybindings = {
       o             = "&xdg-open \"$fx\"";
@@ -76,6 +75,8 @@ in {
               lf -remote "send $id cd '$q'"
           end
       }}
+
+      set cleaner ${cleanScript}
 
       set hidden!
     '';
