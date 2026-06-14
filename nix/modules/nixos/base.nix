@@ -18,7 +18,7 @@
     packages = with pkgs; [
       nerd-fonts.fira-code
       noto-fonts
-      noto-fonts-emoji
+      noto-fonts-color-emoji
     ];
     fontconfig.defaultFonts = {
       monospace = [ "FiraCode Nerd Font Mono" ];
