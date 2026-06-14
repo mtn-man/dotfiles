@@ -198,7 +198,7 @@
           end
 
           set -l dirs (fd -L -H -t d '^\.git$' $roots 2>/dev/null \
-              | string replace '/.git' '' | sort)
+              | string replace '/.git' "" | sort)
 
           if test (count $dirs) -eq 0
               echo "gr: no git repos found under: $roots" >&2; return 1
@@ -456,7 +456,7 @@
               # 1. System info
               echo '```bash'
               fastfetch --logo none \
-                  | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' '' \
+                  | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' "" \
                   | string match -rv '█'
               echo '```'
 
