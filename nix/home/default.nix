@@ -16,8 +16,9 @@
   home.username     = "eli";
   home.homeDirectory = "/home/eli";
 
-  xdg.enable           = true;
-  xdg.userDirs.enable  = true;
+  xdg.enable                       = true;
+  xdg.userDirs.enable              = true;
+  xdg.userDirs.setSessionVariables = true;
 
   # dunst is provided automatically by the Fedora Sway spin; on NixOS we start
   # it explicitly as a systemd user service.

@@ -18,7 +18,7 @@
       wl-clipboard
       grim
       slurp
-      grimshot           # sway screenshot helper wrapping grim+slurp
+      sway-contrib.grimshot  # sway screenshot helper wrapping grim+slurp
       brightnessctl
       playerctl
       pamixer
