@@ -18,6 +18,7 @@ Out-of-repo packages are handled by bootstrap section 3 via COPR / external repo
 - **Brave browser** — `brave-browser-beta.repo`
 - **Tailscale** — `pkgs.tailscale.com/stable/fedora/tailscale.repo`
 - **throttled** — `abn/throttled` COPR
+- **Claude Code** — `downloads.claude.ai/claude-code/rpm/stable`
 
 ## Theme
 
@@ -52,12 +53,13 @@ Sway and Swaylock both use `~/.config/sway/assets/wallhaven-yxyye7_3840x2400.png
 
 ## Fish Shell
 
-Stripped-down compared to macOS — no VPN, media, doctor, or snap functions. Fedora-specific functions:
+Stripped-down compared to macOS — no VPN, media, or doctor functions. Fedora-specific functions:
 
 | Function | Purpose |
 |----------|---------|
 | `batt` | Shows upower battery details (excludes history) |
-| `update` | Runs `dnf upgrade --refresh` |
+| `update` | Runs `fedora-bootstrap.sh` — installs missing packages, upgrades all packages, updates flatpaks, and re-applies all system configuration |
+| `snap` | Rebuilds `~/dev/snapshot.md` with live system data |
 | `yt` | yt-dlp wrapper: reads URL from clipboard if omitted, interactive codec/res picker (`-i`), downloads to `~/Videos/YouTube`, embeds metadata & thumbnails, maintains archive |
 | `gr` | Jump to git repo under `~/dev` via fzf, auto-runs `eza -aTL4` on arrival |
 | `fm` | Find file by name: searches `~/dev` first, falls back to cwd, fzf picker with bat preview |
@@ -65,6 +67,9 @@ Stripped-down compared to macOS — no VPN, media, doctor, or snap functions. Fe
 | `lf` | Wraps lf with quit-and-cd integration, evicts old thumbnails (30d+) and stale tmp files (1d+) |
 | `stow-add` | Moves `~/.config/<pkg>` into dotfiles and stows it |
 | `tm` | Send magnet links and torrents to homelab Transmission via `transmission-remote` (shared with macOS) |
+| `caffeinate` | Prevents idle sleep via `systemd-inhibit` until interrupted |
+| `lp` | List PATH entries with existence check |
+| `mkcd` | Create directory and cd into it |
 
 ## lf Preview (`pv.sh`)
 
