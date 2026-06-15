@@ -1,0 +1,12 @@
+[user]
+    name = Eli Sher
+    email = elisher@duck.com
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[core]
+    editor = micro

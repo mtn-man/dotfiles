@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install script for Fedora Sway setup.
 # Run once from inside the dotfiles repo on a fresh Fedora install.
-set -uo pipefail
+set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -101,6 +101,7 @@ PKGS=(
     nwg-wrapper
     imv
     mpv
+    xdg-desktop-portal-wlr
 
     # --- Network ---
     firefox
@@ -127,6 +128,7 @@ if [[ ${#MISSING[@]} -eq 0 ]]; then
     success "All packages already installed"
 else
     info "Installing packages..."
+    # --allowerasing allows dnf to remove conflicting packages (e.g. ffmpeg-free replaced by RPM Fusion ffmpeg)
     sudo dnf install -y --allowerasing --skip-unavailable "${MISSING[@]}"
     success "Packages installed"
 fi
@@ -135,10 +137,26 @@ info "Upgrading packages..."
 sudo dnf upgrade -y
 success "Packages upgraded"
 
-info "Updating flatpaks..."
-flatpak update -y
-flatpak uninstall --unused -y
-success "Flatpaks updated"
+if ! command -v flatpak &>/dev/null; then
+    warn "flatpak not installed — skipping"
+elif flatpak remotes | grep -q .; then
+    info "Updating flatpaks..."
+    flatpak update -y
+    flatpak uninstall --unused -y
+    success "Flatpaks updated"
+else
+    warn "No flatpak remotes configured — skipping"
+fi
+
+if ! command -v tldr &>/dev/null; then
+    warn "tldr not installed — skipping cache fetch"
+elif tldr --list &>/dev/null; then
+    success "tealdeer cache already present"
+else
+    info "Fetching tealdeer cache..."
+    tldr --update
+    success "tealdeer cache fetched"
+fi
 
 # -----------------------------------------------------------------------------
 # 3. Extra packages (not in official Fedora repos)
@@ -176,19 +194,23 @@ fi
 # -----------------------------------------------------------------------------
 # 4. LSP tools for micro
 # -----------------------------------------------------------------------------
-# Ensure npm installs to ~/.local so global installs never need root.
-if ! grep -qF 'prefix=' "$HOME/.npmrc" 2>/dev/null; then
-    info "Setting npm prefix to ~/.local..."
-    npm config set prefix "$HOME/.local"
-    success "npm prefix set"
-fi
-
-if npm list -g vscode-langservers-extracted &>/dev/null; then
-    success "vscode-langservers-extracted already installed"
+if ! command -v npm &>/dev/null; then
+    warn "npm not installed — skipping LSP tools"
 else
-    info "Installing vscode-langservers-extracted for micro LSP..."
-    npm install -g vscode-langservers-extracted
-    success "LSP tools installed"
+    # Ensure npm installs to ~/.local so global installs never need root.
+    if [[ "$(npm config get prefix 2>/dev/null)" != "$HOME/.local" ]]; then
+        info "Setting npm prefix to ~/.local..."
+        npm config set prefix "$HOME/.local"
+        success "npm prefix set"
+    fi
+
+    if npm list -g vscode-langservers-extracted &>/dev/null; then
+        success "vscode-langservers-extracted already installed"
+    else
+        info "Installing vscode-langservers-extracted for micro LSP..."
+        npm install -g vscode-langservers-extracted
+        success "LSP tools installed"
+    fi
 fi
 
 # -----------------------------------------------------------------------------
@@ -207,11 +229,26 @@ fi
 # -----------------------------------------------------------------------------
 info "Stowing dotfiles..."
 
+# Remove a real ~/.config/git/config so stow can replace it with a symlink.
+if [[ -f "$HOME/.config/git/config" && ! -L "$HOME/.config/git" ]]; then
+    rm "$HOME/.config/git/config"
+fi
+
 PACKAGES=(fish lf micro kitty sway swaylock waybar rofi yt-dlp fastfetch)
+PACKAGES_NO_FOLD=(git)
 
 for pkg in "${PACKAGES[@]}"; do
     if [[ -d "$DOTFILES/$pkg" ]]; then
         stow -vt "$HOME" -d "$DOTFILES" "$pkg"
+        success "Stowed $pkg"
+    else
+        warn "$pkg directory not found, skipping"
+    fi
+done
+
+for pkg in "${PACKAGES_NO_FOLD[@]}"; do
+    if [[ -d "$DOTFILES/$pkg" ]]; then
+        stow -vt "$HOME" -d "$DOTFILES" --no-folding "$pkg"
         success "Stowed $pkg"
     else
         warn "$pkg directory not found, skipping"
@@ -236,7 +273,9 @@ done
 # 8. Battery charge threshold
 # -----------------------------------------------------------------------------
 BATTERY_SERVICE="/etc/systemd/system/battery-charge-threshold.service"
-if [[ -f "$BATTERY_SERVICE" ]]; then
+if [[ ! -d /sys/class/power_supply/BAT0 ]]; then
+    warn "No BAT0 found — skipping battery charge threshold"
+elif [[ -f "$BATTERY_SERVICE" ]]; then
     success "Battery charge threshold service already exists"
 else
     info "Writing battery charge threshold service (75–85%)..."
@@ -260,9 +299,9 @@ fi
 # -----------------------------------------------------------------------------
 # 9. Default shell
 # -----------------------------------------------------------------------------
-if [[ "$SHELL" != "$(command -v fish)" ]]; then
+fish_path=$(command -v fish 2>/dev/null) || die "fish not found after install — check section 2"
+if [[ "$(getent passwd "$USER" | cut -d: -f7)" != "$fish_path" ]]; then
     info "Setting fish as default shell..."
-    fish_path=$(command -v fish)
     if ! grep -qF "$fish_path" /etc/shells; then
         echo "$fish_path" | sudo tee -a /etc/shells >/dev/null
     fi
@@ -284,10 +323,8 @@ success "Font cache rebuilt"
 # -----------------------------------------------------------------------------
 info "Creating XDG user directories..."
 xdg-user-dirs-update
-mkdir -p "$HOME/Pictures/Screenshots"
-if ! grep -q 'XDG_SCREENSHOTS_DIR' "$HOME/.config/user-dirs.dirs"; then
-    echo 'XDG_SCREENSHOTS_DIR="$HOME/Pictures/Screenshots"' >> "$HOME/.config/user-dirs.dirs"
-fi
+xdg-user-dirs-update --set SCREENSHOTS "$HOME/Pictures/Screenshots"
+mkdir -p "$HOME/Pictures/Screenshots" "$HOME/dev"
 success "XDG user directories created"
 
 # -----------------------------------------------------------------------------
@@ -332,10 +369,12 @@ if grep -q 'auth.*optional.*pam_gnome_keyring' /etc/pam.d/sddm-autologin 2>/dev/
 else
     info "Configuring silent keyring unlock for auto-login..."
     sudo sed -i '/auth.*pam_permit\.so/a auth       optional    pam_gnome_keyring.so' /etc/pam.d/sddm-autologin
-    grep -q 'auth.*optional.*pam_gnome_keyring' /etc/pam.d/sddm-autologin \
-        || warn "pam_permit.so anchor not found — gnome-keyring line was NOT inserted"
-    rm -f "$HOME/.local/share/keyrings/login.keyring"
-    success "gnome-keyring PAM auth configured"
+    if grep -q 'auth.*optional.*pam_gnome_keyring' /etc/pam.d/sddm-autologin; then
+        rm -f "$HOME/.local/share/keyrings/login.keyring"
+        success "gnome-keyring PAM auth configured"
+    else
+        warn "pam_permit.so anchor not found — gnome-keyring line was NOT inserted"
+    fi
 fi
 
 # -----------------------------------------------------------------------------
@@ -352,6 +391,6 @@ printf '\n'
 printf '  Next steps:\n'
 printf '  1. Log out and back in so the shell change takes effect.\n'
 printf '  2. Run: tailscale up        (authenticate Tailscale)\n'
-printf '  3. Run: tailscale up --exit-node=<node>  (optional: route through homelab)\n'
+printf '  3. Run: gh auth login       (authenticate GitHub CLI)\n'
 
 printf '\n'
