@@ -18,6 +18,7 @@
     zip
 
     # File management
+    file          # MIME type detection (used by lf preview script)
     unar
     ffmpeg        # video processing (lf preview, yt-dlp post-processing)
     ffmpegthumbnailer
