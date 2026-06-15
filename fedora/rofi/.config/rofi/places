@@ -1,4 +1,4 @@
-fed	~/dev/dotfiles/fedora
+fed	~/.dotfiles/fedora
 dev	~/dev
 mint	~/dev/golang/mintmedia
-fish	~/dev/dotfiles/fedora/fish/.config/fish
+fish	~/.dotfiles/fedora/fish/.config/fish
