@@ -13,6 +13,7 @@ Notes on the Fedora Sway spin that aren't obvious from the code.
 Deployed via GNU Stow from the `fedora/` subdirectory: `fish`, `lf`, `micro`, `kitty`, `sway`, `swaylock`, `waybar`, `rofi`, `yt-dlp`, `fastfetch`.
 
 Out-of-repo packages are handled by bootstrap section 3 via COPR / external repos:
+- **lazygit** — `atim/lazygit` COPR
 - **lf** — `lsevcik/lf` COPR
 - **FiraCode Nerd Font** — `aquacash5/nerd-fonts` COPR
 - **Spotify** — `negativo17.org/repos/fedora-spotify.repo`

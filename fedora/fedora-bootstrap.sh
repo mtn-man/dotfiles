@@ -22,7 +22,7 @@ install_extra() {
     else
         info "Installing $label..."
         "$@"
-        sudo dnf install -y --allowerasing "$pkg"
+        sudo dnf install -y --allowerasing --skip-unavailable "$pkg"
         success "$label installed"
     fi
 }
@@ -63,7 +63,7 @@ PKGS=(
     zoxide
     micro
     btop
-    lazygit
+
     fastfetch
     tealdeer
     yt-dlp
@@ -127,7 +127,7 @@ if [[ ${#MISSING[@]} -eq 0 ]]; then
     success "All packages already installed"
 else
     info "Installing packages..."
-    sudo dnf install -y --allowerasing "${MISSING[@]}"
+    sudo dnf install -y --allowerasing --skip-unavailable "${MISSING[@]}"
     success "Packages installed"
 fi
 
@@ -143,6 +143,7 @@ success "Flatpaks updated"
 # -----------------------------------------------------------------------------
 # 3. Extra packages (not in official Fedora repos)
 # -----------------------------------------------------------------------------
+install_extra lazygit             "lazygit"            sudo dnf copr enable -y atim/lazygit
 install_extra lf                  "lf"                 sudo dnf copr enable -y lsevcik/lf
 if rpm -q fira-code-nerd-fonts &>/dev/null; then
     success "FiraCode Nerd Font already installed"
