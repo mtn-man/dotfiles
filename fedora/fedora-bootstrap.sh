@@ -144,12 +144,12 @@ success "Flatpaks updated"
 # 3. Extra packages (not in official Fedora repos)
 # -----------------------------------------------------------------------------
 install_extra lf                  "lf"                 sudo dnf copr enable -y lsevcik/lf
-if rpm -q firacode-nerd-fonts &>/dev/null || [[ -d "$HOME/.local/share/fonts/FiraCode" ]]; then
+if rpm -q fira-code-nerd-fonts &>/dev/null; then
     success "FiraCode Nerd Font already installed"
 else
     info "Installing FiraCode Nerd Font..."
-    sudo dnf copr enable -y atim/nerd-fonts
-    sudo dnf install -y firacode-nerd-fonts
+    sudo dnf copr enable -y aquacash5/nerd-fonts
+    sudo dnf install -y fira-code-nerd-fonts
     success "FiraCode Nerd Font installed"
 fi
 install_extra spotify-client      "Spotify"            sudo dnf config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-spotify.repo

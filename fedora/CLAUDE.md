@@ -14,7 +14,7 @@ Deployed via GNU Stow from the `fedora/` subdirectory: `fish`, `lf`, `micro`, `k
 
 Out-of-repo packages are handled by bootstrap section 3 via COPR / external repos:
 - **lf** — `lsevcik/lf` COPR
-- **FiraCode Nerd Font** — `atim/nerd-fonts` COPR
+- **FiraCode Nerd Font** — `aquacash5/nerd-fonts` COPR
 - **Spotify** — `negativo17.org/repos/fedora-spotify.repo`
 
 - **Tailscale** — `pkgs.tailscale.com/stable/fedora/tailscale.repo`
