@@ -25,7 +25,7 @@
       CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
 
       # Battery charge thresholds — match Fedora bootstrap values.
-      START_CHARGE_THRESH_BAT0 = 20;
+      START_CHARGE_THRESH_BAT0 = 50;
       STOP_CHARGE_THRESH_BAT0  = 80;
 
       RUNTIME_PM_ON_BAT = "auto";
