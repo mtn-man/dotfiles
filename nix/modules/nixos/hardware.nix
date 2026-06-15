@@ -28,14 +28,16 @@
       START_CHARGE_THRESH_BAT0 = 20;
       STOP_CHARGE_THRESH_BAT0  = 80;
 
-      DISK_DEVICES       = "nvme0n1";
-      DISK_APM_LEVEL_ON_BAT = "128";
+      RUNTIME_PM_ON_BAT = "auto";
+      PCIE_ASPM_ON_BAT  = "powersupersave";
     };
   };
   services.power-profiles-daemon.enable = false;
 
   # ThinkPad ACPI module for thermal/fan control
   boot.kernelModules = [ "thinkpad_acpi" ];
+
+  zramSwap.enable = true;
 
   # Fingerprint reader (comment out if unused)
   services.fprintd.enable = true;

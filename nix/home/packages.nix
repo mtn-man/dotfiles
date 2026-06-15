@@ -18,7 +18,6 @@
     zip
 
     # File management
-    lf
     unar
     ffmpeg        # video processing (lf preview, yt-dlp post-processing)
     ffmpegthumbnailer

@@ -9,10 +9,16 @@
     auto-optimise-store   = true;
   };
 
+  nix.gc = {
+    automatic = true;
+    dates     = "weekly";
+    options   = "--delete-older-than 14d";
+  };
+
   boot.loader.systemd-boot.enable      = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  time.timeZone      = "America/Denver";
+  time.timeZone      = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
 
   fonts = {
@@ -36,7 +42,6 @@
     vim
     pciutils
     usbutils
-    stow
   ];
 
   # LVFS firmware update support
