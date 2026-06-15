@@ -22,7 +22,7 @@ install_extra() {
     else
         info "Installing $label..."
         "$@"
-        sudo dnf install -y "$pkg"
+        sudo dnf install -y --allowerasing "$pkg"
         success "$label installed"
     fi
 }
@@ -127,7 +127,7 @@ if [[ ${#MISSING[@]} -eq 0 ]]; then
     success "All packages already installed"
 else
     info "Installing packages..."
-    sudo dnf install -y "${MISSING[@]}"
+    sudo dnf install -y --allowerasing "${MISSING[@]}"
     success "Packages installed"
 fi
 
