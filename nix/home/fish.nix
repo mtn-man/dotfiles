@@ -444,7 +444,7 @@
         description = "Rebuild ~/dev/snapshot.md with live system data";
         body = ''
           set -l outfile ~/dev/snapshot.md
-          set -l dotfiles ~/.dotfiles/nix
+          set -l d ~/.dotfiles/nix
           set -g __snap_errors
 
           if not command -q fastfetch
@@ -453,8 +453,8 @@
           end
 
           begin
-              # 1. System info
-              echo '```bash'
+              # System info
+              echo '```'
               fastfetch --logo none \
                   | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' "" \
                   | string match -rv '█'
@@ -462,7 +462,7 @@
 
               echo
               echo "## Battery"
-              echo '```bash'
+              echo '```'
               set -l bat_path (upower -e 2>/dev/null | grep -i battery | head -1)
               if test -n "$bat_path"
                   upower -i $bat_path | grep -E "state|percentage|energy-full|capacity|time to|cycle" | string trim
@@ -473,7 +473,7 @@
 
               echo
               echo "## Memory"
-              echo '```bash'
+              echo '```'
               free -h
               echo '```'
 
@@ -485,67 +485,49 @@
               echo "Notification daemon is dunst; idle/lock is swayidle."
               echo
 
-              # 2. Nix flake inputs
               echo "## Flake inputs"
-              echo '```bash'
-              nix flake metadata "$dotfiles" 2>/dev/null; or echo "(flake metadata unavailable)"
+              echo '```'
+              nix flake metadata "$d" 2>/dev/null \
+                  | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' ""; or echo "(flake metadata unavailable)"
               echo '```'
 
               echo
               echo "## NixOS generation"
-              echo '```bash'
+              echo '```'
               nixos-rebuild list-generations 2>/dev/null | tail -5; or echo "(unavailable)"
               echo '```'
-
               echo
 
-              # 3. Flake config
-              __snap_file "$dotfiles/flake.nix" $dotfiles/flake.nix nix
-              __snap_file "$dotfiles/hosts/thinkpad/default.nix" $dotfiles/hosts/thinkpad/default.nix nix
-              __snap_file "$dotfiles/home/packages.nix" $dotfiles/home/packages.nix nix
-
-              # 4. Fish config
-              __snap_file "~/.config/fish/config.fish" $__fish_config_dir/config.fish fish
-              __snap_file "~/.config/fish/abbrs.fish" $__fish_config_dir/abbrs.fish fish
-
-              echo "The following reside in separate files within the ~/.config/fish/functions directory:"
-              echo
-              for f in $__fish_config_dir/functions/*.fish
-                  __snap_file "~/.config/fish/functions/"(basename $f) $f fish
-              end
-
-              # 5. lf config
-              __snap_file "~/.config/lf/lfrc" ~/.config/lf/lfrc text
-              __snap_file "~/.config/lf/icons" ~/.config/lf/icons text
-              __snap_file "~/.config/lf/pv.sh" ~/.config/lf/pv.sh bash
-              __snap_file "~/.config/lf/clean.sh" ~/.config/lf/clean.sh bash
-
-              # 6. App configs
-              __snap_file "~/.config/kitty/kitty.conf" ~/.config/kitty/kitty.conf text
-              __snap_file "~/.config/micro/settings.json" ~/.config/micro/settings.json json
-              __snap_file "~/.config/micro/bindings.json" ~/.config/micro/bindings.json json
-              __snap_file "~/.config/fastfetch/config.jsonc" ~/.config/fastfetch/config.jsonc jsonc
-
-              # 7. Sway stack
-              __snap_file "~/.config/sway/config" ~/.config/sway/config text
-              __snap_file "~/.config/sway/power-menu.sh" ~/.config/sway/power-menu.sh bash
-              __snap_file "~/.config/sway/trash-empty.sh" ~/.config/sway/trash-empty.sh bash
-              __snap_file "~/.config/swaylock/config" ~/.config/swaylock/config text
-              __snap_file "~/.config/waybar/config.jsonc" ~/.config/waybar/config.jsonc jsonc
-              __snap_file "~/.config/waybar/style.css" ~/.config/waybar/style.css css
-
-              # 8. rofi
-              __snap_file "~/.config/rofi/config.rasi" ~/.config/rofi/config.rasi text
-              __snap_file "~/.config/rofi/dark-pastel.rasi" ~/.config/rofi/dark-pastel.rasi text
-              __snap_file "~/.config/rofi/bookmarks" ~/.config/rofi/bookmarks text
-              __snap_file "~/.config/rofi/bookmarks.sh" ~/.config/rofi/bookmarks.sh bash
-              __snap_file "~/.config/rofi/places" ~/.config/rofi/places text
-              __snap_file "~/.config/rofi/places.sh" ~/.config/rofi/places.sh bash
-              __snap_file "~/.config/rofi/actions" ~/.config/rofi/actions text
-              __snap_file "~/.config/rofi/actions.sh" ~/.config/rofi/actions.sh bash
-
-              # 9. yt-dlp
-              __snap_file "~/.config/yt-dlp/config" ~/.config/yt-dlp/config text
+              # Nix config — read directly from dotfiles repo
+              __snap_file "flake.nix"                      $d/flake.nix                      nix
+              __snap_file "hosts/thinkpad/default.nix"     $d/hosts/thinkpad/default.nix     nix
+              __snap_file "modules/nixos/base.nix"         $d/modules/nixos/base.nix         nix
+              __snap_file "modules/nixos/hardware.nix"     $d/modules/nixos/hardware.nix     nix
+              __snap_file "modules/nixos/networking.nix"   $d/modules/nixos/networking.nix   nix
+              __snap_file "modules/nixos/users.nix"        $d/modules/nixos/users.nix        nix
+              __snap_file "modules/nixos/sway.nix"         $d/modules/nixos/sway.nix         nix
+              __snap_file "home/default.nix"               $d/home/default.nix               nix
+              __snap_file "home/packages.nix"              $d/home/packages.nix              nix
+              __snap_file "home/fish.nix"                  $d/home/fish.nix                  nix
+              __snap_file "home/sway.nix"                  $d/home/sway.nix                  nix
+              __snap_file "home/sway/power-menu.sh"        $d/home/sway/power-menu.sh        bash
+              __snap_file "home/sway/trash-empty.sh"       $d/home/sway/trash-empty.sh       bash
+              __snap_file "home/waybar.nix"                $d/home/waybar.nix                nix
+              __snap_file "home/kitty.nix"                 $d/home/kitty.nix                 nix
+              __snap_file "home/rofi.nix"                  $d/home/rofi.nix                  nix
+              __snap_file "home/rofi/dark-pastel.rasi"     $d/home/rofi/dark-pastel.rasi     text
+              __snap_file "home/rofi/actions"              $d/home/rofi/actions              text
+              __snap_file "home/rofi/actions.sh"           $d/home/rofi/actions.sh           bash
+              __snap_file "home/rofi/bookmarks"            $d/home/rofi/bookmarks            text
+              __snap_file "home/rofi/bookmarks.sh"         $d/home/rofi/bookmarks.sh         bash
+              __snap_file "home/rofi/places"               $d/home/rofi/places               text
+              __snap_file "home/rofi/places.sh"            $d/home/rofi/places.sh            bash
+              __snap_file "home/swaylock.nix"              $d/home/swaylock.nix              nix
+              __snap_file "home/lf.nix"                    $d/home/lf.nix                    nix
+              __snap_file "home/lf/pv.sh"                  $d/home/lf/pv.sh                  bash
+              __snap_file "home/lf/clean.sh"               $d/home/lf/clean.sh               bash
+              __snap_file "home/micro.nix"                 $d/home/micro.nix                 nix
+              __snap_file "home/kanshi.nix"                $d/home/kanshi.nix                nix
 
           end > $outfile
 

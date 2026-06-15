@@ -8,7 +8,7 @@ if [[ "$ROFI_RETV" -eq 1 ]]; then
     fi
 else
     icon=""
-    kitty_icon=(/usr/share/icons/hicolor/*/apps/kitty.png)
+    kitty_icon=(/run/current-system/sw/share/icons/hicolor/*/apps/kitty.png)
     [[ -f "${kitty_icon[0]}" ]] && icon=$(basename "${kitty_icon[0]}" .png)
     while read -r name path; do
         [[ -z "$name" ]] && continue

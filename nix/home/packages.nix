@@ -37,10 +37,9 @@
     claude-code
 
     # System
+    upower
     btop
     fastfetch
-    transmission_4
-    nvme-cli
     smartmontools
 
     # Networking

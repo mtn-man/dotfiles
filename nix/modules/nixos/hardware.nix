@@ -39,6 +39,8 @@
 
   zramSwap.enable = true;
 
+  services.upower.enable = true;
+
   # Fingerprint reader (comment out if unused)
   services.fprintd.enable = true;
 

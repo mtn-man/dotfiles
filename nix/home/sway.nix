@@ -190,9 +190,6 @@ in {
       # Lid close/open — toggle internal display
       bindswitch --reload --locked lid:on  output eDP-1 disable
       bindswitch --reload --locked lid:off output eDP-1 enable
-
-      # Prefer external display when docked
-      workspace * output DP-2 eDP-1
     '';
   };
 

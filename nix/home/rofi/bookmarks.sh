@@ -8,7 +8,7 @@ if [[ "$ROFI_RETV" -eq 1 ]]; then
     fi
 else
     icon=""
-    ff_icon=(/usr/share/icons/hicolor/48x48/apps/firefox*.png)
+    ff_icon=(/run/current-system/sw/share/icons/hicolor/48x48/apps/firefox*.png)
     [[ -f "${ff_icon[0]}" ]] && icon=$(basename "${ff_icon[0]}" .png)
     awk -v icon="$icon" '{
         if (icon != "") printf "%s\0icon\x1f%s\n", $1, icon
