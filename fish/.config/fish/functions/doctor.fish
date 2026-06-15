@@ -141,16 +141,17 @@ print(dates[-1].strftime('%Y-%m-%d %H:%M:%S +0000'))
             set -l now_epoch (date +%s)
             set -l backup_age_hours (math --scale=0 "($now_epoch - $backup_epoch) / 3600")
             set -l backup_age_days (math --scale=0 "$backup_age_hours / 24")
+            set -l day_word (test $backup_age_days -eq 1; and echo day; or echo days)
             if test $backup_age_hours -le 336
                 if test $backup_age_days -eq 0
                     printf 'doctor: time machine: %sok%s (%sh ago)\n' (set_color green) (set_color normal) $backup_age_hours
                 else
-                    printf 'doctor: time machine: %sok%s (%s days ago)\n' (set_color green) (set_color normal) $backup_age_days
+                    printf 'doctor: time machine: %sok%s (%s %s ago)\n' (set_color green) (set_color normal) $backup_age_days $day_word
                 end
             else if test $backup_age_hours -le 504
-                printf 'doctor: time machine: %sstale%s (%s days ago)\n' (set_color yellow) (set_color normal) $backup_age_days
+                printf 'doctor: time machine: %sstale%s (%s %s ago)\n' (set_color yellow) (set_color normal) $backup_age_days $day_word
             else
-                printf 'doctor: time machine: %surgent — backup needed%s (%s days ago)\n' (set_color red) (set_color normal) $backup_age_days
+                printf 'doctor: time machine: %surgent — backup needed%s (%s %s ago)\n' (set_color red) (set_color normal) $backup_age_days $day_word
                 set ok 0
             end
         end
