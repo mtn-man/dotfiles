@@ -225,7 +225,18 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 6. Stow dotfiles
+# 6. Go tools
+# -----------------------------------------------------------------------------
+if command -v after &>/dev/null; then
+    success "after already installed"
+else
+    info "Installing after..."
+    go install github.com/mtn-man/after@latest
+    success "after installed"
+fi
+
+# -----------------------------------------------------------------------------
+# 7. Stow dotfiles
 # -----------------------------------------------------------------------------
 info "Stowing dotfiles..."
 
@@ -256,7 +267,7 @@ for pkg in "${PACKAGES_NO_FOLD[@]}"; do
 done
 
 # -----------------------------------------------------------------------------
-# 7. System services
+# 8. System services
 # -----------------------------------------------------------------------------
 info "Enabling system services..."
 
@@ -270,7 +281,7 @@ for svc in tailscaled.service throttled.service sshd.service smartd.service; do
 done
 
 # -----------------------------------------------------------------------------
-# 8. Battery charge threshold
+# 9. Battery charge threshold
 # -----------------------------------------------------------------------------
 BATTERY_SERVICE="/etc/systemd/system/battery-charge-threshold.service"
 if [[ ! -d /sys/class/power_supply/BAT0 ]]; then
@@ -297,7 +308,7 @@ EOF
 fi
 
 # -----------------------------------------------------------------------------
-# 9. Default shell
+# 10. Default shell
 # -----------------------------------------------------------------------------
 fish_path=$(command -v fish 2>/dev/null) || die "fish not found after install — check section 2"
 if [[ "$(getent passwd "$USER" | cut -d: -f7)" != "$fish_path" ]]; then
@@ -312,14 +323,14 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 10. Font cache
+# 11. Font cache
 # -----------------------------------------------------------------------------
 info "Rebuilding font cache..."
 fc-cache -f
 success "Font cache rebuilt"
 
 # -----------------------------------------------------------------------------
-# 11. XDG user directories
+# 12. XDG user directories
 # -----------------------------------------------------------------------------
 info "Creating XDG user directories..."
 xdg-user-dirs-update
@@ -328,7 +339,7 @@ mkdir -p "$HOME/Pictures/Screenshots" "$HOME/dev"
 success "XDG user directories created"
 
 # -----------------------------------------------------------------------------
-# 12. Home directory permissions for SDDM
+# 13. Home directory permissions for SDDM
 # -----------------------------------------------------------------------------
 # SDDM runs as its own user and needs execute permission on $HOME to traverse
 # the path to wallpapers stored in ~/Pictures.
@@ -341,7 +352,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 13. Auto-login (SDDM)
+# 14. Auto-login (SDDM)
 # -----------------------------------------------------------------------------
 # The Fedora Sway spin installer may already configure this; skip if so.
 if grep -q "^User=$USER" /etc/sddm.conf 2>/dev/null || grep -rq "^User=$USER" /etc/sddm.conf.d/ 2>/dev/null; then
@@ -358,7 +369,7 @@ EOF
 fi
 
 # -----------------------------------------------------------------------------
-# 14. Passwordless keyring (gnome-keyring PAM unlock)
+# 15. Passwordless keyring (gnome-keyring PAM unlock)
 # -----------------------------------------------------------------------------
 # With auto-login there is no PAM auth token to unlock the keyring, so add the
 # gnome-keyring auth line — it will unlock using an empty password. The login
@@ -378,7 +389,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 15. Suppress login message
+# 16. Suppress login message
 # -----------------------------------------------------------------------------
 touch "$HOME/.hushlogin"
 
