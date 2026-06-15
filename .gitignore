@@ -10,6 +10,9 @@ fish/.config/fish/conf.d/
 micro/.config/micro/buffers/
 micro/.config/micro/backups/
 micro/.config/micro/history/
+fedora/micro/.config/micro/buffers/
+fedora/micro/.config/micro/backups/
+fedora/micro/.config/micro/history/
 
 # editor swap/backup files
 *~
