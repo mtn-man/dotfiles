@@ -143,7 +143,9 @@ seat * hide_cursor 3000
     bindsym $mod+ctrl+$left workspace prev
     bindsym $mod+ctrl+$right workspace next
     bindgesture swipe:3:right workspace prev
+    bindgesture swipe:4:right workspace prev
     bindgesture swipe:3:left workspace next
+    bindgesture swipe:4:left workspace next
     # Note: workspaces can have any name you want, not just numbers.
     # We just use 1-10 as the default.
 #
