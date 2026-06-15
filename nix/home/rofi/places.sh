@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 places="$HOME/.config/rofi/places"
 if [[ "$ROFI_RETV" -eq 1 ]]; then
     path=$(awk -v k="$1" '$1==k{print $2}' "$places")

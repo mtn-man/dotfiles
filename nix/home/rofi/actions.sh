@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 actions="$HOME/.config/rofi/actions"
 
 if [[ "$ROFI_RETV" -eq 1 ]]; then

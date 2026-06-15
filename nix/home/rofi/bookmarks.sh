@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 bookmarks="$HOME/.config/rofi/bookmarks"
 if [[ "$ROFI_RETV" -eq 1 ]]; then
     url=$(awk -v k="$1" '$1==k{print $2}' "$bookmarks")
