@@ -152,7 +152,8 @@ else
     sudo dnf install -y firacode-nerd-fonts
     success "FiraCode Nerd Font installed"
 fi
-install_extra brave-origin-beta   "Brave browser"      sudo dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-beta.s3.brave.com/brave-browser-beta.repo
+install_extra spotify-client      "Spotify"            sudo dnf config-manager addrepo --from-repofile=https://negativo17.org/repos/fedora-spotify.repo
+
 install_extra tailscale           "Tailscale"          sudo dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
 install_extra throttled           "ThinkPad throttle fix" sudo dnf copr enable -y abn/throttled
 if rpm -q claude-code &>/dev/null; then

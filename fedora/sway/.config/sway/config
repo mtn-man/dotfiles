@@ -11,7 +11,7 @@ set $right l
 # Recommends: kitty
 set $term kitty
 # Your preferred web-browser
-set $browser brave-origin-beta
+set $browser firefox
 # Your preferred application launcher
 set $menu rofi -show combi
 
@@ -27,7 +27,7 @@ focus_on_window_activation focus
 focus_follows_mouse no
 for_window [app_id="mpv"] inhibit_idle fullscreen
 for_window [app_id="org.jellyfin.JellyfinDesktop"] inhibit_idle fullscreen
-for_window [app_id="brave-origin-beta"] inhibit_idle fullscreen
+for_window [app_id="firefox"] inhibit_idle fullscreen
 
 ### Output configuration
 #
