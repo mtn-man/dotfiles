@@ -11,6 +11,11 @@
     jq
     yq
     tealdeer      # tldr pages
+    bc
+    tree
+    rsync
+    unzip
+    zip
 
     # File management
     lf
@@ -41,6 +46,7 @@
 
     # Networking
     firefox
+    spotify
 
     # Wayland utilities
     wev           # introspect key events; useful for debugging keybindings

@@ -1,6 +1,8 @@
 { pkgs, ... }:
 
 {
+  nixpkgs.config.allowUnfree = true;
+
   # Enable flakes and the new nix CLI; auto-optimise deduplicates store paths.
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
