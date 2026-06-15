@@ -11,6 +11,7 @@
     ./swaylock.nix
     ./lf.nix
     ./micro.nix
+    ./kanshi.nix
   ];
 
   home.username     = "eli";

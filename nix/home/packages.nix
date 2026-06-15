@@ -40,7 +40,6 @@
     btop
     fastfetch
     transmission_4
-    kanshi        # automatic display configuration (output profiles when docked)
     nvme-cli
     smartmontools
 
