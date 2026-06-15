@@ -184,6 +184,8 @@ in {
 
       bindgesture swipe:3:right workspace prev
       bindgesture swipe:3:left  workspace next
+      bindgesture swipe:4:right workspace prev
+      bindgesture swipe:4:left  workspace next
 
       # Lid close/open — toggle internal display
       bindswitch --reload --locked lid:on  output eDP-1 disable
