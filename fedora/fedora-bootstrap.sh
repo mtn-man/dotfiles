@@ -135,6 +135,11 @@ info "Upgrading packages..."
 sudo dnf upgrade -y
 success "Packages upgraded"
 
+info "Updating flatpaks..."
+flatpak update -y
+flatpak uninstall --unused -y
+success "Flatpaks updated"
+
 # -----------------------------------------------------------------------------
 # 3. Extra packages (not in official Fedora repos)
 # -----------------------------------------------------------------------------
