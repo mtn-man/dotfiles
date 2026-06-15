@@ -163,6 +163,17 @@ in {
 
     # Options that don't have a structured Nix equivalent in the HM module
     extraConfig = ''
+      # Function / media keys (--locked = active on the lock screen too)
+      bindsym --locked XF86MonBrightnessUp   exec brightnessctl set 5%+
+      bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+      bindsym --locked XF86AudioRaiseVolume  exec pamixer -i 5
+      bindsym --locked XF86AudioLowerVolume  exec pamixer -d 5
+      bindsym --locked XF86AudioMute         exec pamixer -t
+      bindsym --locked XF86AudioMicMute      exec pamixer --default-source -t
+      bindsym          XF86AudioPlay         exec playerctl play-pause
+      bindsym          XF86AudioNext         exec playerctl next
+      bindsym          XF86AudioPrev         exec playerctl previous
+
       xwayland disable
       default_border none
       default_floating_border none
