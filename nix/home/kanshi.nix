@@ -13,18 +13,19 @@
   services.kanshi = {
     enable = true;
 
-    profiles = {
-      undocked = {
-        outputs = [{
+    settings = [
+      {
+        profile.name = "undocked";
+        profile.outputs = [{
           criteria = "BOE 0x07C9";
           status   = "enable";
           mode     = "1920x1080@60.000";
           position = "0,0";
         }];
-      };
-
-      docked = {
-        outputs = [
+      }
+      {
+        profile.name = "docked";
+        profile.outputs = [
           {
             criteria = "BOE 0x07C9";
             status   = "disable";
@@ -36,7 +37,7 @@
             position = "0,0";
           }
         ];
-      };
-    };
+      }
+    ];
   };
 }
