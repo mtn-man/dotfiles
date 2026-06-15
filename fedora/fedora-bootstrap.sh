@@ -131,6 +131,10 @@ else
     success "Packages installed"
 fi
 
+info "Upgrading packages..."
+sudo dnf upgrade -y
+success "Packages upgraded"
+
 # -----------------------------------------------------------------------------
 # 3. Extra packages (not in official Fedora repos)
 # -----------------------------------------------------------------------------
@@ -225,8 +229,11 @@ done
 # 8. Battery charge threshold
 # -----------------------------------------------------------------------------
 BATTERY_SERVICE="/etc/systemd/system/battery-charge-threshold.service"
-info "Writing battery charge threshold service (75–85%)..."
-sudo tee "$BATTERY_SERVICE" > /dev/null << 'EOF'
+if [[ -f "$BATTERY_SERVICE" ]]; then
+    success "Battery charge threshold service already exists"
+else
+    info "Writing battery charge threshold service (75–85%)..."
+    sudo tee "$BATTERY_SERVICE" > /dev/null << 'EOF'
 [Unit]
 Description=Set battery charge threshold
 After=multi-user.target
@@ -238,10 +245,7 @@ ExecStart=/bin/bash -c 'echo 75 > /sys/class/power_supply/BAT0/charge_control_st
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo systemctl daemon-reload
-if systemctl is-enabled battery-charge-threshold.service &>/dev/null; then
-    success "Battery charge threshold service updated"
-else
+    sudo systemctl daemon-reload
     sudo systemctl enable --now battery-charge-threshold.service
     success "Battery charge threshold service created and enabled"
 fi
