@@ -29,6 +29,7 @@
     micro
     go
     gopls
+    claude-code
 
     # System
     btop
