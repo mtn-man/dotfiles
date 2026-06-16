@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/opt/homebrew/bin/fish
 # @raycast.schemaVersion 1
 # @raycast.title Open lf in YouTube
 # @raycast.mode silent
