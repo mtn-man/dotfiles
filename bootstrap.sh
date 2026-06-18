@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Targets Apple Silicon macOS only. Homebrew paths (/opt/homebrew) are intentional.
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
