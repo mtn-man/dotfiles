@@ -28,6 +28,11 @@ function __media_run_with_timeout --argument-names timeout
 end
 
 function media --description 'Manage homelab media share and networking state'
+    if not command -q jq
+        echo "media: jq is required but not found" >&2
+        return 127
+    end
+
     argparse 'l/local' -- $argv
 
     set -l mountpoint "/Volumes/$MEDIA_SHARE"
