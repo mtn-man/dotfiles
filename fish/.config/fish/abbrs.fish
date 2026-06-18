@@ -1,9 +1,6 @@
 abbr -a --global a_num --regex '^a([1-9][0-9]*)$' --function __abbr_timer_minutes
-abbr -a --global u 'update'
+abbr -a --global u 'brew update && brew upgrade --yes && brew cleanup'
 abbr -a --global a 'after'
-abbr -a --global mn 'media on'
-abbr -a --global mnl 'media on -l'
-abbr -a --global mf 'media off'
 abbr -a --global ff 'fastfetch'
 abbr -a --global speed 'networkQuality'
 abbr -a --global lg 'lazygit'
