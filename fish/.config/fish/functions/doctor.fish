@@ -82,17 +82,21 @@ function doctor --description 'Report system status and verify connectivity'
     end
 
     # Tailscale connectivity
-    set -l ts_json (tailscale status --json 2>/dev/null)
-    set -l ts_state (printf '%s\n' $ts_json | jq -r .BackendState 2>/dev/null)
-    if test "$ts_state" = Running
-        set -l ts_ip (printf '%s\n' $ts_json | jq -r '.Self.TailscaleIPs[0]' 2>/dev/null)
-        if test -n "$ts_ip"
-            printf 'tailscale: %sup%s (%s)\n' (set_color green) (set_color normal) $ts_ip
+    if test $doctor_tools_ok -eq 1
+        set -l ts_json (tailscale status --json 2>/dev/null)
+        set -l ts_state (printf '%s\n' $ts_json | jq -r .BackendState 2>/dev/null)
+        if test "$ts_state" = Running
+            set -l ts_ip (printf '%s\n' $ts_json | jq -r '.Self.TailscaleIPs[0]' 2>/dev/null)
+            if test -n "$ts_ip"
+                printf 'tailscale: %sup%s (%s)\n' (set_color green) (set_color normal) $ts_ip
+            else
+                printf 'tailscale: %sup%s\n' (set_color green) (set_color normal)
+            end
         else
-            printf 'tailscale: %sup%s\n' (set_color green) (set_color normal)
+            printf 'tailscale: %sdown%s\n' (set_color yellow) (set_color normal)
         end
     else
-        printf 'tailscale: %sdown%s\n' (set_color yellow) (set_color normal)
+        printf 'tailscale: %sskipped (jq missing)%s\n' (set_color yellow) (set_color normal)
     end
 
     # Security flags
