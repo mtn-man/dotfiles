@@ -1,10 +1,10 @@
 function gr --description 'Jump to a git repo root via fzf'
     # Base search dir(s) – add more paths as needed
-    set -l roots ~/dev
+    set -l roots ~/dev ~/.dotfiles
     set -l tab (printf '\t')
 
     # Dependency checks
-    for tool in git eza fzf fd
+    for tool in git fzf fd
         if not command -q $tool
             echo "gr: $tool not found" >&2
             return 127
@@ -44,7 +44,6 @@ function gr --description 'Jump to a git repo root via fzf'
 
     if test -d "$target"
         cd "$target"
-        eza -aTL4 --git-ignore
         zoxide add "$target"
     else
         echo "gr: target directory no longer exists: $target" >&2
