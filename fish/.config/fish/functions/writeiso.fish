@@ -1,14 +1,4 @@
 function writeiso --description 'Write an ISO image to a USB drive using dd'
-    if not command -q fzf
-        echo "writeiso: fzf not found" >&2
-        return 127
-    end
-
-    if not command -q gdd
-        echo "writeiso: gdd not found (install with: brew install coreutils)" >&2
-        return 127
-    end
-
     set -l usage "writeiso: usage: writeiso [-n] [-h] <image.iso>"
 
     argparse -n writeiso 'n/dry-run' 'h/help' -- $argv
@@ -96,16 +86,22 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
         set menu $menu "$disk -- $name [$size, $part_str]"
     end
 
-    set -l choice (
-        printf '%s\n' $menu | fzf \
-            --prompt='Select target disk > ' \
-            --height=~6 \
-            --reverse \
-            --no-sort
-    )
-    if test -z "$choice"
-        echo "writeiso: aborted -- no disk selected" >&2
-        return 1
+    if test (count $menu) -eq 1
+        set choice $menu[1]
+    else
+        echo "writeiso: available disks:"
+        for i in (seq (count $menu))
+            printf "  [%d] %s\n" $i $menu[$i]
+        end
+        echo
+
+        read -P "writeiso: select disk [1-(count $menu)]: " pick
+        if not string match -qr '^\d+$' -- $pick
+            or test $pick -lt 1; or test $pick -gt (count $menu)
+            echo "writeiso: invalid selection -- aborted" >&2
+            return 1
+        end
+        set choice $menu[$pick]
     end
 
     set -l disk_id     (string replace -r ' -- .*' '' $choice)
@@ -161,7 +157,7 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
     end
 
     set -l t_start (date +%s)
-    sudo gdd if="$iso_abs" of="$rdisk_dev" bs=4M status=progress
+    sudo dd if="$iso_abs" of="$rdisk_dev" bs=4m status=progress
     set -l dd_exit $status
     set -l t_end (date +%s)
 
