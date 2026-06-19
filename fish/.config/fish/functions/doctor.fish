@@ -29,7 +29,7 @@ function doctor --description 'Report system status and verify connectivity'
         end
     end
     if test $doctor_tools_ok -eq 1; and test $system_tools_ok -eq 1
-        printf 'toolchain: %sok%s\n' (set_color green) (set_color normal)
+        printf '%-20s %sok%s\n' toolchain: (set_color green) (set_color normal)
     end
 
     # Brewfile drift check
@@ -38,9 +38,9 @@ function doctor --description 'Report system status and verify connectivity'
         set -l bundle_out (brew bundle check --file=$brewfile --no-upgrade 2>&1)
         set -l bundle_status $status
         if test $bundle_status -eq 0
-            printf 'brewfile: %sok%s\n' (set_color green) (set_color normal)
+            printf '%-20s %sok%s\n' brewfile: (set_color green) (set_color normal)
         else
-            printf 'brewfile: %sdrift detected%s\n' (set_color yellow) (set_color normal)
+            printf '%-20s %sdrift detected%s\n' brewfile: (set_color yellow) (set_color normal)
             printf '%s\n' $bundle_out | while read -l line
                 printf '  %s\n' $line
             end
@@ -54,19 +54,19 @@ function doctor --description 'Report system status and verify connectivity'
         set -l dirty (git -C $dotfiles status --porcelain 2>/dev/null)
         set -l ahead_behind (git -C $dotfiles rev-list --left-right --count @{upstream}...HEAD 2>/dev/null)
         if test -n "$dirty"
-            printf 'dotfiles: %suncommitted changes%s\n' (set_color yellow) (set_color normal)
+            printf '%-20s %suncommitted changes%s\n' dotfiles: (set_color yellow) (set_color normal)
         else if test -n "$ahead_behind"
             set -l behind (string split \t $ahead_behind)[1]
             set -l ahead (string split \t $ahead_behind)[2]
             if test "$ahead" -gt 0
-                printf 'dotfiles: %s%s unpushed commit(s)%s\n' (set_color yellow) $ahead (set_color normal)
+                printf '%-20s %s%s unpushed commit(s)%s\n' dotfiles: (set_color yellow) $ahead (set_color normal)
             else if test "$behind" -gt 0
-                printf 'dotfiles: %s%s unpulled commit(s)%s\n' (set_color yellow) $behind (set_color normal)
+                printf '%-20s %s%s unpulled commit(s)%s\n' dotfiles: (set_color yellow) $behind (set_color normal)
             else
-                printf 'dotfiles: %sok%s\n' (set_color green) (set_color normal)
+                printf '%-20s %sok%s\n' dotfiles: (set_color green) (set_color normal)
             end
         else
-            printf 'dotfiles: %sok%s\n' (set_color green) (set_color normal)
+            printf '%-20s %sok%s\n' dotfiles: (set_color green) (set_color normal)
         end
     end
 
@@ -76,9 +76,9 @@ function doctor --description 'Report system status and verify connectivity'
         set media_mounted yes
     end
     if test "$media_mounted" = yes
-        printf '%s is mounted at /Volumes/%s\n' $MEDIA_SHARE $MEDIA_SHARE
+        printf '%-20s connected\n' 'media share:'
     else
-        printf '%s is not mounted\n' $MEDIA_SHARE
+        printf '%-20s disconnected\n' 'media share:'
     end
 
     # Tailscale connectivity
@@ -88,15 +88,15 @@ function doctor --description 'Report system status and verify connectivity'
         if test "$ts_state" = Running
             set -l ts_ip (printf '%s\n' $ts_json | jq -r '.Self.TailscaleIPs[0]' 2>/dev/null)
             if test -n "$ts_ip"
-                printf 'tailscale: %sup%s (%s)\n' (set_color green) (set_color normal) $ts_ip
+                printf '%-20s %sup%s (%s)\n' tailscale: (set_color green) (set_color normal) $ts_ip
             else
-                printf 'tailscale: %sup%s\n' (set_color green) (set_color normal)
+                printf '%-20s %sup%s\n' tailscale: (set_color green) (set_color normal)
             end
         else
-            printf 'tailscale: %sdown%s\n' (set_color yellow) (set_color normal)
+            printf '%-20s %sdown%s\n' tailscale: (set_color yellow) (set_color normal)
         end
     else
-        printf 'tailscale: %sskipped (jq missing)%s\n' (set_color yellow) (set_color normal)
+        printf '%-20s %sskipped (jq missing)%s\n' tailscale: (set_color yellow) (set_color normal)
     end
 
     # Security flags
@@ -122,23 +122,23 @@ function doctor --description 'Report system status and verify connectivity'
     test "$_au" = 1
         and set autoupdate_on yes
 
-    set -l sec_labels SIP filevault firewall "firewall stealth" gatekeeper "security updates"
-    set -l sec_flags $sip_on $filevault_on $firewall_on $stealth_on $gatekeeper_on $autoupdate_on
+    set -l sec_labels SIP filevault firewall "firewall stealth" "security updates" gatekeeper
+    set -l sec_flags $sip_on $filevault_on $firewall_on $stealth_on $autoupdate_on $gatekeeper_on
     for i in (seq (count $sec_labels))
         if test "$sec_flags[$i]" = yes
-            printf '%s: %son%s\n' $sec_labels[$i] (set_color green) (set_color normal)
+            printf '%-20s %son%s\n' "$sec_labels[$i]:" (set_color green) (set_color normal)
         else
-            printf '%s: %soff%s\n' $sec_labels[$i] (set_color yellow) (set_color normal)
+            printf '%-20s %soff%s\n' "$sec_labels[$i]:" (set_color yellow) (set_color normal)
         end
     end
 
     # Time Machine recency check (last external backup via SnapshotDates, disk-independent)
     set -l last_snapshot (defaults export /Library/Preferences/com.apple.TimeMachine - 2>/dev/null | python3 -c "
-import plistlib, sys
-p = plistlib.loads(sys.stdin.buffer.read())
-dates = p['Destinations'][0]['SnapshotDates']
-print(dates[-1].strftime('%Y-%m-%d %H:%M:%S +0000'))
-" 2>/dev/null)
+    import plistlib, sys
+    p = plistlib.loads(sys.stdin.buffer.read())
+    dates = p['Destinations'][0]['SnapshotDates']
+    print(dates[-1].strftime('%Y-%m-%d %H:%M:%S +0000'))
+    " 2>/dev/null)
     if test -n "$last_snapshot" -a "$last_snapshot" != null
         set -l backup_epoch (date -j -f "%Y-%m-%d %H:%M:%S %z" $last_snapshot "+%s" 2>/dev/null)
         if test -n "$backup_epoch"
@@ -148,19 +148,19 @@ print(dates[-1].strftime('%Y-%m-%d %H:%M:%S +0000'))
             set -l day_word (test $backup_age_days -eq 1; and echo day; or echo days)
             if test $backup_age_hours -le 336
                 if test $backup_age_days -eq 0
-                    printf 'time machine: %sok%s (%sh ago)\n' (set_color green) (set_color normal) $backup_age_hours
+                    printf '%-20s %sok%s (%sh ago)\n' 'time machine:' (set_color green) (set_color normal) $backup_age_hours
                 else
-                    printf 'time machine: %sok%s (%s %s ago)\n' (set_color green) (set_color normal) $backup_age_days $day_word
+                    printf '%-20s %sok%s (%s %s ago)\n' 'time machine:' (set_color green) (set_color normal) $backup_age_days $day_word
                 end
             else if test $backup_age_hours -le 504
-                printf 'time machine: %sstale%s (%s %s ago)\n' (set_color yellow) (set_color normal) $backup_age_days $day_word
+                printf '%-20s %sstale%s (%s %s ago)\n' 'time machine:' (set_color yellow) (set_color normal) $backup_age_days $day_word
             else
-                printf 'time machine: %surgent — backup needed%s (%s %s ago)\n' (set_color red) (set_color normal) $backup_age_days $day_word
+                printf '%-20s %surgent — backup needed%s (%s %s ago)\n' 'time machine:' (set_color red) (set_color normal) $backup_age_days $day_word
                 set ok 0
             end
         end
     else
-        printf 'time machine: %sno backup found%s\n' (set_color yellow) (set_color normal)
+        printf '%-20s %sno backup found%s\n' 'time machine:' (set_color yellow) (set_color normal)
     end
 
     if test $ok -eq 0
