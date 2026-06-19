@@ -68,14 +68,14 @@ cd ~/dev/mintmedia && go install ./...
 * NordVPN
 * Spotify
 
-> Apple ID is not required. The only Apple ID dependencies were App Store extensions (Hush, uBlock Origin Lite), which can be replaced by Firefox with uBlock Origin.
+> Apple ID is not required.
 
 ### Manual Applications
 
 Third-party:
 
-* MakeMKV — https://www.makemkv.com/
-* Supercharge — purchased via Gumroad
+* [MakeMKV](https://www.makemkv.com) by GuinpinSoft
+* [Supercharge](https://sindresorhus.gumroad.com/l/supercharge) by Sinre Sorhus
 
 ### Post-Recovery Checklist
 
