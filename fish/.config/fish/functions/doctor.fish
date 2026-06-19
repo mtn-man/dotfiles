@@ -190,9 +190,10 @@ function doctor --description 'Report system status and verify connectivity'
             set -l warn_word (test $warnings -eq 1; and echo warning; or echo warnings)
             set -a parts (printf '%s%d %s%s' (set_color yellow) $warnings $warn_word (set_color normal))
         end
-        printf '\n%-20s %s\n\n' summary: (string join ', ' $parts)
+        printf '\n%-20s %s\n' summary: (string join ', ' $parts)
     end
 
+    echo
     if test $criticals -gt 0
         return 1
     end
