@@ -114,6 +114,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/lf/clean.sh" $dotfiles/lf/.config/lf/clean.sh bash
 
         # 6. App configs
+        __snap_file "~/Library/LaunchAgents/local.doctor.plist" $dotfiles/launchd/Library/LaunchAgents/local.doctor.plist xml
         __snap_file "~/.hammerspoon/init.lua" $dotfiles/hammerspoon/.hammerspoon/init.lua lua
         __snap_file "~/.config/ghostty/config.ghostty" $dotfiles/ghostty/.config/ghostty/config.ghostty text
         __snap_file "~/.config/micro/bindings.json" $dotfiles/micro/.config/micro/bindings.json json
