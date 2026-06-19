@@ -1,11 +1,3 @@
-function __tm_paste
-    if command -q pbpaste
-        pbpaste
-    else if command -q wl-paste
-        wl-paste --no-newline 2>/dev/null
-    end
-end
-
 function tm --description 'Manage Transmission-CLI services and magnet links'
     set -l host "$HOMELAB:9091"
 
@@ -31,7 +23,7 @@ function tm --description 'Manage Transmission-CLI services and magnet links'
     if set -q argv[1]
         set input (string trim -- "$argv[1]")
     else
-        set input (string trim -- (__tm_paste))
+        set input (__paste)
     end
 
     if test -z "$input"

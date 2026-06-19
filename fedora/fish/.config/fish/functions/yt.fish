@@ -37,7 +37,7 @@ function yt --description 'Download YouTube videos with options'
     if set -q argv[1]
         set url (string trim -- $argv[1])
     else
-        set url (wl-paste 2>/dev/null | string trim)
+        set url (__paste)
     end
 
     if test -z "$url"

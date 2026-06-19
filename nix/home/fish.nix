@@ -361,8 +361,8 @@
         '';
       };
 
-      __tm_paste = {
-        body = "wl-paste --no-newline 2>/dev/null";
+      __paste = {
+        body = "wl-paste 2>/dev/null | string trim";
       };
 
       tm = {
@@ -388,7 +388,7 @@
           if set -q argv[1]
               set input (string trim -- "$argv[1]")
           else
-              set input (string trim -- (__tm_paste))
+              set input (__paste)
           end
 
           if test -z "$input"
@@ -569,7 +569,7 @@
           if set -q argv[1]
               set url (string trim -- $argv[1])
           else
-              set url (wl-paste 2>/dev/null | string trim)
+              set url (__paste)
           end
 
           if test -z "$url"
