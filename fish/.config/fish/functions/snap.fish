@@ -127,6 +127,8 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         for p in $__snap_errors
             echo "  $p"
         end
+        set -e __snap_errors
+        return 1
     end
     set -e __snap_errors
 end
