@@ -102,6 +102,12 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
             __snap_file "~/.config/fish/functions/"(basename $f) $f fish
         end
 
+        echo "The following reside in separate files within the ~/.config/fish/completions directory:"
+        echo
+        for f in $__fish_config_dir/completions/*.fish
+            __snap_file "~/.config/fish/completions/"(basename $f) $f fish
+        end
+
         # 5. lf config
         __snap_file "~/.config/lf/lfrc" $dotfiles/lf/.config/lf/lfrc text
         __snap_file "~/.config/lf/pv.sh" $dotfiles/lf/.config/lf/pv.sh bash
