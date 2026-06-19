@@ -195,6 +195,8 @@ function doctor --description 'Report system status and verify connectivity'
 
     echo
     if test $criticals -gt 0
+        return 2
+    else if test $warnings -gt 0
         return 1
     end
 end
