@@ -38,16 +38,21 @@ if [ "$SHELL" != /opt/homebrew/bin/fish ]; then
 fi
 
 echo "==> Removing files that Homebrew creates on first run (will be replaced by stow)..."
-rm -f "$HOME/.homebrew/trust.json"
+if ! test -L "$HOME/.homebrew"; then
+    rm -f "$HOME/.homebrew/trust.json"
+fi
 
 echo "==> Checking for stow conflicts..."
-if ! stow -nRvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew; then
+if ! stow -nRvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew launchd; then
     echo "error: stow conflict detected — resolve the above before re-running." >&2
     exit 1
 fi
 
 echo "==> Stowing dotfiles..."
-stow -Rvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew
+stow -Rvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew launchd
+
+echo "==> Loading launchd agents..."
+launchctl load "$HOME/Library/LaunchAgents/local.doctor.plist" 2>/dev/null || true
 
 echo "==> Setting default apps..."
 duti -s com.colliderli.iina .mkv all
