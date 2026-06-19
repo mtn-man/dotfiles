@@ -4,6 +4,11 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
         return 127
     end
 
+    if not command -q gdd
+        echo "writeiso: gdd not found (install with: brew install coreutils)" >&2
+        return 127
+    end
+
     set -l usage "writeiso: usage: writeiso [-n] [-h] <image.iso>"
 
     argparse -n writeiso 'n/dry-run' 'h/help' -- $argv
@@ -156,7 +161,7 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
     end
 
     set -l t_start (date +%s)
-    sudo dd if="$iso_abs" of="$rdisk_dev" bs=4m status=progress
+    sudo gdd if="$iso_abs" of="$rdisk_dev" bs=4M status=progress
     set -l dd_exit $status
     set -l t_end (date +%s)
 
