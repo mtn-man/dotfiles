@@ -57,6 +57,10 @@ launchctl load "$HOME/Library/LaunchAgents/local.doctor.plist" 2>/dev/null || tr
 echo "==> Setting default apps..."
 duti -s com.colliderli.iina .mkv all
 duti -s com.colliderli.iina .mp4 all
+duti -s com.colliderli.iina .avi all
+duti -s com.colliderli.iina .mov all
+duti -s com.colliderli.iina .m4v all
+duti -s com.xykong.Markdown.QuickLook .md all
 
 echo "==> Suppressing login message..."
 touch ~/.hushlogin
