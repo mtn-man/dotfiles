@@ -31,27 +31,29 @@ For Fedora, run `fedora/fedora-bootstrap.sh` (installs via dnf + RPM Fusion, ena
 
 ## Bootstrap
 
-`bootstrap.sh` bootstraps a new macOS machine: installs Brewfile packages, sets Fish as default shell, stows all dotfile packages, suppresses the login message, and applies macOS defaults (dock autohide, key repeat, window drag).
+`bootstrap.sh` bootstraps a new macOS machine: installs Brewfile packages, initializes the Rust toolchain, sets Fish as default shell, stows all dotfile packages, loads launchd agents, suppresses the login message, sets default apps, and applies macOS defaults (dock autohide, key repeat, window drag).
 
 ## Packages
 
-- **`fish/`** — Shell config: `config.fish` (env vars, PATH), `abbrs.fish`, `functions/`, `completions/` (media, tm)
+- **`fish/`** — Shell config: `config.fish` (env vars, PATH), `abbrs.fish`, `functions/`, `completions/` (tm)
 - **`ghostty/`** — Terminal emulator config
 - **`micro/`** — Editor (Solarized theme, Go tool keybindings in `bindings.json`)
 - **`lf/`** — File manager: fish-compatible zoxide integration via custom `z`/`cd` commands in `lfrc`, `pv.sh`/`clean.sh` for preview/cleanup, `e` bound to micro
-- **`hammerspoon/`** — macOS automation: auto-launches/quits LinearMouse on Logitech USB receiver plug/unplug; runs `tailscale up` automatically when joining the home WiFi network
+- **`hammerspoon/`** — macOS automation: auto-launches/quits LinearMouse on Logitech USB receiver plug/unplug
 - **`linearmouse/`** — Mouse config (managed by Hammerspoon automation)
 - **`btop/`** — Resource monitor config
 - **`mintmedia/`** — Config for the `mintmedia` Go tool; the ingest pipeline runs on the homelab, watching `/mnt/storage/Downloads/MintDrop` for completed Transmission downloads
 - **`fastfetch/`** — System info display config
+- **`homebrew/`** — Tracks `~/.homebrew/trust.json` (trusted taps/formulae/casks) in version control
+- **`launchd/`** — macOS launchd agents: `local.doctor.plist` runs `doctor-notify` daily at 9am
+- **`nix/`** — NixOS/Home Manager flake for the ThinkPad T14 Gen 1 (not stow-deployed; managed separately)
+- **`raycast-scripts/`** — Raycast script commands
 - **`server/`** — CentOS homelab: Fish config + `server.backup.sh` (rsync cold backup script)
 - **`fedora/`** — Fedora Sway workstation: bootstrap script + fish/lf/kitty/micro configs, Sway compositor, swaylock, waybar
 
 ## Network Architecture
 
-**macOS:** Tailscale is always on and is the sole networking requirement for homelab access. NordVPN is managed via the GUI and has no scripted integration. `vpn.fish` is deprecated — macOS changes made `scutil --nc` control unreliable, and the Mac-side Transmission kill switch it supported broke when NordVPN changed its tunnel interface IP after an update.
-
-`media on` verifies Tailscale is running (`BackendState == Running`) before mounting the SMB share, and aborts with a clear error if not. `media on -l` skips this check (local network). Hammerspoon auto-runs `tailscale up` when joining the home WiFi network.
+**macOS:** Tailscale is always on and is the sole networking requirement for homelab access. NordVPN is managed via the GUI and has no scripted integration.
 
 **Homelab torrenting stack** (Podman + systemd, CentOS Stream 10):
 
@@ -70,24 +72,20 @@ Two subnets are allowlisted in NordVPN to bypass VPN routing: `10.88.0.0/16` (Po
 
 | Function | Purpose |
 |----------|---------|
-| `vpn.fish` | [DEPRECATED] Formerly enforced VPN/Tailscale two-mode model; VPN now managed via GUI |
-| `media.fish` | Homelab SMB mount with Tailscale connectivity check |
-| `doctor.fish` | System health check: toolchain, mount status, Tailscale connectivity, macOS security flags |
+| `doctor.fish` | System health check: toolchain, Tailscale connectivity, macOS security flags; exits 0=ok, 1=warn, 2=crit |
+| `doctor-notify.fish` | Runs `doctor` and fires a native macOS Notification Center alert on warnings or criticals; called by launchd |
 | `snap.fish` | Rebuild `~/dev/snapshot.md` with live system data (censors IPs and credentials) |
 | `tm.fish` | Send magnet links and torrents to homelab Transmission via `transmission-remote` |
 | `writeiso.fish` | Write ISO to USB: fzf disk picker, safety checks, `dd` with progress |
-| `update.fish` | Homebrew upgrade wrapper |
 | `yt.fish` | YouTube download via yt-dlp |
 | `fm.fish` | File search + edit (fd + fzf + micro) |
-| `gr.fish` | Git repo discovery and navigation |
 | `gcp.fish` | Stage all, commit (message or editor), and push |
 | `fish_prompt.fish` | Custom prompt with git status indicators |
 | `fish_right_prompt.fish` | Elapsed time for commands over threshold |
 | `fish_greeting.fish` | Welcome message + fastfetch, once per terminal window |
 | `lf.fish` | Wraps lf with quit-and-cd integration |
 | `stow-add.fish` | Move a `~/.config` package into dotfiles and stow it |
-| `caf.fish` | Prevent sleep for a duration |
-| `mkcd.fish` | Create directory and cd into it |
+| `stow-remove.fish` | Unstow a package and move it back to `~/.config` |
 | `lp.fish` | List PATH entries with existence check |
 | `__abbr_timer_minutes.fish` | Helper expanding `a15` → `after 15m` |
 

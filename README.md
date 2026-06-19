@@ -34,8 +34,11 @@ cd ~/.dotfiles
 This will:
 
 * Install Brewfile packages
+* Initialize the Rust toolchain
 * Set Fish as the login shell
 * Stow all managed configuration
+* Load launchd agents
+* Set default apps (IINA for video)
 * Apply macOS defaults
 * Suppress the login banner
 
@@ -81,7 +84,6 @@ Verify:
 * `doctor` reports expected status
 * Tailscale is connected
 * Time Machine is configured
-* Media share mounts successfully (`media on`)
 * Raycast hotkeys work
 * Hammerspoon loads successfully
 
@@ -91,8 +93,6 @@ Notes:
 * `lf` image previews require Kitty (`kitten icat`), even though Ghostty is the primary terminal.
 * Daily backups are performed via Time Machine.
 * Dotfiles are backed up through GitHub.
-
-````
 
 ### macOS Window + Dock
 
