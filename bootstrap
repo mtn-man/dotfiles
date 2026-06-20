@@ -142,4 +142,8 @@ killall Finder 2>/dev/null || true
 echo "==> Running post-install validation..."
 fish -c doctor || true
 
-echo "Done. Log out and back in for the Fish shell to take effect."
+if [ "$SHELL" != "/opt/homebrew/bin/fish" ]; then
+    echo "Done. Log out and back in for the Fish shell to take effect."
+else
+    echo "Done."
+fi

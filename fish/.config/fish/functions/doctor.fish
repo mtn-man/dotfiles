@@ -65,6 +65,35 @@ function doctor --description 'Report system status and verify connectivity'
         printf '%-20s %sok%s\n' toolchain: (set_color green) (set_color normal)
     end
 
+    # Stow symlinks check
+    set -l stow_links \
+        "$HOME/.config/fish" \
+        "$HOME/.config/ghostty" \
+        "$HOME/.config/micro" \
+        "$HOME/.config/lf" \
+        "$HOME/.config/fastfetch" \
+        "$HOME/.config/btop" \
+        "$HOME/.hammerspoon" \
+        "$HOME/.config/linearmouse" \
+        "$HOME/.config/mintmedia" \
+        "$HOME/.homebrew" \
+        "$HOME/Library/LaunchAgents/local.doctor.plist"
+    set -l stow_ok 1
+    for link in $stow_links
+        if not test -L $link
+            printf '%sstow: %s missing%s\n' (set_color red) $link (set_color normal) >&2
+            set stow_ok 0
+            set warnings (math $warnings + 1)
+        else if not test -e $link
+            printf '%sstow: %s broken symlink%s\n' (set_color red) $link (set_color normal) >&2
+            set stow_ok 0
+            set warnings (math $warnings + 1)
+        end
+    end
+    if test $stow_ok -eq 1
+        printf '%-20s %sok%s\n' stow: (set_color green) (set_color normal)
+    end
+
     # Brewfile drift check
     set -l brewfile ~/.dotfiles/Brewfile
     if test -f $brewfile
