@@ -91,7 +91,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
 
         # 3. Dotfiles
         __snap_file "~/.dotfiles/Brewfile (also backed-up to dotfiles repo)" $dotfiles/Brewfile ruby
-        __snap_file "~/.dotfiles/bootstrap.sh" $dotfiles/bootstrap.sh bash
+        __snap_file "~/.dotfiles/bootstrap" $dotfiles/bootstrap bash
 
         # 4. Fish config
         __snap_file "~/.config/fish/config.fish" $__fish_config_dir/config.fish fish

@@ -28,7 +28,7 @@ gh repo clone mtn-man/dotfiles ~/.dotfiles
 
 ```bash
 cd ~/.dotfiles
-./bootstrap.sh
+./bootstrap
 ```
 
 This will:

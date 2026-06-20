@@ -31,7 +31,7 @@ For Fedora, run `fedora/fedora-bootstrap.sh` (installs via dnf + RPM Fusion, ena
 
 ## Bootstrap
 
-`bootstrap.sh` bootstraps a new macOS machine: installs Brewfile packages, initializes the Rust toolchain, sets Fish as default shell, stows all dotfile packages, loads launchd agents, suppresses the login message, sets default apps, and applies macOS defaults (dock autohide, key repeat, window drag).
+`bootstrap` bootstraps a new macOS machine: installs Brewfile packages, initializes the Rust toolchain, sets Fish as default shell, stows all dotfile packages, loads launchd agents, suppresses the login message, sets default apps, and applies macOS defaults (dock autohide, key repeat, window drag).
 
 ## Packages
 
