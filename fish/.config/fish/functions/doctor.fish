@@ -91,7 +91,7 @@ function doctor --description 'Report system status and verify connectivity'
         end
     end
     if test $stow_ok -eq 1
-        printf '%-20s %sok%s\n' stow links: (set_color green) (set_color normal)
+        printf '%-20s %sok%s\n' 'stow links:' (set_color green) (set_color normal)
     end
 
     # Brewfile drift check
