@@ -14,10 +14,20 @@ elif ! command -v brew &>/dev/null; then
     exit 1
 fi
 
+# Acquire sudo credentials up front and run all privileged operations before
+# any long-running steps, so a single password prompt covers everything.
 sudo -v
-( while kill -0 "$$" 2>/dev/null; do sudo -n true; sleep 50; done ) &
-_SUDO_KEEPALIVE=$!
-trap 'kill "$_SUDO_KEEPALIVE" 2>/dev/null' EXIT
+
+echo "==> Applying security settings..."
+if ! grep -qF /opt/homebrew/bin/fish /etc/shells; then
+    echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells > /dev/null
+fi
+# Software Update: check automatically, but install security responses only; feature updates are installed manually
+# Must write to the system domain (requires sudo) so that `doctor` can read it
+sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
+sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
 
 echo "==> Creating standard directories..."
 mkdir -p "$HOME/dev"
@@ -29,9 +39,6 @@ echo "==> Initializing Rust toolchain..."
 rustup default stable
 
 echo "==> Setting Fish as default shell..."
-if ! grep -qF /opt/homebrew/bin/fish /etc/shells; then
-    echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells > /dev/null
-fi
 # Note: chsh prompts for your login password (separate from sudo)
 if [ "$SHELL" != /opt/homebrew/bin/fish ]; then
     chsh -s /opt/homebrew/bin/fish
@@ -126,15 +133,6 @@ defaults write com.apple.dock orientation -string "left"
 
 # Photos
 defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
-
-# Software Update: check automatically, but install security responses only; feature updates are installed manually
-# Must write to the system domain (requires sudo) so that `doctor` can read it
-sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
-sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdateInstall -bool true
-
-# Firewall
-sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
-sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
 
 killall Dock 2>/dev/null || true
 killall Finder 2>/dev/null || true
