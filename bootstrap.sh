@@ -52,7 +52,8 @@ echo "==> Stowing dotfiles..."
 stow -Rvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew launchd
 
 echo "==> Loading launchd agents..."
-launchctl load "$HOME/Library/LaunchAgents/local.doctor.plist" 2>/dev/null || true
+launchctl print "gui/$(id -u)/local.doctor" >/dev/null 2>&1 || \
+    launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/local.doctor.plist"
 
 echo "==> Setting default apps..."
 duti -s com.colliderli.iina .mkv all
@@ -135,7 +136,10 @@ sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate CriticalUpdate
 sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setglobalstate on
 sudo /usr/libexec/ApplicationFirewall/socketfilterfw --setstealthmode on
 
-killall Dock   # always running; safe to restart
-killall Finder # always running; safe to restart
+killall Dock 2>/dev/null || true
+killall Finder 2>/dev/null || true
+
+echo "==> Running post-install validation..."
+fish -c doctor || true
 
 echo "Done. Log out and back in for the Fish shell to take effect."
