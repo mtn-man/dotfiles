@@ -75,7 +75,7 @@ cd ~/dev/mintmedia && go install ./...
 Third-party:
 
 * [MakeMKV](https://www.makemkv.com) by GuinpinSoft
-* [Supercharge](https://sindresorhus.gumroad.com/l/supercharge) by Sinre Sorhus
+* [Supercharge](https://sindresorhus.gumroad.com/l/supercharge) by Sindre Sorhus
 
 ### Post-Recovery Checklist
 
