@@ -13,3 +13,7 @@ end
 
 local usbWatcher = hs.usb.watcher.new(usbDeviceCallback)
 usbWatcher:start()
+
+for _, device in ipairs(hs.usb.attachedDevices()) do
+    usbDeviceCallback({ productName = device["productName"], vendorID = device["vendorID"], eventType = "added" })
+end
