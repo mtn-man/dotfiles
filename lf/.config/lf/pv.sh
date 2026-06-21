@@ -78,7 +78,7 @@ render_graphics_file() {
     local geometry="${w}x${h}@${x}x${y}"
     can_use_kitten_graphics || return 1
 
-    if kitten icat --silent --stdin=no --transfer-mode=file --place "$geometry" \
+    if kitten icat --silent --stdin=no --transfer-mode=stream --place "$geometry" \
         "$src" < /dev/null > /dev/tty 2>/dev/null; then
         GRAPHICS_RENDERED=1
         : > "$GRAPHICS_CLEAR_MARKER" 2>/dev/null
