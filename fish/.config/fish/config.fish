@@ -3,6 +3,7 @@ set -gx EDITOR "micro"
 set -g  HOMELAB "100.106.45.25"
 set -g  HOMELAB_LOCAL "192.168.0.43"
 set -g  MEDIA_SHARE "media"
+set -gx LG_CONFIG_FILE ~/.config/lazygit/config.yml
 # Suppress Homebrew hints and cleanup messages
 set -gx HOMEBREW_NO_ENV_HINTS 1
 set -gx HOMEBREW_NO_INSTALL_CLEANUP 1
