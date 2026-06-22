@@ -20,8 +20,9 @@ function __snap_file --argument-names label path lang
 end
 
 function snap --description 'Rebuild ~/dev/snapshot.md with live data'
-    set -l outfile ~/dev/snapshot.md
+    set -l outfile ~/dev/snapshots/snapshot-(date +%Y-%m-%d).md
     set -l dotfiles ~/.dotfiles
+    mkdir -p ~/dev/snapshots
     set -g __snap_errors
 
     if not command -q fastfetch
@@ -129,6 +130,11 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         > $outfile
 
     echo "snap: updated $outfile"
+
+    set -l old_snaps (ls -t ~/dev/snapshots/snapshot-*.md 2>/dev/null | tail -n +11)
+    if set -q old_snaps[1]
+        rm -- $old_snaps
+    end
 
     if set -q __snap_errors[1]
         echo "snap: missing files:"
