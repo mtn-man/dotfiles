@@ -157,6 +157,7 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
     end
 
     set -l t_start (date +%s)
+    # status=progress is supported by macOS dd as of modern releases; not a compatibility issue
     sudo dd if="$iso_abs" of="$rdisk_dev" bs=4m status=progress
     set -l dd_exit $status
     set -l t_end (date +%s)
