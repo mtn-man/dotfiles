@@ -23,6 +23,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
     set -l outfile ~/dev/snapshots/snapshot-(date +%Y-%m-%d).md
     set -l dotfiles ~/.dotfiles
     mkdir -p ~/dev/snapshots
+    set -l snap_verb (test -f $outfile && echo updated || echo created)
     set -g __snap_errors
 
     if not command -q fastfetch
@@ -129,7 +130,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         | string replace -ra '"rpc-password": "[^"]*"' '"rpc-password": "censored"' \
         > $outfile
 
-    echo "snap: updated $outfile"
+    echo "snap: $snap_verb $outfile"
 
     set -l old_snaps (ls -t ~/dev/snapshots/snapshot-*.md 2>/dev/null | tail -n +11)
     if set -q old_snaps[1]
