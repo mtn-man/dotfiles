@@ -106,7 +106,7 @@ sudo systemctl restart jellyfin.service
 
 ---
 
-## 5a. VPN + Transmission Service
+## 6. VPN + Transmission Service
 
 **Service Type**
 - Two systemd system services
@@ -229,7 +229,7 @@ sudo systemctl restart transmission.service
 
 ---
 
-## 5b. mintmedia Service
+## 7. mintmedia Service
 
 **Purpose**
 - Watches `/mnt/storage/Downloads/MintDrop` for completed downloads
@@ -269,7 +269,7 @@ systemctl --user restart mintmedia.service
 
 ---
 
-## 6. Networking and Access
+## 8. Networking and Access
 
 **Access Model**
 - Tailscale provides encrypted access
@@ -286,7 +286,7 @@ systemctl --user restart mintmedia.service
 
 ---
 
-## 7. SMB File Sharing
+## 9. SMB File Sharing
 
 - SMB is enabled for:
   - Home directory
@@ -300,7 +300,7 @@ Usage expectations:
 
 ---
 
-## 8. Backups
+## 10. Backups
 
 **Frequency**
 - Weekly
@@ -318,7 +318,7 @@ Usage expectations:
 
 ---
 
-## 8a. Jellyfin Configuration Backup & Restore
+## 11. Jellyfin Configuration Backup & Restore
 
 This section documents how Jellyfin configuration and state are backed up and restored.
 Media files are treated separately and are not covered here.
@@ -419,7 +419,7 @@ This procedure is used after:
 
 ---
 
-## 9. Update Policy
+## 12. Update Policy
 
 **Automatic**
 - Security updates only
@@ -439,7 +439,7 @@ This procedure is used after:
 
 ---
 
-## 10. Routine Checks
+## 13. Routine Checks
 
 ### Check Storage Mount
 ```sh
@@ -458,7 +458,7 @@ drive-temp
 last -x | head -n 30
 ```
 
-## 11. Common Failure Scenarios
+## 14. Common Failure Scenarios
 
 ### Jellyfin Not Running
 1. Check service status
@@ -567,7 +567,7 @@ sudo podman exec transmission netstat -tnp | grep 51413
 
 ---
 
-## 12. Known Design Decisions
+## 15. Known Design Decisions
 
 - Single-node deployment by design
 - USB-attached storage accepted as a trade-off
@@ -582,7 +582,7 @@ sudo podman exec transmission netstat -tnp | grep 51413
 
 ---
 
-## 13. Final Notes
+## 16. Final Notes
 
 This system is intentionally simple and conservative.
 
