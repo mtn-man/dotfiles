@@ -72,16 +72,14 @@ can_use_kitten_graphics() {
     [[ "$HAS_KITTEN" -eq 1 ]] && prefer_graphics_protocol
 }
 
-GRAPHICS_RENDERED=0
 render_graphics_file() {
     local src="$1"
     local geometry="${w}x${h}@${x}x${y}"
     can_use_kitten_graphics || return 1
 
-    if kitten icat --silent --stdin=no --transfer-mode=stream --place "$geometry" \
+    if kitten icat --silent --stdin=no --transfer-mode=memory --place "$geometry" \
         "$src" < /dev/null > /dev/tty 2>/dev/null; then
-        GRAPHICS_RENDERED=1
-        : > "$GRAPHICS_CLEAR_MARKER" 2>/dev/null
+        touch "$GRAPHICS_CLEAR_MARKER" 2>/dev/null
         return 0
     fi
     return 1
@@ -182,14 +180,14 @@ case "$mimetype" in
         preview_text
         ;;
     image/heic|image/heif)
-        preview_heic && [[ "$GRAPHICS_RENDERED" -eq 1 ]] && exit 1
+        preview_heic && exit 1
         ;;
     image/*)
         preview_image && exit 1
         ;;
     video/*)
         # Optimized: only attempt embedded yt-dlp thumbnail extraction
-        preview_video_ytdlp && [[ "$GRAPHICS_RENDERED" -eq 1 ]] && exit 1
+        preview_video_ytdlp && exit 1
         ;;
     *)
         # Fallback for non-text/non-media

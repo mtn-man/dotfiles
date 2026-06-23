@@ -15,7 +15,7 @@ have_cmd kitten || exit 0
 prefer_graphics_protocol || exit 0
 [ -f "$marker" ] || exit 0
 
-if kitten icat --clear --stdin=no --silent --transfer-mode=stream < /dev/null > /dev/tty 2>/dev/null; then
+if kitten icat --clear --stdin=no --silent --transfer-mode=memory < /dev/null > /dev/tty 2>/dev/null; then
     rm -f "$marker"
 fi
 
