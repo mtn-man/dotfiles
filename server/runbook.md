@@ -29,6 +29,7 @@ Downtime of several hours is acceptable. Data loss is not acceptable.
 
 **Primary Services**
 - Jellyfin (Podman container, systemd-managed)
+- Transmission-Remote (bound to VPN connection)
 - SMB file sharing
 - SSH access
 
@@ -102,6 +103,36 @@ sudo systemctl status jellyfin.service
 **Restart the Service**
 ```sh
 sudo systemctl restart jellyfin.service
+```
+
+### Jellyfin Image Update Procedure
+
+The Jellyfin service uses `--pull=never`, so a new image must be pulled explicitly before restarting. The image runs under the `eli` user account, so no `sudo` is needed for the pull.
+
+**Steps**
+
+1. Pull the latest image
+```bash
+podman pull docker.io/jellyfin/jellyfin:latest
+```
+
+2. Restart the service
+```bash
+sudo systemctl restart jellyfin.service
+```
+
+3. Verify the service is running
+```bash
+sudo systemctl status jellyfin.service
+```
+
+4. Verify Jellyfin UI loads — `http://100.106.45.25:8096` over Tailscale
+
+5. Verify media playback and thumbnails
+
+6. Remove the old dangling image
+```bash
+podman image prune
 ```
 
 ---
@@ -207,6 +238,44 @@ sudo systemctl status transmission.service
 - The Podman secret (`nordvpn_token`) is unaffected by rebuilds and does not need to be recreated
 - The build requires outbound internet access to reach `repo.nordvpn.com`
 - Build time is typically under a few minutes on the N150
+
+---
+
+### Transmission Image Update Procedure
+
+The Transmission service uses `--pull=never` and runs rootful, so the pull requires `sudo`.
+
+**Steps**
+
+1. Stop Transmission (nordvpn can remain running)
+```bash
+sudo systemctl stop transmission.service
+```
+
+2. Pull the latest image
+```bash
+sudo podman pull docker.io/linuxserver/transmission:latest
+```
+
+3. Start Transmission
+```bash
+sudo systemctl start transmission.service
+```
+
+4. Verify the service is running
+```bash
+sudo systemctl status transmission.service
+```
+
+5. Verify torrent traffic is still using the VPN
+```bash
+sudo podman exec transmission netstat -tnp | grep 51413
+```
+
+6. Remove the old dangling image
+```bash
+sudo podman image prune
+```
 
 ---
 
@@ -428,14 +497,9 @@ This procedure is used after:
 **Manual**
 - OS package updates
 - Podman updates
-- Jellyfin container image updates
+- Container image updates (Jellyfin, Transmission, NordVPN)
 
-**Manual Update Procedure**
-1. Pull or update image manually
-2. Restart Jellyfin service
-3. Verify Jellyfin UI loads
-4. Verify media playback
-5. Verify thumbnails load
+See section 5 for the Jellyfin image update procedure, section 6 for the Transmission image update procedure and NordVPN container rebuild procedure.
 
 ---
 
