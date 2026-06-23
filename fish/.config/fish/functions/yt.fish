@@ -5,7 +5,7 @@ function yt --description 'Download YouTube videos with options'
     # Default format settings
     set -l min_h 720
     set -l max_h 1440
-    set -l codec_pref vp9
+    set -l codec_pref vp09
 
     # Check for yt-dlp
     if not command -q yt-dlp
@@ -87,13 +87,13 @@ function yt --description 'Download YouTube videos with options'
             case 3
                 set codec_pref avc1
             case '*'
-                set codec_pref vp9
+                set codec_pref vp09
         end
 
         echo
         set -l codec_name
         switch $codec_pref
-            case vp9
+            case vp09
                 set codec_name "VP9"
             case av01
                 set codec_name "AV1"
