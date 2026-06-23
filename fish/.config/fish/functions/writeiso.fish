@@ -95,7 +95,7 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
         end
         echo
 
-        read -P "writeiso: select disk [1-(count $menu)]: " pick
+        read -P "writeiso: select disk [1-"(count $menu)"]: " pick
         if not string match -qr '^\d+$' -- $pick
             or test $pick -lt 1; or test $pick -gt (count $menu)
             echo "writeiso: invalid selection -- aborted" >&2
