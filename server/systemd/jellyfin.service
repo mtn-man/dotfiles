@@ -18,6 +18,12 @@ ExecStart=/usr/bin/podman run --name jellyfin-systemd \
   --volume /var/lib/jellyfin/config:/config \
   --volume /var/lib/jellyfin/cache:/cache \
   --volume /usr/lib64/dri:/usr/lib64/dri:ro \
+  --health-cmd="curl -sf http://localhost:8096/health" \
+  --health-interval=30s \
+  --health-timeout=10s \
+  --health-retries=3 \
+  --health-start-period=120s \
+  --health-on-failure=kill \
   --pull=never \
   docker.io/jellyfin/jellyfin:latest
 ExecStop=/usr/bin/podman stop -t 10 jellyfin-systemd

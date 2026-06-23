@@ -1,0 +1,12 @@
+[Unit]
+Description=mintmedia daemon (tmux)
+After=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/tmux new-session -d -s mintmedia %h/go/bin/mintmedia --daemon
+ExecStop=/usr/bin/tmux kill-session -t mintmedia
+
+[Install]
+WantedBy=default.target

@@ -1,8 +1,0 @@
-[Unit]
-Description=2 AM to 1030 AM
-
-[Timer]
-OnCalendar=*-*-* 01:55:00
-
-[Install]
-WantedBy=timers.target
