@@ -62,8 +62,14 @@ Mitigation:
 | `/` | OS | XFS |
 | `/home` | User data | XFS |
 | `/mnt/storage` | Media library | XFS, USB-attached |
+| `/mnt/storage/Movies` | Processed movies | mintmedia destination |
+| `/mnt/storage/Shows` | Processed TV shows | mintmedia destination |
+| `/mnt/storage/Downloads` | Transmission download root | |
+| `/mnt/storage/Downloads/MintDrop` | mintmedia drop folder | Completed downloads land here |
+| `/mnt/storage/Downloads/incomplete` | In-progress downloads | |
 | `/var/lib/jellyfin/config` | Jellyfin configuration | Persistent |
 | `/var/lib/jellyfin/cache` | Jellyfin cache | Persistent |
+| `/var/lib/transmission/config` | Transmission configuration | Persistent |
 
 **Storage Characteristics**
 - USB dock does not pass full SMART data
@@ -86,7 +92,7 @@ Mitigation:
 - Requires `/mnt/storage` to be mounted
 - Wait loop allows for slow USB disk spin-up after unplanned power cuts
 - Manual container image updates only
-- Container health checks enabled
+- Container health check polls `/health` every 30s; kills container on 3 consecutive failures (systemd restarts it)
 
 **Check the Service**
 ```sh
@@ -220,6 +226,46 @@ sudo systemctl restart transmission.service
 **Access Transmission**
 - Web UI: `http://100.106.45.25:9091/transmission/` (Tailscale only)
 - RPC endpoint: `http://100.106.45.25:9091/transmission/rpc`
+
+---
+
+## 5b. mintmedia Service
+
+**Purpose**
+- Watches `/mnt/storage/Downloads/MintDrop` for completed downloads
+- Renames and moves media to `/mnt/storage/Movies` or `/mnt/storage/Shows`
+- Monitors Transmission via RPC; auto-removes completed torrents after successful processing
+
+**Service Type**
+- systemd user service
+- mintmedia daemon running inside a tmux session
+
+**Service File**
+`~/.config/systemd/user/mintmedia.service`
+
+**Key Design Points**
+- Runs as a user service under `eli`; linger is enabled so it starts at boot without login
+- tmux session named `mintmedia` — attach to check live output or restart interactively
+- Built and updated manually from source at `~/dev/golang/mintmedia`
+- Transmission integration connects to `100.106.45.25:9091` (Tailscale)
+- `defer_destination_checks = true` — daemon starts even if `/mnt/storage` is not yet mounted; queues work until storage is available
+
+**Check the Service**
+```bash
+systemctl --user status mintmedia.service
+tmux attach -t mintmedia
+```
+
+**Restart the Service**
+```bash
+systemctl --user restart mintmedia.service
+```
+
+**Configuration**
+`~/.config/mintmedia/config.toml`
+
+**Logs**
+`~/.local/state/mintmedia/history.jsonl`
 
 ---
 
