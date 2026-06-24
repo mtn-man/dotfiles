@@ -9,5 +9,6 @@ function fish_greeting
         end
     end
     echo "Welcome back to your server, Eli"
+    echo
     fastfetch
 end
