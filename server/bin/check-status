@@ -1,0 +1,3 @@
+#!/bin/bash
+last -x | head -n 30
+sudo systemctl status jellyfin.service

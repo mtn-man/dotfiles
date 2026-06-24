@@ -1,0 +1,11 @@
+#!/bin/bash
+i=1
+IFS=: read -ra dirs <<< "$PATH"
+for dir in "${dirs[@]}"; do
+    if [ -d "$dir" ]; then
+        printf "%2d  %s\n" "$i" "$dir"
+    else
+        printf "%2d  %s (missing)\n" "$i" "$dir"
+    fi
+    ((i++))
+done

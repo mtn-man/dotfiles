@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo smartctl -d sat -l scttemp /dev/sda | grep -E "Current Temperature|Max Temperature"
