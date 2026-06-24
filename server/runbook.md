@@ -505,6 +505,33 @@ See section 5 for the Jellyfin image update procedure, section 6 for the Transmi
 
 ## 13. Routine Checks
 
+### Daily Health Check (doctor)
+
+`doctor` checks storage, services, VPN tunnel, drive temperature, recent reboots, and Tailscale. Exits 0=ok, 1=warn, 2=crit.
+
+```sh
+doctor
+```
+
+A systemd user timer runs `doctor-check` daily at 6am, caching the result to `~/.local/state/doctor/status`. The fish greeting reads this cache and displays any warnings or criticals on login.
+
+`doctor` requires passwordless sudo for two commands. These are configured in `/etc/sudoers.d/doctor`:
+
+```
+eli ALL=(ALL) NOPASSWD: /usr/bin/podman exec nordvpn nordvpn status
+eli ALL=(ALL) NOPASSWD: /usr/sbin/smartctl -d sat -l scttemp /dev/sda
+```
+
+To edit:
+```sh
+sudo visudo -f /etc/sudoers.d/doctor
+```
+
+To enable the timer (once, after initial setup):
+```sh
+systemctl --user enable --now doctor-check.timer
+```
+
 ### Check Storage Mount
 ```sh
 mountpoint /mnt/storage

@@ -1,0 +1,6 @@
+[Unit]
+Description=Daily server health check
+
+[Service]
+Type=oneshot
+ExecStart=%h/bin/doctor-check

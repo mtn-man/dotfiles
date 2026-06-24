@@ -6,7 +6,6 @@ if [[ "$EUID" -eq 0 ]]; then
     exit 1
 fi
 
-sudo -v || { echo "sudo authentication failed" >&2; exit 1; }
 
 warnings=0
 criticals=0

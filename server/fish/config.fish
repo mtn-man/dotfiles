@@ -7,11 +7,10 @@ if status is-interactive
             set -gx TERM xterm-256color
     end
 
-    set -g fish_greeting "Welcome back to your server, Eli"
-    fastfetch
     set -gx SYSTEMD_PAGER cat
     set -gx EDITOR micro
     alias update='sudo dnf upgrade --refresh -y'
+    abbr -a --global dr 'doctor'
     abbr -a --global mm 'mintmedia'
     abbr -a --global c 'bat'
     abbr -a --global ts 'tailscale status'

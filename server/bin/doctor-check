@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+STATE_DIR="${HOME}/.local/state/doctor"
+STATUS_FILE="${STATE_DIR}/status"
+
+mkdir -p "${STATE_DIR}"
+
+exit_code=0
+output=$("${HOME}/bin/doctor" 2>&1) || exit_code=$?
+
+summary=$(printf '%s\n' "$output" | grep '^summary:' | sed 's/summary:[[:space:]]*//' || true)
+
+# Atomic write — avoids fish_greeting reading a partial file
+printf '%s\n%s\n' "$exit_code" "$summary" > "${STATUS_FILE}.tmp"
+mv "${STATUS_FILE}.tmp" "${STATUS_FILE}"
