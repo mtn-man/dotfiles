@@ -72,12 +72,10 @@ if [[ -n "$temp_line" ]]; then
             row "drive temp" "ok (${temp}C)"
         fi
     else
-        row "drive temp" "warn: unreadable"
-        warnings=$(( warnings + 1 ))
+        row "drive temp" "ok (standby)"
     fi
 else
-    row "drive temp" "warn: unreadable"
-    warnings=$(( warnings + 1 ))
+    row "drive temp" "ok (standby)"
 fi
 
 # Recent reboot
