@@ -519,7 +519,8 @@ A systemd user timer runs `doctor-check` daily at 6am, caching the result to `~/
 
 ```
 eli ALL=(ALL) NOPASSWD: /usr/bin/podman exec nordvpn nordvpn status
-eli ALL=(ALL) NOPASSWD: /usr/sbin/smartctl -d sat -l scttemp /dev/sda
+eli ALL=(ALL) NOPASSWD: /usr/sbin/blkid -U d477f156-a70d-4aba-ab3d-5fa6d194e982
+eli ALL=(ALL) NOPASSWD: /usr/sbin/smartctl -d sat -l scttemp /dev/sd*
 ```
 
 To edit:

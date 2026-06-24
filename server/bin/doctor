@@ -55,8 +55,10 @@ else
     criticals=$(( criticals + 1 ))
 fi
 
-# Drive temperature
-temp_line=$(sudo smartctl -d sat -l scttemp /dev/sda 2>/dev/null | grep "Current Temperature" || true)
+# Drive temperature — resolve media drive by UUID to avoid relying on sda/sdb enumeration order
+storage_part=$(sudo blkid -U d477f156-a70d-4aba-ab3d-5fa6d194e982 2>/dev/null || true)
+storage_dev="${storage_part%[0-9]}"
+temp_line=$(sudo smartctl -d sat -l scttemp "$storage_dev" 2>/dev/null | grep "Current Temperature" || true)
 if [[ -n "$temp_line" ]]; then
     temp=$(echo "$temp_line" | awk '{print $(NF-1)}')
     if [[ "$temp" =~ ^[0-9]+$ ]]; then
