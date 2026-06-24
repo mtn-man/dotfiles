@@ -513,10 +513,6 @@ mountpoint /mnt/storage
 ```sh
 podman ps -a
 ```
-### Check Drive Temperature
-```sh
-drive-temp
-```
 ### Check Recent System Events
 ```sh
 last -x | head -n 30

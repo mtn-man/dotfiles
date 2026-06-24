@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$EUID" -eq 0 ]]; then
+    echo "doctor must be run as eli, not root" >&2
+    exit 1
+fi
+
+sudo -v || { echo "sudo authentication failed" >&2; exit 1; }
+
+warnings=0
+criticals=0
+
+row() {
+    printf '%-20s %s\n' "${1}:" "$2"
+}
+
+# Storage mount
+if mountpoint -q /mnt/storage 2>/dev/null; then
+    row "storage" "ok"
+else
+    row "storage" "CRITICAL: not mounted"
+    criticals=$(( criticals + 1 ))
+fi
+
+# Jellyfin service
+if systemctl is-active --quiet jellyfin.service 2>/dev/null; then
+    row "jellyfin" "ok"
+else
+    row "jellyfin" "CRITICAL: not active"
+    criticals=$(( criticals + 1 ))
+fi
+
+# VPN tunnel
+vpn_status=$(sudo podman exec nordvpn nordvpn status 2>/dev/null || true)
+if printf '%s' "$vpn_status" | grep -q "Status: Connected"; then
+    row "vpn tunnel" "connected"
+else
+    row "vpn tunnel" "CRITICAL: not connected"
+    criticals=$(( criticals + 1 ))
+fi
+
+# Transmission service
+if systemctl is-active --quiet transmission.service 2>/dev/null; then
+    row "transmission" "ok"
+else
+    row "transmission" "CRITICAL: not active"
+    criticals=$(( criticals + 1 ))
+fi
+
+# mintmedia service — must run as eli; --user bus is session-specific
+if systemctl --user is-active --quiet mintmedia.service 2>/dev/null; then
+    row "mintmedia" "ok"
+else
+    row "mintmedia" "CRITICAL: not active"
+    criticals=$(( criticals + 1 ))
+fi
+
+# Drive temperature
+temp_line=$(sudo smartctl -d sat -l scttemp /dev/sda 2>/dev/null | grep "Current Temperature" || true)
+if [[ -n "$temp_line" ]]; then
+    temp=$(echo "$temp_line" | awk '{print $(NF-1)}')
+    if [[ "$temp" =~ ^[0-9]+$ ]]; then
+        if [[ "$temp" -ge 60 ]]; then
+            row "drive temp" "CRITICAL: ${temp}C"
+            criticals=$(( criticals + 1 ))
+        elif [[ "$temp" -ge 51 ]]; then
+            row "drive temp" "warn: ${temp}C"
+            warnings=$(( warnings + 1 ))
+        else
+            row "drive temp" "ok (${temp}C)"
+        fi
+    else
+        row "drive temp" "warn: unreadable"
+        warnings=$(( warnings + 1 ))
+    fi
+else
+    row "drive temp" "warn: unreadable"
+    warnings=$(( warnings + 1 ))
+fi
+
+# Recent reboot
+boot_epoch=$(date -d "$(uptime -s)" +%s)
+now_epoch=$(date +%s)
+age_hours=$(( (now_epoch - boot_epoch) / 3600 ))
+if [[ "$age_hours" -lt 24 ]]; then
+    row "recent reboot" "warn: rebooted ${age_hours}h ago"
+    warnings=$(( warnings + 1 ))
+else
+    row "recent reboot" "ok"
+fi
+
+# Tailscale
+ts_ip=$(tailscale ip -4 2>/dev/null || true)
+if [[ -n "$ts_ip" ]]; then
+    row "tailscale" "up ($ts_ip)"
+else
+    row "tailscale" "warn: down"
+    warnings=$(( warnings + 1 ))
+fi
+
+# Summary
+echo
+if [[ "$criticals" -gt 0 && "$warnings" -gt 0 ]]; then
+    printf '%-20s %d critical(s), %d warning(s)\n' "summary:" "$criticals" "$warnings"
+elif [[ "$criticals" -gt 0 ]]; then
+    printf '%-20s %d critical(s)\n' "summary:" "$criticals"
+elif [[ "$warnings" -gt 0 ]]; then
+    printf '%-20s %d warning(s)\n' "summary:" "$warnings"
+else
+    printf '%-20s ok\n' "summary:"
+fi
+
+if [[ "$criticals" -gt 0 ]]; then
+    exit 2
+elif [[ "$warnings" -gt 0 ]]; then
+    exit 1
+fi
