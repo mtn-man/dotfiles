@@ -47,6 +47,7 @@ function yt --description 'Download YouTube videos with options'
 
     # Setup output directory
     set -l outdir "$HOME/Movies/YouTube"
+    set -l statedir "$HOME/.local/state/youtube"
     if not mkdir -p "$outdir"
         echo "yt: failed to create output directory: $outdir" >&2
         return 1
@@ -131,7 +132,7 @@ function yt --description 'Download YouTube videos with options'
         --merge-output-format mp4 \
         --embed-thumbnail \
         --embed-metadata \
-        --download-archive "$outdir/.yt-archive.txt" \
+        --download-archive "$statedir/.yt-archive.txt" \
         --concurrent-fragments 5 \
         --buffer-size 1M \
         -o "%(title)s.%(ext)s" \
