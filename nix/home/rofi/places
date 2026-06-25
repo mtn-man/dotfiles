@@ -1,4 +1,0 @@
-nix	~/.dotfiles/nix
-dev	~/dev
-mint	~/dev/golang/mintmedia
-fish	~/.dotfiles/nix/home
