@@ -1,0 +1,19 @@
+set sortby time
+set reverse true
+set icons true
+map . set hidden!
+map d delete
+map <backspace2> delete
+set shell /usr/bin/fish
+map S shell
+map R reload
+map e $micro "$fx"
+map c copy
+map v paste
+map <esc> quit
+map D delete
+map H cd ~
+map x cut
+map C clear
+set previewer ~/.config/lf/pv.sh
+set hidden!

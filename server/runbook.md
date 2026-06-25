@@ -670,7 +670,26 @@ sudo podman exec transmission netstat -tnp | grep 51413
 
 ---
 
-## 16. Final Notes
+## 16. Shell Tooling
+
+### lf (terminal file manager)
+
+Not available in DNF repos. Installed via Go:
+
+```sh
+go install github.com/gokcehan/lf@latest
+```
+
+Config is at `~/.config/lf/` (sourced from `server/lf/` in dotfiles):
+- `lfrc` — keybindings and settings; no zoxide, no image previews
+- `pv.sh` — text file previewer (bat with cat fallback)
+- `icons` — Nerd Font icon mappings
+
+The `lf` fish function (`~/.config/fish/functions/lf.fish`) wraps lf with quit-and-cd integration.
+
+---
+
+## 17. Final Notes
 
 This system is intentionally simple and conservative.
 
