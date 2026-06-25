@@ -138,6 +138,7 @@ function yt --description 'Download YouTube videos with options'
         --force-ipv4 \
         -o "%(title)s.%(ext)s" \
         --paths "$outdir" \
+        # --cookies "$statedir/cookies.txt" \
         # --cookies-from-browser safari \
         --no-overwrites
 
