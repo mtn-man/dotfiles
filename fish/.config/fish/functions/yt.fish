@@ -135,9 +135,10 @@ function yt --description 'Download YouTube videos with options'
         --download-archive "$statedir/.yt-archive.txt" \
         --concurrent-fragments 5 \
         --buffer-size 1M \
+        --force-ipv4 \
         -o "%(title)s.%(ext)s" \
         --paths "$outdir" \
-        --cookies-from-browser safari \
+        # --cookies-from-browser safari \
         --no-overwrites
 
     # Add --exec flag if opening after download
