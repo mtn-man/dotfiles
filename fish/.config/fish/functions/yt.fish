@@ -139,7 +139,7 @@ function yt --description 'Download YouTube videos with options'
         -o "%(title)s.%(ext)s" \
         --paths "$outdir" \
         # --cookies "$statedir/cookies.txt" \
-        # --cookies-from-browser safari \
+        --cookies-from-browser safari \
         --no-overwrites
 
     # Add --exec flag if opening after download
