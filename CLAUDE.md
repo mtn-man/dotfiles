@@ -42,7 +42,7 @@ For Fedora, run `fedora/fedora-bootstrap.sh` (installs via dnf + RPM Fusion, ena
 - **`hammerspoon/`** — macOS automation: auto-launches/quits LinearMouse on Logitech USB receiver plug/unplug
 - **`linearmouse/`** — Mouse config (managed by Hammerspoon automation)
 - **`btop/`** — Resource monitor config
-- **`mintmedia/`** — Config for the `mintmedia` Go tool; the ingest pipeline runs on the homelab, watching `/mnt/storage/Downloads/MintDrop` for completed Transmission downloads
+- **`mintmedia/`** — Config for the `mintmedia` Go tool; the ingest pipeline runs on the homelab, watching `/mnt/storage/Downloads/complete` for completed Transmission downloads
 - **`fastfetch/`** — System info display config
 - **`homebrew/`** — Tracks `~/.homebrew/trust.json` (trusted taps/formulae/casks) in version control
 - **`launchd/`** — macOS launchd agents: `local.doctor.plist` runs `doctor-notify` daily at 9am

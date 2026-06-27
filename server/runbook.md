@@ -66,7 +66,7 @@ Mitigation:
 | `/mnt/storage/Movies` | Processed movies | mintmedia destination |
 | `/mnt/storage/Shows` | Processed TV shows | mintmedia destination |
 | `/mnt/storage/Downloads` | Transmission download root | |
-| `/mnt/storage/Downloads/MintDrop` | mintmedia drop folder | Completed downloads land here |
+| `/mnt/storage/Downloads/complete` | Completed downloads; mintmedia watch folder | Default linuxserver/transmission layout |
 | `/mnt/storage/Downloads/incomplete` | In-progress downloads | |
 | `/var/lib/jellyfin/config` | Jellyfin configuration | Persistent |
 | `/var/lib/jellyfin/cache` | Jellyfin cache | Persistent |
@@ -167,7 +167,7 @@ podman image prune
 |------|---------|
 | `/var/lib/transmission/config` | Transmission configuration and settings |
 | `/mnt/storage/Downloads` | Download root |
-| `/mnt/storage/Downloads/MintDrop` | Completed downloads (watched by mintmedia) |
+| `/mnt/storage/Downloads/complete` | Completed downloads (watched by mintmedia) |
 | `/mnt/storage/Downloads/incomplete` | In-progress downloads |
 
 **Authentication**
@@ -301,7 +301,7 @@ sudo systemctl restart transmission.service
 ## 7. mintmedia Service
 
 **Purpose**
-- Watches `/mnt/storage/Downloads/MintDrop` for completed downloads
+- Watches `/mnt/storage/Downloads/complete` for completed downloads
 - Renames and moves media to `/mnt/storage/Movies` or `/mnt/storage/Shows`
 - Monitors Transmission via RPC; auto-removes completed torrents after successful processing
 
