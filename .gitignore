@@ -14,6 +14,9 @@ fedora/micro/.config/micro/buffers/
 fedora/micro/.config/micro/backups/
 fedora/micro/.config/micro/history/
 
+# homebrew lock files
+homebrew/.homebrew/trust.json.lock
+
 # editor swap/backup files
 *~
 *.swp

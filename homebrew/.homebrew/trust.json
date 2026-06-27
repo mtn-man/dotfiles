@@ -1,6 +1,7 @@
 {
   "trustedformulae": [
-    "mtn-man/tap/after"
+    "mtn-man/tap/after",
+    "nextdns/tap/nextdns"
   ],
   "trustedcasks": [
     "jurplel/tap/instant-space-switcher",
