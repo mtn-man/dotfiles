@@ -18,7 +18,6 @@ fish_add_path -gPm /opt/homebrew/bin /opt/homebrew/sbin
 # 3. Go Binary Path
 fish_add_path -gP ~/go/bin
 
-
 # 4. Interactive Session Configuration
 if status is-interactive
     source ~/.config/fish/abbrs.fish
