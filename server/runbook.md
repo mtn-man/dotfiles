@@ -646,6 +646,28 @@ sudo systemctl restart nordvpn.service
 
 ---
 
+### mintmedia Not Running
+
+The service is `Type=oneshot` with `RemainAfterExit=yes` — systemd holds it as `active (exited)` after the tmux session starts, and keeps that state even if the mintmedia process inside tmux later dies. `systemctl --user start` is a no-op in this state.
+
+1. Check whether the tmux session is alive
+```bash
+tmux attach -t mintmedia
+```
+If the session is gone (`[exited]` or `no sessions`), the daemon has exited.
+
+2. Restart the service (not start — restart forces ExecStop then ExecStart)
+```bash
+systemctl --user restart mintmedia.service
+```
+
+3. Attach to verify it's running
+```bash
+tmux attach -t mintmedia
+```
+
+---
+
 ### Verifying Torrent Traffic Uses VPN
 
 With an active torrent, peer connections should show `10.5.0.2` (VPN tunnel) as the local address:
