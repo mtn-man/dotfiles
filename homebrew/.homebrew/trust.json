@@ -10,6 +10,7 @@
   "trustedtaps": [
     "xykong/tap",
     "jurplel/tap",
-    "mtn-man/tap"
+    "mtn-man/tap",
+    "nextdns/tap"
   ]
 }
