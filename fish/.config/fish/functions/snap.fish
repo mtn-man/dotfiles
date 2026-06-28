@@ -126,7 +126,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         | string replace -ra -- "$HOMELAB" 'censored' \
         | string replace -ra -- "$HOMELAB_LOCAL" 'censored' \
         # Redacts the rpc-password value in transmission settings.
-        # Note: this line self-censors in the snapshot output, so the pattern shown there is not the source.
+        # Note: this line self-censors in the snapshot output, so the pattern shown in this file is not the source.
         | string replace -ra '"rpc-password": "[^"]*"' '"rpc-password": "censored"' \
         > $outfile
 
