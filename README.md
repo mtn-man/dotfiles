@@ -67,6 +67,7 @@ cd ~/dev/mintmedia && go install ./...
 * GitHub
 * NordVPN
 * Spotify
+* nextdns (nextdns install && nextdns activate)
 
 > Apple ID is not required.
 
