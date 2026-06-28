@@ -53,13 +53,14 @@ echo "==> Removing .DS_Store files from dotfiles..."
 find "$DOTFILES" -name '.DS_Store' -delete
 
 echo "==> Checking for stow conflicts..."
-if ! stow -nRt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew launchd; then
+if ! stow_output=$(stow -nRt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew launchd git 2>&1); then
     echo "error: stow conflict detected — resolve the above before re-running." >&2
+    echo "$stow_output" >&2
     exit 1
 fi
 
 echo "==> Stowing dotfiles..."
-stow -Rvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew launchd
+stow -Rvt "$HOME" --dir="$DOTFILES" fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew launchd git
 
 echo "==> Loading launchd agents..."
 launchctl print "gui/$(id -u)/local.doctor" >/dev/null 2>&1 || \
