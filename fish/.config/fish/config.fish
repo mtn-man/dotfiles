@@ -1,5 +1,5 @@
 # 1. Environment Variables
-set -gx EDITOR "micro"
+set -gx EDITOR "vim"
 set -g  HOMELAB "100.106.45.25"
 set -g  HOMELAB_LOCAL "192.168.0.43"
 set -g  MEDIA_SHARE "media"
