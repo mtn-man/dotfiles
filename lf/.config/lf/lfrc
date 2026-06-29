@@ -9,7 +9,7 @@ map <backspace2> $trash "$fx"
 set shell /opt/homebrew/bin/fish
 map S shell
 map R reload
-map e $micro "$fx"
+map e $vim "$fx"
 map c copy
 map v paste
 map <esc> quit
