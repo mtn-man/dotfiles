@@ -3,7 +3,7 @@
 	email = elijsher@gmail.com
 	name = Eli Sher
 [core]
-	editor = micro
+	editor = vim
 [credential]
 	helper = store
 [init]
