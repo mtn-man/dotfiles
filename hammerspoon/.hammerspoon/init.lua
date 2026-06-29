@@ -3,9 +3,9 @@ local function usbDeviceCallback(data)
     local isCompx = data["productName"] == "2.4G Receiver" and data["vendorID"] == 9639
     if isLogitech or isCompx then
         if data["eventType"] == "added" then
-            hs.application.launchOrFocus("LinearMouse")
+            hs.application.launchOrFocusByBundleID("com.lujjjh.LinearMouse")
         elseif data["eventType"] == "removed" then
-            local app = hs.application.find("LinearMouse")
+            local app = hs.application.get("com.lujjjh.LinearMouse")
             if app then app:kill() end
         end
     end
