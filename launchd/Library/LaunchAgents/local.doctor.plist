@@ -11,6 +11,10 @@
         <string>-c</string>
         <string>doctor-notify</string>
     </array>
+    <key>StandardOutPath</key>
+    <string>/tmp/local.doctor.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/local.doctor.err</string>
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
