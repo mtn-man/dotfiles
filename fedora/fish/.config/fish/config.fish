@@ -1,4 +1,4 @@
-set -gx EDITOR "micro"
+set -gx EDITOR "vim"
 set -g  HOMELAB "100.106.45.25"
 set -g  HOMELAB_LOCAL "192.168.0.43"
 set -gx MANPAGER "sh -c 'col -bx | bat -l man -p'"
