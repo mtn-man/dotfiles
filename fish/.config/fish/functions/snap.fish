@@ -120,8 +120,9 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/Library/LaunchAgents/local.doctor.plist" $dotfiles/launchd/Library/LaunchAgents/local.doctor.plist xml
         __snap_file "~/.hammerspoon/init.lua" $dotfiles/hammerspoon/.hammerspoon/init.lua lua
         __snap_file "~/.config/ghostty/config.ghostty" $dotfiles/ghostty/.config/ghostty/config.ghostty text
-        __snap_file "~/.config/micro/bindings.json" $dotfiles/micro/.config/micro/bindings.json json
-        __snap_file "~/.config/micro/settings.json" $dotfiles/micro/.config/micro/settings.json json
+        __snap_file "~/.config/lazygit/config.yml" $dotfiles/lazygit/.config/lazygit/config.yml yaml
+        __snap_file "~/.config/mintmedia/config.toml" $dotfiles/mintmedia/.config/mintmedia/config.toml toml
+        __snap_file "~/.vimrc" ~/.vimrc vim
     end \
         | string replace -ra -- "$HOMELAB" 'censored' \
         | string replace -ra -- "$HOMELAB_LOCAL" 'censored' \
