@@ -124,8 +124,8 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/mintmedia/config.toml" $dotfiles/mintmedia/.config/mintmedia/config.toml toml
         __snap_file "~/.vimrc" ~/.vimrc vim
     end \
-        | string replace -ra -- "$HOMELAB" 'censored' \
-        | string replace -ra -- "$HOMELAB_LOCAL" 'censored' \
+        | string replace -a -- "$HOMELAB" 'censored' \
+        | string replace -a -- "$HOMELAB_LOCAL" 'censored' \
         # Redacts the rpc-password value in transmission settings.
         # Note: this line self-censors in the snapshot output, so the pattern shown in this file is not the source.
         | string replace -ra '"rpc-password": "[^"]*"' '"rpc-password": "censored"' \
