@@ -41,7 +41,7 @@ rustup default stable
 echo "==> Setting Fish as default shell..."
 # Note: chsh prompts for your login password (separate from sudo)
 if [ "$SHELL" != /opt/homebrew/bin/fish ]; then
-    chsh -s /opt/homebrew/bin/fish
+    chsh -s /opt/homebrew/bin/fish || { echo "warning: shell change skipped, continuing..."; }
 fi
 
 echo "==> Removing files that Homebrew creates on first run (will be replaced by stow)..."
