@@ -19,7 +19,7 @@ stow -vt $HOME */
 Each package follows XDG convention: `<package>/.config/<package>/` → `~/.config/<package>/`.
 
 - `server/` Fish config is sourced manually on the homelab (not stow-deployed).
-- `fedora/` has its own bootstrap and stows `fish`, `lf`, `kitty`, `sway`, `swaylock`, and `waybar` (Sway desktop stack, with Linux-specific paths).
+- `fedora/` has its own bootstrap and stows `fish`, `lf`, `micro`, `kitty`, `sway`, `swaylock`, `waybar`, `rofi`, `yt-dlp`, `fastfetch`, and `git` (Sway desktop stack, with Linux-specific paths).
 
 ## Package Installation
 
@@ -35,10 +35,14 @@ For Fedora, run `fedora/fedora-bootstrap.sh` (installs via dnf + RPM Fusion, ena
 
 ## Packages
 
-- **`fish/`** — Shell config: `config.fish` (env vars, PATH), `abbrs.fish`, `functions/`, `completions/` (tm)
+- **`fish/`** — Shell config: `config.fish` (env vars, PATH), `abbrs.fish`, `functions/`, `completions/` (tm, writeiso)
 - **`ghostty/`** — Terminal emulator config
-- **`micro/`** — Editor (Solarized theme, Go tool keybindings in `bindings.json`)
-- **`lf/`** — File manager: fish-compatible zoxide integration via custom `z`/`cd` commands in `lfrc`, `pv.sh`/`clean.sh` for preview/cleanup, `e` bound to micro
+- **`vim/`** — Primary terminal editor (`~/.vimrc`)
+- **`micro/`** — Editor (Solarized theme, Go tool keybindings in `bindings.json`); being phased out in favor of vim
+- **`git/`** — Git config (`~/.gitconfig`)
+- **`kitty/`** — Terminal emulator config (kitty.conf + theme)
+- **`lazygit/`** — Lazygit config
+- **`lf/`** — File manager: fish-compatible zoxide integration via custom `z`/`cd` commands in `lfrc`, `pv.sh`/`clean.sh` for preview/cleanup, `e` bound to vim
 - **`hammerspoon/`** — macOS automation: auto-launches/quits LinearMouse on Logitech USB receiver plug/unplug
 - **`linearmouse/`** — Mouse config (managed by Hammerspoon automation)
 - **`btop/`** — Resource monitor config
@@ -46,10 +50,9 @@ For Fedora, run `fedora/fedora-bootstrap.sh` (installs via dnf + RPM Fusion, ena
 - **`fastfetch/`** — System info display config
 - **`homebrew/`** — Tracks `~/.homebrew/trust.json` (trusted taps/formulae/casks) in version control
 - **`launchd/`** — macOS launchd agents: `local.doctor.plist` runs `doctor-notify` daily at 9am
-- **`nix/`** — NixOS/Home Manager flake for the ThinkPad T14 Gen 1 (not stow-deployed; managed separately)
 - **`raycast-scripts/`** — Raycast script commands
 - **`server/`** — CentOS homelab: Fish config + `server.backup.sh` (rsync cold backup script)
-- **`fedora/`** — Fedora Sway workstation: bootstrap script + fish/lf/kitty/micro configs, Sway compositor, swaylock, waybar
+- **`fedora/`** — Fedora Sway workstation: bootstrap script + fish/lf/micro/kitty/git configs, Sway compositor, swaylock, waybar, rofi, yt-dlp, fastfetch
 
 ## Network Architecture
 
@@ -78,8 +81,8 @@ Two subnets are allowlisted in NordVPN to bypass VPN routing: `10.88.0.0/16` (Po
 | `tm.fish` | Send magnet links and torrents to homelab Transmission via `transmission-remote` |
 | `writeiso.fish` | Write ISO to USB: fzf disk picker, safety checks, `dd` with progress |
 | `yt.fish` | YouTube download via yt-dlp |
-| `fm.fish` | File search + edit (fd + fzf + micro) |
-| `gcp.fish` | Stage all, commit (message or editor), and push |
+| `fm.fish` | File search + edit in micro (fd + fzf); being phased out in favor of `fv` |
+| `fv.fish` | File search + edit in vim (fd + fzf); vim equivalent of `fm` |
 | `fish_prompt.fish` | Custom prompt with git status indicators |
 | `fish_right_prompt.fish` | Elapsed time for commands over threshold |
 | `fish_greeting.fish` | Welcome message + fastfetch, once per terminal window |
