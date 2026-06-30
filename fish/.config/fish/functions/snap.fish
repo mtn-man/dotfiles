@@ -132,7 +132,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
 
     echo "snap: $snap_verb $outfile"
 
-    set -l old_snaps (ls -t ~/dev/snapshots/snapshot-*.md 2>/dev/null | tail -n +11)
+    set -l old_snaps (ls -t ~/dev/snapshots/snapshot-*.md 2>/dev/null | tail -n +8)
     if set -q old_snaps[1]
         rm -- $old_snaps
     end
