@@ -8,7 +8,7 @@ if status is-interactive
     end
 
     set -gx SYSTEMD_PAGER cat
-    set -gx EDITOR micro
+    set -gx EDITOR vim
     alias update='sudo dnf upgrade --refresh -y'
     abbr -a --global dr 'doctor'
     abbr -a --global mm 'mintmedia'
