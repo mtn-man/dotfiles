@@ -24,8 +24,8 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
         return 1
     end
 
-    if not string match -qi '*.iso' -- "$iso_path"
-        echo "writeiso: file does not have .iso extension: $iso_path" >&2
+    if not string match -qi '*.iso' -- "$iso_path" && not string match -qi '*.img' -- "$iso_path"
+        echo "writeiso: file does not have .iso or .img extension: $iso_path" >&2
         return 1
     end
 
