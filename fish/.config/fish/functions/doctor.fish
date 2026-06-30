@@ -1,4 +1,5 @@
 function doctor --description 'Report system status and verify connectivity'
+    argparse 'r/remote' -- $argv
     set -l warnings 0
     set -l criticals 0
 
@@ -113,17 +114,8 @@ function doctor --description 'Report system status and verify connectivity'
     # Dotfiles repo check
     set -l dotfiles ~/.dotfiles
     if test -d $dotfiles
-        set -l fetch_stamp /tmp/doctor_git_fetch
-        set -l do_fetch 1
-        if test -f $fetch_stamp
-            set -l last_fetch (stat -f %m $fetch_stamp 2>/dev/null)
-            if test -n "$last_fetch"; and test (math (date +%s) - $last_fetch) -lt 43200
-                set do_fetch 0
-            end
-        end
-        if test $do_fetch -eq 1
+        if set -q _flag_remote
             git -C $dotfiles fetch --quiet 2>/dev/null
-            touch $fetch_stamp
         end
         set -l dirty (git -C $dotfiles status --porcelain 2>/dev/null)
         set -l ahead_behind (git -C $dotfiles rev-list --left-right --count @{upstream}...HEAD 2>/dev/null)

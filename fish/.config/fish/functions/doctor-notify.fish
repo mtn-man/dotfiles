@@ -1,5 +1,5 @@
 function doctor-notify --description 'Run doctor and notify via Notification Center on warnings or criticals'
-    doctor
+    doctor --remote
     set -l code $status
     switch $code
         case 1
