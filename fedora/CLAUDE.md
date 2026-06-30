@@ -65,7 +65,7 @@ Stripped-down compared to macOS — no VPN, media, or doctor functions. Fedora-s
 | `yt` | yt-dlp wrapper: reads URL from clipboard if omitted, interactive codec/res picker (`-i`), downloads to `~/Videos/YouTube`, embeds metadata & thumbnails, maintains archive |
 | `gr` | Jump to git repo under `~/dev` via fzf, auto-runs `eza -aTL4` on arrival |
 | `fm` | Find file by name: searches `~/dev` first, falls back to cwd, fzf picker with bat preview |
-| `gcp` | Stage all, confirm, commit (message or editor), push |
+| `fv` | File search + open in vim (fd + fzf + bat preview); vim equivalent of `fm` |
 | `lf` | Wraps lf with quit-and-cd integration, evicts old thumbnails (30d+) and stale tmp files (1d+) |
 | `stow-add` | Moves `~/.config/<pkg>` into dotfiles and stows it |
 | `tm` | Send magnet links and torrents to homelab Transmission via `transmission-remote` (shared with macOS) |
