@@ -1,6 +1,5 @@
 syntax on
 filetype plugin indent on
-set number
 set backspace=indent,eol,start
 set incsearch
 set hlsearch
