@@ -35,7 +35,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         # 1. System info
         echo '```bash'
         fastfetch --logo none \
-            | string replace -ra '\x1b\[[0-9;]*m' '' \
+            | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' '' \
             | string match -rv '█' \
             | string replace -r 'Public IP →.*' 'Public IP → censored'
         echo '```'
@@ -56,7 +56,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         echo "## System state"
         echo '```bash'
         doctor 2>/dev/null \
-            | string replace -ra '\x1b\[[0-9;]*m' '' \
+            | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' '' \
             | string replace -r 'tailscale: up \([^)]+\)' 'tailscale: up (censored)'
         echo '```'
 
