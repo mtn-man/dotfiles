@@ -61,7 +61,7 @@ PKGS=(
     fd-find
     ripgrep
     zoxide
-    micro
+    vim
     btop
 
     fastfetch
@@ -81,7 +81,6 @@ PKGS=(
     wev
     nvme-cli
     smartmontools
-    nodejs22
     playerctl
     pipx
 
@@ -192,29 +191,7 @@ EOF
 fi
 
 # -----------------------------------------------------------------------------
-# 4. LSP tools for micro
-# -----------------------------------------------------------------------------
-if ! command -v npm &>/dev/null; then
-    warn "npm not installed — skipping LSP tools"
-else
-    # Ensure npm installs to ~/.local so global installs never need root.
-    if [[ "$(npm config get prefix 2>/dev/null)" != "$HOME/.local" ]]; then
-        info "Setting npm prefix to ~/.local..."
-        npm config set prefix "$HOME/.local"
-        success "npm prefix set"
-    fi
-
-    if npm list -g vscode-langservers-extracted &>/dev/null; then
-        success "vscode-langservers-extracted already installed"
-    else
-        info "Installing vscode-langservers-extracted for micro LSP..."
-        npm install -g vscode-langservers-extracted
-        success "LSP tools installed"
-    fi
-fi
-
-# -----------------------------------------------------------------------------
-# 5. pipx tools
+# 4. pipx tools
 # -----------------------------------------------------------------------------
 if pipx list 2>/dev/null | grep -q 'package autotiling'; then
     success "autotiling already installed"
@@ -225,7 +202,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 6. Go tools
+# 5. Go tools
 # -----------------------------------------------------------------------------
 if command -v after &>/dev/null; then
     success "after already installed"
@@ -236,7 +213,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 7. Stow dotfiles
+# 6. Stow dotfiles
 # -----------------------------------------------------------------------------
 info "Stowing dotfiles..."
 
@@ -245,7 +222,7 @@ if [[ -f "$HOME/.config/git/config" && ! -L "$HOME/.config/git" ]]; then
     rm "$HOME/.config/git/config"
 fi
 
-PACKAGES=(fish lf micro kitty sway swaylock waybar rofi yt-dlp fastfetch)
+PACKAGES=(fish lf vim kitty sway swaylock waybar rofi yt-dlp fastfetch)
 PACKAGES_NO_FOLD=(git)
 
 for pkg in "${PACKAGES[@]}"; do
@@ -267,7 +244,7 @@ for pkg in "${PACKAGES_NO_FOLD[@]}"; do
 done
 
 # -----------------------------------------------------------------------------
-# 8. System services
+# 7. System services
 # -----------------------------------------------------------------------------
 info "Enabling system services..."
 
@@ -281,7 +258,7 @@ for svc in tailscaled.service throttled.service sshd.service smartd.service; do
 done
 
 # -----------------------------------------------------------------------------
-# 9. Battery charge threshold
+# 8. Battery charge threshold
 # -----------------------------------------------------------------------------
 BATTERY_SERVICE="/etc/systemd/system/battery-charge-threshold.service"
 if [[ ! -d /sys/class/power_supply/BAT0 ]]; then
@@ -308,7 +285,7 @@ EOF
 fi
 
 # -----------------------------------------------------------------------------
-# 10. Default shell
+# 9. Default shell
 # -----------------------------------------------------------------------------
 fish_path=$(command -v fish 2>/dev/null) || die "fish not found after install — check section 2"
 if [[ "$(getent passwd "$USER" | cut -d: -f7)" != "$fish_path" ]]; then
@@ -323,14 +300,14 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 11. Font cache
+# 10. Font cache
 # -----------------------------------------------------------------------------
 info "Rebuilding font cache..."
 fc-cache -f
 success "Font cache rebuilt"
 
 # -----------------------------------------------------------------------------
-# 12. XDG user directories
+# 11. XDG user directories
 # -----------------------------------------------------------------------------
 info "Creating XDG user directories..."
 xdg-user-dirs-update
@@ -339,7 +316,7 @@ mkdir -p "$HOME/Pictures/Screenshots" "$HOME/dev"
 success "XDG user directories created"
 
 # -----------------------------------------------------------------------------
-# 13. Home directory permissions for SDDM
+# 12. Home directory permissions for SDDM
 # -----------------------------------------------------------------------------
 # SDDM runs as its own user and needs execute permission on $HOME to traverse
 # the path to wallpapers stored in ~/Pictures.
@@ -352,7 +329,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 14. Auto-login (SDDM)
+# 13. Auto-login (SDDM)
 # -----------------------------------------------------------------------------
 # The Fedora Sway spin installer may already configure this; skip if so.
 if grep -q "^User=$USER" /etc/sddm.conf 2>/dev/null || grep -rq "^User=$USER" /etc/sddm.conf.d/ 2>/dev/null; then
@@ -369,7 +346,7 @@ EOF
 fi
 
 # -----------------------------------------------------------------------------
-# 15. Passwordless keyring (gnome-keyring PAM unlock)
+# 14. Passwordless keyring (gnome-keyring PAM unlock)
 # -----------------------------------------------------------------------------
 # With auto-login there is no PAM auth token to unlock the keyring, so add the
 # gnome-keyring auth line — it will unlock using an empty password. The login
@@ -389,7 +366,7 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# 16. Suppress login message
+# 15. Suppress login message
 # -----------------------------------------------------------------------------
 touch "$HOME/.hushlogin"
 

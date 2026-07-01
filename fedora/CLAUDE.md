@@ -10,7 +10,7 @@ Notes on the Fedora Sway spin that aren't obvious from the code.
 
 ## Packages
 
-Deployed via GNU Stow from the `fedora/` subdirectory: `fish`, `lf`, `micro`, `kitty`, `sway`, `swaylock`, `waybar`, `rofi`, `yt-dlp`, `fastfetch`.
+Deployed via GNU Stow from the `fedora/` subdirectory: `fish`, `lf`, `micro`, `vim`, `kitty`, `sway`, `swaylock`, `waybar`, `rofi`, `yt-dlp`, `fastfetch`.
 
 Out-of-repo packages are handled by bootstrap section 3 via COPR / external repos:
 - **lazygit** — `atim/lazygit` COPR
@@ -60,10 +60,9 @@ Stripped-down compared to macOS — no VPN, media, or doctor functions. Fedora-s
 | Function | Purpose |
 |----------|---------|
 | `batt` | Shows upower battery details (excludes history) |
-| `update` | Runs `fedora-bootstrap.sh` — installs missing packages, upgrades all packages, updates flatpaks, and re-applies all system configuration |
+| `update` | Runs `fedora-bootstrap` — installs missing packages, upgrades all packages, updates flatpaks, and re-applies all system configuration |
 | `snap` | Rebuilds `~/dev/snapshot.md` with live system data |
 | `yt` | yt-dlp wrapper: reads URL from clipboard if omitted, interactive codec/res picker (`-i`), downloads to `~/Videos/YouTube`, embeds metadata & thumbnails, maintains archive |
-| `gr` | Jump to git repo under `~/dev` via fzf, auto-runs `eza -aTL4` on arrival |
 | `fm` | Find file by name: searches `~/dev` first, falls back to cwd, fzf picker with bat preview |
 | `fv` | File search + open in vim (fd + fzf + bat preview); vim equivalent of `fm` |
 | `lf` | Wraps lf with quit-and-cd integration, evicts old thumbnails (30d+) and stale tmp files (1d+) |

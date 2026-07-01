@@ -57,10 +57,10 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         echo
         echo "System note: Fedora 44 Sway spin on ThinkPad T14 Gen 1 (i5-10210U, 16GB RAM)."
         echo "Dotfiles managed with GNU Stow from ~/.dotfiles/fedora/."
-        echo "Packages stowed: fish, lf, micro, kitty, sway, swaylock, waybar, rofi, fastfetch, yt-dlp."
+        echo "Packages stowed: fish, lf, vim, kitty, sway, swaylock, waybar, rofi, fastfetch, yt-dlp."
         echo "Tailscale is the only VPN on this machine — no NordVPN."
         echo "Notification daemon is dunst; idle/lock is swayidle — both provided by the Fedora Sway spin."
-        echo "Full package list is in fedora-bootstrap.sh."
+        echo "Full package list is in fedora-bootstrap."
         echo
 
         # 2. Installed packages
@@ -78,7 +78,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         echo
 
         # 3. Bootstrap
-        __snap_file "~/.dotfiles/fedora/fedora-bootstrap.sh" $dotfiles/fedora-bootstrap.sh bash
+        __snap_file "~/.dotfiles/fedora/fedora-bootstrap" $dotfiles/fedora-bootstrap bash
 
         # 4. Fish config
         __snap_file "~/.config/fish/config.fish" $__fish_config_dir/config.fish fish
