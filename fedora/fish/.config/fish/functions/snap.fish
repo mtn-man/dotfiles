@@ -97,9 +97,8 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         __snap_file "~/.config/lf/clean.sh" ~/.config/lf/clean.sh bash
 
         # 6. App configs
+        __snap_file "~/.vimrc" ~/.vimrc vim
         __snap_file "~/.config/kitty/kitty.conf" ~/.config/kitty/kitty.conf text
-        __snap_file "~/.config/micro/settings.json" ~/.config/micro/settings.json json
-        __snap_file "~/.config/micro/bindings.json" ~/.config/micro/bindings.json json
         __snap_file "~/.config/fastfetch/config.jsonc" ~/.config/fastfetch/config.jsonc jsonc
 
         # 7. Sway stack
