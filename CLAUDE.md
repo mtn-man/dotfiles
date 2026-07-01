@@ -27,7 +27,7 @@ Each package follows XDG convention: `<package>/.config/<package>/` → `~/.conf
 brew bundle install   # macOS: install all tools from Brewfile
 ```
 
-For Fedora, run `fedora/fedora-bootstrap.sh` (installs via dnf + RPM Fusion, enables Tailscale, stows the Fedora-subset packages).
+For Fedora, run `fedora/fedora-bootstrap` (installs via dnf + RPM Fusion, enables Tailscale, stows the Fedora-subset packages).
 
 ## Bootstrap
 
