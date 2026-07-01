@@ -16,7 +16,7 @@ Setup for a fresh Fedora Sway spin install.
 
 3. Run the bootstrap:
    ```bash
-   ~/.dotfiles/fedora/fedora-bootstrap
+   cd ~/.dotfiles/fedora && ./fedora-bootstap
    ```
 
 The bootstrap script is idempotent — re-run it anytime via the `update` fish function to install missing packages, upgrade the system, and re-apply configuration.
