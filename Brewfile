@@ -38,8 +38,6 @@ brew "jq"
 brew "lazygit"
 # Terminal file manager
 brew "lf"
-# Modern and intuitive terminal-based text editor
-brew "micro"
 # Interpreted, interactive, object-oriented programming language
 brew "python@3.14"
 # Search tool like grep and The Silver Searcher
