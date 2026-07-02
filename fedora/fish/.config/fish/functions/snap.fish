@@ -58,7 +58,6 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         echo "System note: Fedora 44 Sway spin on ThinkPad T14 Gen 1 (i5-10210U, 16GB RAM)."
         echo "Dotfiles managed with GNU Stow from ~/.dotfiles/fedora/."
         echo "Packages stowed: fish, lf, vim, kitty, sway, swaylock, waybar, rofi, fastfetch, yt-dlp."
-        echo "Tailscale is the only VPN on this machine — no NordVPN."
         echo "Notification daemon is dunst; idle/lock is swayidle — both provided by the Fedora Sway spin."
         echo "Full package list is in fedora-bootstrap."
         echo

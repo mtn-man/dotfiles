@@ -56,7 +56,7 @@ For Fedora, run `fedora/fedora-bootstrap` (installs via dnf + RPM Fusion, enable
 
 ## Network Architecture
 
-**macOS:** Tailscale is always on and is the sole networking requirement for homelab access. NordVPN is managed via the GUI and has no scripted integration.
+**macOS:** Tailscale is always on and is the sole networking requirement for homelab access.
 
 **Homelab torrenting stack** (Podman + systemd, CentOS Stream 10):
 

@@ -65,7 +65,6 @@ cd ~/dev/mintmedia && go install ./...
 * Bitwarden
 * Tailscale
 * GitHub
-* NordVPN
 * Spotify
 * nextdns (nextdns install && nextdns activate)
 
