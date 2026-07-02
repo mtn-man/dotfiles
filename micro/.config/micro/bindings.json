@@ -1,9 +1,0 @@
-{
-    "Alt-/": "lua:comment.comment",
-    "CtrlUnderscore": "lua:comment.comment",
-    "Alt-s": "Save,Quit",
-    "Alt-t": "command:term fish -c 'go test ./...'",
-    "Alt-l": "command:term fish -c 'golangci-lint run'",
-    "Alt-f": "command:term fish -c 'goimports -w $filename'",
-    "Alt-b": "command:term fish -c 'go build ./...'"
-}
