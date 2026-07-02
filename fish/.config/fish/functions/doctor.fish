@@ -70,7 +70,6 @@ function doctor --description 'Report system status and verify connectivity'
     set -l stow_links \
         "$HOME/.config/fish" \
         "$HOME/.config/ghostty" \
-        "$HOME/.config/micro" \
         "$HOME/.config/lf" \
         "$HOME/.config/fastfetch" \
         "$HOME/.config/btop" \
