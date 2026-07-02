@@ -48,8 +48,6 @@ brew "rust-analyzer"
 brew "rustup"
 # Organize software neatly under a single directory tree (e.g. /usr/local)
 brew "stow"
-# Easiest, most secure way to use WireGuard and 2FA
-brew "tailscale", restart_service: :changed
 # Very fast implementation of tldr in Rust
 brew "tealdeer"
 # Lightweight BitTorrent client
@@ -95,6 +93,8 @@ cask "raycast"
 cask "spotify"
 # Video game digital distribution service
 cask "steam"
+# Mesh VPN based on WireGuard
+cask "tailscale-app"
 go "github.com/mtn-man/after"
 go "golang.org/x/tools/cmd/goimports"
 go "golang.org/x/tools/gopls"
