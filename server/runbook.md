@@ -396,6 +396,15 @@ To verify without rebooting:
 sudo /etc/NetworkManager/dispatcher.d/99-tailscale-udp-gro enp1s0 up
 ```
 
+**Enable Masquerade on the Public Zone**
+
+Required for exit node traffic to be NAT'd out through `enp1s0`. Without this, packets are forwarded but have no return path:
+
+```bash
+sudo firewall-cmd --zone=public --add-masquerade --permanent
+sudo firewall-cmd --reload
+```
+
 **Approve the Exit Node**
 
 After running `tailscale up --advertise-exit-node`, the node must be approved in the Tailscale admin console before clients can use it as an exit node.
