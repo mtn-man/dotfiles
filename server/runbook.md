@@ -353,6 +353,57 @@ systemctl --user restart mintmedia.service
 - Tailscale CGNAT ranges must NOT be listed as "Known Proxies" in Jellyfin
 - Jellyfin LAN subnet includes the Tailscale address range
 
+### Tailscale Exit Node
+
+The server is configured as a Tailscale exit node, routing client traffic through the server's internet connection.
+
+**Enable Exit Node Advertising**
+
+`tailscale up` requires all non-default flags to be stated together. `--ssh` was already set, so both flags must be included:
+
+```bash
+sudo tailscale up --advertise-exit-node --ssh
+```
+
+**Enable IPv4 Forwarding (persistent)**
+
+Required for exit node routing. Without this, subnet routes and exit node traffic do not work:
+
+```bash
+echo 'net.ipv4.ip_forward = 1' | sudo tee /etc/sysctl.d/99-tailscale.conf
+sudo sysctl -p /etc/sysctl.d/99-tailscale.conf
+```
+
+**Fix UDP GRO Forwarding (persistent)**
+
+Improves UDP throughput. Applied to `enp1s0` via a NetworkManager dispatcher script so it runs automatically when the interface comes up.
+
+Create `/etc/NetworkManager/dispatcher.d/99-tailscale-udp-gro` with the following contents, then make it executable:
+
+```bash
+#!/bin/bash
+if [ "$1" = "enp1s0" ] && [ "$2" = "up" ]; then
+    ethtool -K enp1s0 rx-udp-gro-forwarding on rx-gro-list off
+fi
+```
+
+```bash
+sudo chmod +x /etc/NetworkManager/dispatcher.d/99-tailscale-udp-gro
+```
+
+To verify without rebooting:
+```bash
+sudo /etc/NetworkManager/dispatcher.d/99-tailscale-udp-gro enp1s0 up
+```
+
+**Approve the Exit Node**
+
+After running `tailscale up --advertise-exit-node`, the node must be approved in the Tailscale admin console before clients can use it as an exit node.
+
+**Known Remaining Warning**
+
+IPv6 forwarding is not enabled — `net.ipv6.conf.all.forwarding` is not set. The exit node functions for IPv4 traffic only. IPv6 client traffic will not route through the server.
+
 ---
 
 ## 9. SMB File Sharing
