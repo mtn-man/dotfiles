@@ -14,7 +14,7 @@ function stow-remove --description 'Unstow a dotfiles package and move it back t
         return 1
     end
 
-    if test -e $dest
+    if test -d $dest && not test -L $dest
         echo "stow-remove: $dest already exists (is it already unstowed?)" >&2
         return 1
     end
