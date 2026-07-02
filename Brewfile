@@ -91,8 +91,6 @@ cask "iina"
 cask "kitty"
 # Customise mouse behavior
 cask "linearmouse"
-# VPN client for secure internet access and private browsing
-cask "nordvpn"
 # Control your tools with a few keystrokes
 cask "raycast"
 # Music streaming service
