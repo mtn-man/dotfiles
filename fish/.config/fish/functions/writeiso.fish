@@ -47,7 +47,7 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
             end
             set cur_disk (string replace -r '^/dev/(disk\d+).*' '$1' $line)
             set cur_parts 0
-        else if string match -qr '^\s+[1-9][0-9]*:' $line
+        else if string match -qr '^\s+[1-9]\d*:\s' $line
             set cur_parts (math $cur_parts + 1)
         end
     end
