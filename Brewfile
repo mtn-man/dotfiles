@@ -95,7 +95,6 @@ cask "spotify"
 cask "steam"
 # Mesh VPN based on WireGuard
 cask "tailscale-app"
-go "github.com/mtn-man/after"
 go "golang.org/x/tools/cmd/goimports"
 go "golang.org/x/tools/gopls"
 go "github.com/mtn-man/mintmedia/cmd/mintmedia"
