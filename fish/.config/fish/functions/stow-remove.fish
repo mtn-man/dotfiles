@@ -20,6 +20,9 @@ function stow-remove --description 'Unstow a dotfiles package and move it back t
     end
 
     stow -Dvt $HOME -d $dotfiles $package
-    mv $src $dest
+    if not mv $src $dest
+        echo "stow-remove: mv failed, leaving $dotfiles/$package intact" >&2
+        return 1
+    end
     rm -rf $dotfiles/$package
 end
