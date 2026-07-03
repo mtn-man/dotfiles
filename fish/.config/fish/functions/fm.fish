@@ -1,6 +1,6 @@
 function fm --description 'Open file in micro via fd search (fzf when multiple matches)'
 # Searches ~/dev and ~/.dotfiles together, then falls back to cwd if no matches
-    for tool in fd fzf micro bat
+    for tool in fd fzf vim bat
         if not command -q $tool
             echo "fm: required tool missing: $tool" >&2
             return 1
@@ -44,7 +44,7 @@ function fm --description 'Open file in micro via fd search (fzf when multiple m
                 return 1
             end
 
-            micro $chosen
+            vim -y $chosen
             return
     end
 end
