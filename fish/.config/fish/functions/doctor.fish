@@ -139,6 +139,8 @@ function doctor --description 'Report system status and verify connectivity'
     end
 
     # Time Machine recency check (last external backup via SnapshotDates, disk-independent)
+    # Note: Intentionally querying Destinations[0] to strictly monitor the primary air-gapped drive.
+    # Flattening the array risks matching local APFS MobileBackups, which masks failed hardware commits.
     set -l last_snapshot (defaults export /Library/Preferences/com.apple.TimeMachine - 2>/dev/null | python3 -c "
     import plistlib, sys
     p = plistlib.loads(sys.stdin.buffer.read())
