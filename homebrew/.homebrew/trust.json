@@ -1,6 +1,7 @@
 {
   "trustedformulae": [
     "mtn-man/tap/after",
+    "mtn-man/tap/mintmedia",
     "nextdns/tap/nextdns"
   ],
   "trustedcasks": [
