@@ -97,8 +97,8 @@ function doctor --description 'Report system status and verify connectivity'
     # Brewfile drift check
     set -l brewfile ~/.dotfiles/Brewfile
     if test -f $brewfile
-        set -l bundle_out (brew bundle check --file=$brewfile --no-upgrade 2>&1)
-        set -l bundle_status $status
+        set -l bundle_out (brew bundle check --file=$brewfile --no-upgrade --verbose 2>&1 | grep -v 'JSON API')
+        set -l bundle_status $pipestatus[1]
         if test $bundle_status -eq 0
             printf '%-20s %sok%s\n' brewfile: (set_color green) (set_color normal)
         else
