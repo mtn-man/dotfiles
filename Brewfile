@@ -28,6 +28,8 @@ brew "fzf"
 brew "gh"
 # Distributed revision control system
 brew "git"
+# Audit git repos for secrets
+brew "gitleaks"
 # Open source programming language to build simple/reliable/efficient software
 brew "go"
 # Fast linters runner for Go
@@ -62,6 +64,8 @@ brew "yt-dlp"
 brew "zoxide"
 # Fast CLI countdown timer with live terminal feedback and optional alarms
 brew "mtn-man/tap/after", trusted: true
+# Organize downloaded media into clean Movies and Shows libraries
+brew "mtn-man/tap/mintmedia", trusted: true
 # NextDNS DNS/53 to DoH Proxy
 brew "nextdns/tap/nextdns", trusted: true
 # Application uninstaller
@@ -89,12 +93,9 @@ cask "kitty"
 cask "linearmouse"
 # Control your tools with a few keystrokes
 cask "raycast"
-# Music streaming service
-cask "spotify"
 # Video game digital distribution service
 cask "steam"
 # Mesh VPN based on WireGuard
 cask "tailscale-app"
 go "golang.org/x/tools/cmd/goimports"
 go "golang.org/x/tools/gopls"
-go "github.com/mtn-man/mintmedia/cmd/mintmedia"
