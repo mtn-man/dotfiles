@@ -1,6 +1,5 @@
 tap "jurplel/tap", trusted: true
 tap "mtn-man/tap", trusted: true
-tap "nextdns/tap", trusted: true
 tap "xykong/tap", trusted: true
 # Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
@@ -66,8 +65,6 @@ brew "zoxide"
 brew "mtn-man/tap/after", trusted: true
 # Organize downloaded media into clean Movies and Shows libraries
 brew "mtn-man/tap/mintmedia", trusted: true
-# NextDNS DNS/53 to DoH Proxy
-brew "nextdns/tap/nextdns", trusted: true
 # Application uninstaller
 cask "appcleaner"
 # Desktop password and login vault
