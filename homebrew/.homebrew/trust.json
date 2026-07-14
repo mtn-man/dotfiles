@@ -5,6 +5,7 @@
     "nextdns/tap/nextdns"
   ],
   "trustedcasks": [
+    "darrylmorley/whatcable/whatcable",
     "jurplel/tap/instant-space-switcher",
     "xykong/tap/flux-markdown"
   ],

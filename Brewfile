@@ -1,3 +1,4 @@
+tap "darrylmorley/whatcable"
 tap "jurplel/tap", trusted: true
 tap "mtn-man/tap", trusted: true
 tap "xykong/tap", trusted: true
@@ -94,5 +95,7 @@ cask "raycast"
 cask "steam"
 # Mesh VPN based on WireGuard
 cask "tailscale-app"
+# Menu bar app for USB-C cable diagnostics
+cask "darrylmorley/whatcable/whatcable", trusted: true
 go "golang.org/x/tools/cmd/goimports"
 go "golang.org/x/tools/gopls"
