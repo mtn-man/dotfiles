@@ -1,4 +1,4 @@
-function fm --description 'Open file in micro via fd search (fzf when multiple matches)'
+function fm --description 'Open file in vim yank mode via fd search (fzf when multiple matches)'
 # Searches ~/dev and ~/.dotfiles together, then falls back to cwd if no matches
     for tool in fd fzf vim bat
         if not command -q $tool
@@ -30,7 +30,7 @@ function fm --description 'Open file in micro via fd search (fzf when multiple m
             return 1
 
         case 1
-            micro $matches
+            vim -y $matches
             return
 
         case '*'
