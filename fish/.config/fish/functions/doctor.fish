@@ -24,7 +24,9 @@ function doctor --description 'Report system status and verify connectivity'
 
     # Tailscale connectivity
     echo
-    if test $doctor_tools_ok -eq 1
+    if not command -q tailscale
+        printf '%-20s not installed\n' tailscale:
+    else if test $doctor_tools_ok -eq 1
         set -l ts_json (tailscale status --json 2>/dev/null)
         set -l ts_state (printf '%s\n' $ts_json | jq -r .BackendState 2>/dev/null)
         if test "$ts_state" = Running
@@ -76,6 +78,9 @@ function doctor --description 'Report system status and verify connectivity'
         "$HOME/.hammerspoon" \
         "$HOME/.config/linearmouse" \
         "$HOME/.config/mintmedia" \
+        "$HOME/.config/lazygit" \
+        "$HOME/.gitconfig" \
+        "$HOME/.vimrc" \
         "$HOME/.homebrew" \
         "$HOME/Library/LaunchAgents/local.doctor.plist"
     set -l stow_ok 1
@@ -117,9 +122,16 @@ function doctor --description 'Report system status and verify connectivity'
             git -C $dotfiles fetch --quiet 2>/dev/null
         end
         set -l dirty (git -C $dotfiles status --porcelain 2>/dev/null)
-        set -l ahead_behind (git -C $dotfiles rev-list --left-right --count @{upstream}...HEAD 2>/dev/null)
+        set -l has_upstream (git -C $dotfiles rev-parse --abbrev-ref @{upstream} 2>/dev/null)
+        set -l ahead_behind
+        if test -n "$has_upstream"
+            set ahead_behind (git -C $dotfiles rev-list --left-right --count @{upstream}...HEAD 2>/dev/null)
+        end
         if test -n "$dirty"
             printf '%-20s %suncommitted changes%s\n' dotfiles: (set_color yellow) (set_color normal)
+            set warnings (math $warnings + 1)
+        else if test -z "$has_upstream"
+            printf '%-20s %sno upstream configured%s\n' dotfiles: (set_color yellow) (set_color normal)
             set warnings (math $warnings + 1)
         else if test -n "$ahead_behind"
             set -l behind (string split \t $ahead_behind)[1]
