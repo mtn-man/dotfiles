@@ -1,5 +1,5 @@
 abbr -a --global a_num --regex '^a([1-9][0-9]*)$' --function __abbr_timer_minutes
-abbr -a --global u 'brew update && brew upgrade --yes && brew cleanup'
+abbr -a --global u 'brew update && brew upgrade --no-ask && brew cleanup'
 abbr -a --global a 'after'
 abbr -a --global ff 'fastfetch'
 abbr -a --global speed 'networkQuality'
