@@ -19,7 +19,7 @@ function __snap_file --argument-names label path lang
     echo
 end
 
-function snap --description 'Rebuild ~/dev/snapshot.md with live data'
+function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with live data'
     set -l outfile ~/dev/snapshots/snapshot-(date +%Y-%m-%d).md
     set -l dotfiles ~/.dotfiles
     mkdir -p ~/dev/snapshots
