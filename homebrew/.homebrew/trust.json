@@ -1,8 +1,7 @@
 {
   "trustedformulae": [
     "mtn-man/tap/after",
-    "mtn-man/tap/mintmedia",
-    "nextdns/tap/nextdns"
+    "mtn-man/tap/mintmedia"
   ],
   "trustedcasks": [
     "darrylmorley/whatcable/whatcable",
@@ -10,9 +9,8 @@
     "xykong/tap/flux-markdown"
   ],
   "trustedtaps": [
-    "xykong/tap",
     "jurplel/tap",
     "mtn-man/tap",
-    "nextdns/tap"
+    "xykong/tap"
   ]
 }
