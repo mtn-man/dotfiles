@@ -44,8 +44,6 @@ brew "lf"
 brew "python@3.14"
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
-# Experimental Rust compiler front-end for IDEs
-brew "rust-analyzer"
 # Rust toolchain installer
 brew "rustup"
 # Organize software neatly under a single directory tree (e.g. /usr/local)
