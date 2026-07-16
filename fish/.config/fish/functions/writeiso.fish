@@ -86,6 +86,7 @@ function writeiso --description 'Write an ISO image to a USB drive using dd'
         set menu $menu "$disk -- $name [$size, $part_str]"
     end
 
+    set -l choice
     if test (count $menu) -eq 1
         set choice $menu[1]
     else
