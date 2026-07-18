@@ -64,7 +64,7 @@ function doctor --description 'Report system status and verify connectivity'
             set system_tools_ok 0
         end
     end
-    if test $doctor_tools_ok -eq 1; and test $system_tools_ok -eq 1
+    if test $system_tools_ok -eq 1
         printf '%-20s %sok%s\n' toolchain: (set_color green) (set_color normal)
     end
 
