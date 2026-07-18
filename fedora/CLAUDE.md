@@ -63,8 +63,7 @@ Stripped-down compared to macOS — no VPN, media, or doctor functions. Fedora-s
 | `update` | Runs `fedora-bootstrap` — installs missing packages, upgrades all packages, updates flatpaks, and re-applies all system configuration |
 | `snap` | Rebuilds `~/dev/snapshot.md` with live system data |
 | `yt` | yt-dlp wrapper: reads URL from clipboard if omitted, interactive codec/res picker (`-i`), downloads to `~/Videos/YouTube`, embeds metadata & thumbnails, maintains archive |
-| `fm` | Find file by name: searches `~/dev` first, falls back to cwd, fzf picker with bat preview |
-| `fv` | File search + open in vim (fd + fzf + bat preview); vim equivalent of `fm` |
+| `fv` | File search + open in vim (fd + fzf + bat preview), supports leading vim flags (e.g. `fv -y`, `fv +42`) |
 | `lf` | Wraps lf with quit-and-cd integration, evicts old thumbnails (30d+) and stale tmp files (1d+) |
 | `stow-add` | Moves `~/.config/<pkg>` into dotfiles and stows it |
 | `tm` | Send magnet links and torrents to homelab Transmission via `transmission-remote` (shared with macOS) |
