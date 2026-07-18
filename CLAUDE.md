@@ -81,8 +81,7 @@ Two subnets are allowlisted in NordVPN to bypass VPN routing: `10.88.0.0/16` (Po
 | `tm.fish` | Send magnet links and torrents to homelab Transmission via `transmission-remote` |
 | `writeiso.fish` | Write ISO to USB: fzf disk picker, safety checks, `dd` with progress |
 | `yt.fish` | YouTube download via yt-dlp |
-| `fm.fish` | File search + edit in micro (fd + fzf); being phased out in favor of `fv` |
-| `fv.fish` | File search + edit in vim (fd + fzf); vim equivalent of `fm` |
+| `fv.fish` | File search + edit in vim (fd + fzf), supports leading vim flags (e.g. `fv -y`, `fv +42`) |
 | `fish_prompt.fish` | Custom prompt with git status indicators |
 | `fish_right_prompt.fish` | Elapsed time for commands over threshold |
 | `fish_greeting.fish` | Welcome message + fastfetch, once per terminal window |

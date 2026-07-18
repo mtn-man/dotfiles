@@ -7,8 +7,19 @@ function fv --description 'Open file in vim via fd search (fzf when multiple mat
         end
     end
 
-    if test (count $argv) -ne 1
-        echo "fv: usage - fv <filename> (e.g. fv config.fish)" >&2
+    # Split leading vim flags (e.g. -y, +42) from the filename argument
+    set -l vim_flags
+    set -l query
+    for arg in $argv
+        if test -z "$query" -a \( (string sub -l 1 -- "$arg") = "-" -o (string sub -l 1 -- "$arg") = "+" \)
+            set vim_flags $vim_flags $arg
+        else
+            set query $query $arg
+        end
+    end
+
+    if test (count $query) -ne 1
+        echo "fv: usage - fv [vim flags] <filename> (e.g. fv -y snap.fish)" >&2
         return 1
     end
 
@@ -16,12 +27,12 @@ function fv --description 'Open file in vim via fd search (fzf when multiple mat
     set -l fd_opts --no-ignore -L -H -t f --exclude .git
 
     # Search ~/dev and ~/.dotfiles together
-    set -l matches (fd $fd_opts "$argv[1]" ~/dev ~/.dotfiles)
+    set -l matches (fd $fd_opts "$query[1]" ~/dev ~/.dotfiles)
 
     # Fallback: search current working directory if no matches
     if test (count $matches) -eq 0
         echo "fv: no matches in ~/dev or ~/.dotfiles, searching cwd..."
-        set matches (fd $fd_opts "$argv[1]" .)
+        set matches (fd $fd_opts "$query[1]" .)
     end
 
     switch (count $matches)
@@ -30,7 +41,7 @@ function fv --description 'Open file in vim via fd search (fzf when multiple mat
             return 1
 
         case 1
-            vim $matches
+            vim $vim_flags $matches
             return
 
         case '*'
@@ -44,7 +55,7 @@ function fv --description 'Open file in vim via fd search (fzf when multiple mat
                 return 1
             end
 
-            vim $chosen
+            vim $vim_flags $chosen
             return
     end
 end
