@@ -124,8 +124,6 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
     end \
         | string replace -a -- "$HOMELAB" 'censored' \
         | string replace -a -- "$HOMELAB_LOCAL" 'censored' \
-        # Note: this line self-censors in the snapshot output, so the pattern shown in this file is not the source.
-        | string replace -ra '"rpc-password": "[^"]*"' '"rpc-password": "censored"' \
         > $outfile
 
     echo "snap: $snap_verb $outfile"
