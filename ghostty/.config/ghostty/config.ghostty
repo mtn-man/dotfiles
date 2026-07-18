@@ -10,7 +10,7 @@ window-padding-y = 8
 # Apple Classic, Neon, Retro Legends, Thayer Bright
 theme = Dark Pastel
 background-opacity = 0.6
-background-blur = 0
+background-blur = 10
 
 macos-option-as-alt = left
 shell-integration = fish
