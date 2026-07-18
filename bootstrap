@@ -40,7 +40,11 @@ rustup default stable
 
 echo "==> Setting Fish as default shell..."
 # Note: chsh prompts for your login password (separate from sudo)
-if [ "$SHELL" != /opt/homebrew/bin/fish ]; then
+# Read the actual login shell via dscl rather than $SHELL, which only
+# reflects the shell active when this session started and goes stale
+# after chsh until the next login.
+current_shell="$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')"
+if [ "$current_shell" != /opt/homebrew/bin/fish ]; then
     chsh -s /opt/homebrew/bin/fish || { echo "warning: shell change skipped, continuing..."; }
 fi
 
@@ -65,8 +69,10 @@ echo "==> Stowing dotfiles..."
 stow -Rvt "$HOME" --dir="$DOTFILES" "${STOW_PKGS[@]}"
 
 echo "==> Loading launchd agents..."
-launchctl print "gui/$(id -u)/local.doctor" >/dev/null 2>&1 || \
-    launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/local.doctor.plist"
+# Unconditionally bootout+bootstrap so an already-loaded agent picks up
+# plist edits on rerun, instead of silently keeping the stale definition.
+launchctl bootout "gui/$(id -u)/local.doctor" >/dev/null 2>&1 || true
+launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/local.doctor.plist"
 
 echo "==> Setting default apps..."
 duti -s com.colliderli.iina .mkv all
