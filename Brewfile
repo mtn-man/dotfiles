@@ -6,6 +6,8 @@ tap "xykong/tap", trusted: true
 brew "bat"
 # Resource monitor. C++ version and continuation of bashtop and bpytop
 brew "btop"
+# Create and run Linux containers using lightweight virtual machines
+brew "container"
 # GNU File, Shell, and Text utilities
 brew "coreutils"
 # View disk space usage and delete unwanted data, fast
@@ -87,6 +89,8 @@ cask "iina"
 cask "kitty"
 # Customise mouse behavior
 cask "linearmouse"
+# VPN client for secure internet access and private browsing
+cask "nordvpn"
 # Control your tools with a few keystrokes
 cask "raycast"
 # Video game digital distribution service
