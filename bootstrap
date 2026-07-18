@@ -56,7 +56,7 @@ fi
 echo "==> Removing .DS_Store files from dotfiles..."
 find "$DOTFILES" -name '.DS_Store' -delete
 
-STOW_PKGS=(fish ghostty micro lf fastfetch btop hammerspoon linearmouse mintmedia homebrew launchd git vim lazygit)
+STOW_PKGS=(fish ghostty lf fastfetch btop hammerspoon linearmouse mintmedia homebrew launchd git vim lazygit)
 
 echo "==> Checking for stow conflicts..."
 if ! stow_output=$(stow -nRt "$HOME" --dir="$DOTFILES" "${STOW_PKGS[@]}" 2>&1); then

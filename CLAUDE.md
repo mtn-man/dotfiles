@@ -38,7 +38,6 @@ For Fedora, run `fedora/fedora-bootstrap` (installs via dnf + RPM Fusion, enable
 - **`fish/`** — Shell config: `config.fish` (env vars, PATH), `abbrs.fish`, `functions/`, `completions/` (tm, writeiso)
 - **`ghostty/`** — Terminal emulator config
 - **`vim/`** — Primary terminal editor (`~/.vimrc`)
-- **`micro/`** — Editor (Solarized theme, Go tool keybindings in `bindings.json`); being phased out in favor of vim
 - **`git/`** — Git config (`~/.gitconfig`)
 - **`kitty/`** — Terminal emulator config (kitty.conf + theme)
 - **`lazygit/`** — Lazygit config

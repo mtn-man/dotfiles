@@ -6,10 +6,7 @@ fish/.config/fish/fish_variables
 fish/.config/fish/fish_history
 fish/.config/fish/conf.d/
 
-# micro generated state
-micro/.config/micro/buffers/
-micro/.config/micro/backups/
-micro/.config/micro/history/
+# micro generated state (fedora only; macOS micro package was removed)
 fedora/micro/.config/micro/buffers/
 fedora/micro/.config/micro/backups/
 fedora/micro/.config/micro/history/
