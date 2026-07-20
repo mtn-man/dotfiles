@@ -8,8 +8,8 @@ window-padding-y = 8
 
 # Dark Pastel, Kitty Default
 # Apple Classic, Neon, Retro Legends, Thayer Bright
-theme = Dark Pastel
-background-opacity = 0.6
+theme = Galaxy
+background-opacity = 0.7
 background-blur = 5
 
 macos-option-as-alt = left
