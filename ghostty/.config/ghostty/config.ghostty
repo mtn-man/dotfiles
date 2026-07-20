@@ -9,8 +9,8 @@ window-padding-y = 8
 # Dark Pastel, Kitty Default
 # Apple Classic, Neon, Retro Legends, Thayer Bright
 theme = Dark Pastel
-background-opacity = 0.5
-background-blur = 0
+background-opacity = 0.6
+background-blur = 5
 
 macos-option-as-alt = left
 shell-integration = fish
