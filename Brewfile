@@ -1,5 +1,4 @@
-tap "darrylmorley/whatcable"
-tap "jurplel/tap", trusted: true
+tap "darrylmorley/whatcable", trusted: true
 tap "mtn-man/tap", trusted: true
 tap "xykong/tap", trusted: true
 # Clone of cat(1) with syntax highlighting and Git integration
