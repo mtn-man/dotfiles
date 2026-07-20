@@ -8,7 +8,7 @@ window-padding-y = 8
 
 # Dark Pastel, Kitty Default
 # Apple Classic, Neon, Retro Legends, Thayer Bright
-theme = Galaxy
+theme = Night Owl
 background-opacity = 0.7
 background-blur = 5
 
