@@ -22,8 +22,8 @@ function fish_greeting --description 'Display welcome message once per terminal 
     end
 
     if test -n "$terminal_key"; and \
-            not test -f /tmp/fish_greeted_$terminal_key
-        touch /tmp/fish_greeted_$terminal_key
+            not test -f "$TMPDIR/fish_greeted_$terminal_key"
+        touch "$TMPDIR/fish_greeted_$terminal_key"
         echo "Welcome back, Eli"
         command -q fastfetch; and fastfetch
     else if test -z "$terminal_key"

@@ -9,12 +9,8 @@
         <string>/opt/homebrew/bin/fish</string>
         <string>-l</string>
         <string>-c</string>
-        <string>doctor-notify</string>
+        <string>doctor-notify >>~/Library/Logs/local.doctor.out 2>>~/Library/Logs/local.doctor.err</string>
     </array>
-    <key>StandardOutPath</key>
-    <string>/tmp/local.doctor.out</string>
-    <key>StandardErrorPath</key>
-    <string>/tmp/local.doctor.err</string>
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>

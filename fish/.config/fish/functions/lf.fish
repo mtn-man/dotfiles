@@ -3,7 +3,7 @@ function lf --description 'lf with quit-and-cd integration'
     set -lx LF_PREVIEW_CACHE_DIR "$HOME/.cache/lf"
 
     if test -z "$tmp"
-        set tmp "/tmp/lf-last-dir-$fish_pid"
+        set tmp "$TMPDIR/lf-last-dir-$fish_pid"
         command touch "$tmp" 2>/dev/null
     end
 
