@@ -54,8 +54,21 @@ function doctor --description 'Report system status and verify connectivity'
         printf '%-20s disconnected\n' 'media share:'
     end
 
-    # System toolchain check
     echo
+
+    # Memory pressure (kernel-reported level: 1=normal, 2=warn, 4=critical)
+    set -l mem_pressure (sysctl -n kern.memorystatus_vm_pressure_level 2>/dev/null)
+    if test "$mem_pressure" = 4
+        printf '%-20s %scritical%s\n' 'memory pressure:' (set_color red) (set_color normal)
+        set warnings (math $warnings + 1)
+    else if test "$mem_pressure" = 2
+        printf '%-20s %shigh%s\n' 'memory pressure:' (set_color yellow) (set_color normal)
+        set warnings (math $warnings + 1)
+    else
+        printf '%-20s %sok%s\n' 'memory pressure:' (set_color green) (set_color normal)
+    end
+
+    # System toolchain check
     set -l system_tools_ok 1
     for tool in fd rg fzf bat eza brew
         if not command -q $tool
