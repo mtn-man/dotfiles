@@ -68,6 +68,8 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
         echo "Dotfiles are also backed up to a remote github repo and symlinked into place with GNU stow."
         echo "A CentOS Stream 10 homelab is accessible over Tailscale, with SMB shares mounted on demand"
         echo "via Finder."
+	echo "At my desk, a 40w underspecced charger is used to keep battery heat to a minumum."
+	echo "This machine is not used for long-running intensive tasks when in this docked state."
         echo "kitty is kept installed for its kitten icat image rendering;"
         echo "Ghostty is my primary terminal emulator."
         echo "On macOS, raw memory utilization is less meaningful than memory pressure — the OS aggressively"
