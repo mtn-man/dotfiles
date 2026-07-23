@@ -37,17 +37,23 @@ function doctor --description 'Report system status and verify connectivity'
                 printf '%-20s up\n' tailscale:
             end
             set -l exit_id (printf '%s\n' $ts_json | jq -r '.ExitNodeStatus.ID // empty' 2>/dev/null)
-            set -l exit_online (printf '%s\n' $ts_json | jq -r '.ExitNodeStatus.Online' 2>/dev/null)
-            if test -n "$exit_id" -a "$exit_online" = true
+            if test -z "$exit_id"
+                printf '%-20s disabled\n' 'exit node:'
+            else
+                set -l exit_online (printf '%s\n' $ts_json | jq -r '.ExitNodeStatus.Online' 2>/dev/null)
                 set -l exit_name (printf '%s\n' $ts_json | jq -r --arg id $exit_id '.Peer[] | select(.ID == $id) | .HostName' 2>/dev/null)
                 if test -z "$exit_name"
                     set exit_name $exit_id
                 end
                 set -l exit_ip (printf '%s\n' $ts_json | jq -r '.ExitNodeStatus.TailscaleIPs[0] // empty' 2>/dev/null | string replace -r '/\d+$' '')
+                set -l exit_suffix
                 if test -n "$exit_ip"
-                    printf '%-20s %s (%s)\n' 'exit node:' $exit_name $exit_ip
+                    set exit_suffix " ($exit_ip)"
+                end
+                if test "$exit_online" = true
+                    printf '%-20s %s%s\n' 'exit node:' $exit_name $exit_suffix
                 else
-                    printf '%-20s %s\n' 'exit node:' $exit_name
+                    printf '%-20s %s%s (offline)\n' 'exit node:' $exit_name $exit_suffix
                 end
             end
         else
