@@ -36,6 +36,20 @@ function doctor --description 'Report system status and verify connectivity'
             else
                 printf '%-20s up\n' tailscale:
             end
+            set -l exit_id (printf '%s\n' $ts_json | jq -r '.ExitNodeStatus.ID // empty' 2>/dev/null)
+            set -l exit_online (printf '%s\n' $ts_json | jq -r '.ExitNodeStatus.Online' 2>/dev/null)
+            if test -n "$exit_id" -a "$exit_online" = true
+                set -l exit_name (printf '%s\n' $ts_json | jq -r --arg id $exit_id '.Peer[] | select(.ID == $id) | .HostName' 2>/dev/null)
+                if test -z "$exit_name"
+                    set exit_name $exit_id
+                end
+                set -l exit_ip (printf '%s\n' $ts_json | jq -r '.ExitNodeStatus.TailscaleIPs[0] // empty' 2>/dev/null | string replace -r '/\d+$' '')
+                if test -n "$exit_ip"
+                    printf '%-20s %s (%s)\n' 'exit node:' $exit_name $exit_ip
+                else
+                    printf '%-20s %s\n' 'exit node:' $exit_name
+                end
+            end
         else
             printf '%-20s down\n' tailscale:
         end
