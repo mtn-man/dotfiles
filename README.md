@@ -60,13 +60,16 @@ cd ~/dev/mintmedia && go install ./...
 
    Launch each app first so it appears in the list.
 
-6. Sign into required services:
+6. Restore Raycast settings:
+
+   Open **Raycast > Settings > Advanced > Import / Export Settings**, and import the
+   latest `raycast-scripts/*.rayconfig` file from this repo.
+
+7. Sign into required services:
 
 * Bitwarden
 * Tailscale
 * GitHub
-* Spotify
-* nextdns (nextdns install && nextdns activate)
 
 > Apple ID is not required.
 
