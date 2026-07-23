@@ -9,6 +9,7 @@
     "xykong/tap/flux-markdown"
   ],
   "trustedtaps": [
+    "darrylmorley/whatcable",
     "jurplel/tap",
     "mtn-man/tap",
     "xykong/tap"
