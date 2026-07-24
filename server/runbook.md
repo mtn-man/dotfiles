@@ -105,6 +105,31 @@ sudo systemctl status jellyfin.service
 sudo systemctl restart jellyfin.service
 ```
 
+### HTTPS Access via Tailscale Serve
+
+Jellyfin itself only serves plain HTTP on 8096. HTTPS is added externally by `tailscaled`, which terminates TLS on 443 using a Tailscale-issued (auto-renewing) cert for the node's MagicDNS name, and reverse-proxies to Jellyfin's existing HTTP port. `jellyfin.service` is not modified by this and HTTP access on 8096 continues to work unchanged.
+
+Requires MagicDNS and HTTPS Certificates to be enabled for the tailnet in the Tailscale admin console.
+
+**Enable (persist across reboots and terminal sessions)**
+```bash
+sudo tailscale serve --bg --https=443 http://localhost:8096
+```
+
+`--bg` is required — without it, the rule only stays active for the life of the foreground terminal session and is torn down as soon as it exits.
+
+**Check status**
+```bash
+tailscale serve status
+```
+
+**Disable**
+```bash
+tailscale serve --https=443 off
+```
+
+**Result** — `https://centos.tail586311.ts.net` (tailnet-only, valid cert, no browser warning) alongside the existing `http://100.106.45.25:8096`.
+
 ### Jellyfin Image Update Procedure
 
 The Jellyfin service uses `--pull=never`, so a new image must be pulled explicitly before restarting. The image runs under the `eli` user account, so no `sudo` is needed for the pull.
@@ -345,7 +370,7 @@ systemctl --user restart mintmedia.service
 - No ports exposed to the public internet
 
 **Services Accessible Over Tailscale**
-- Jellyfin (HTTP)
+- Jellyfin (HTTP on 8096, HTTPS on 443 via `tailscale serve` — see Section 5)
 - SMB
 - SSH
 
