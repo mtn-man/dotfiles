@@ -148,6 +148,22 @@ function doctor --description 'Report system status and verify connectivity'
         end
     end
 
+    # Outdated packages (remote check: hits the network for latest versions)
+    if set -q _flag_remote
+        if command -q brew
+            set -l outdated (brew outdated --quiet 2>/dev/null)
+            if test (count $outdated) -gt 0
+                printf '%-20s %s%d outdated%s\n' packages: (set_color yellow) (count $outdated) (set_color normal)
+                for pkg in $outdated
+                    printf '  %s\n' $pkg
+                end
+                set warnings (math $warnings + 1)
+            else
+                printf '%-20s %sok%s\n' packages: (set_color green) (set_color normal)
+            end
+        end
+    end
+
     # Dotfiles repo check
     set -l dotfiles ~/.dotfiles
     if test -d $dotfiles
