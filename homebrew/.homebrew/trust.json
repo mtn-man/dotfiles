@@ -4,14 +4,10 @@
     "mtn-man/tap/mintmedia"
   ],
   "trustedcasks": [
-    "darrylmorley/whatcable/whatcable",
-    "jurplel/tap/instant-space-switcher",
-    "xykong/tap/flux-markdown"
+    "darrylmorley/whatcable/whatcable"
   ],
   "trustedtaps": [
     "darrylmorley/whatcable",
-    "jurplel/tap",
-    "mtn-man/tap",
-    "xykong/tap"
+    "mtn-man/tap"
   ]
 }
