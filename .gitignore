@@ -6,6 +6,10 @@ fish/.config/fish/fish_variables
 fish/.config/fish/fish_history
 fish/.config/fish/conf.d/
 
+# host-specific secrets/IPs, not tracked (see env.fish.example)
+fish/.config/fish/env.fish
+fedora/fish/.config/fish/env.fish
+
 # micro generated state (fedora only; macOS micro package was removed)
 fedora/micro/.config/micro/buffers/
 fedora/micro/.config/micro/backups/

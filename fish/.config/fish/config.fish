@@ -1,8 +1,10 @@
 # 1. Environment Variables
 set -gx EDITOR "vim"
-set -g  HOMELAB "100.106.45.25"
-set -g  HOMELAB_LOCAL "192.168.0.43"
 set -g  MEDIA_SHARE "media"
+# Host-specific secrets/IPs (gitignored, not tracked) — see env.fish.example
+if test -f ~/.config/fish/env.fish
+    source ~/.config/fish/env.fish
+end
 set -gx LG_CONFIG_FILE ~/.config/lazygit/config.yml
 # Suppress Homebrew hints and cleanup messages
 set -gx HOMEBREW_NO_ENV_HINTS 1

@@ -1,7 +1,9 @@
 set -gx EDITOR "vim"
-set -g  HOMELAB "100.106.45.25"
-set -g  HOMELAB_LOCAL "192.168.0.43"
 set -gx MANPAGER "sh -c 'col -bx | bat -l man -p'"
+# Host-specific secrets/IPs (gitignored, not tracked) — see env.fish.example
+if test -f ~/.config/fish/env.fish
+    source ~/.config/fish/env.fish
+end
 
 fish_add_path -gP ~/.local/bin
 fish_add_path -gP ~/.cargo/bin
