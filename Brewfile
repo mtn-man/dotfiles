@@ -1,6 +1,5 @@
 tap "darrylmorley/whatcable", trusted: true
 tap "mtn-man/tap", trusted: true
-tap "xykong/tap", trusted: true
 # Clone of cat(1) with syntax highlighting and Git integration
 brew "bat"
 # Resource monitor. C++ version and continuation of bashtop and bpytop
@@ -39,6 +38,8 @@ brew "golangci-lint"
 brew "jq"
 # Simple terminal UI for git commands
 brew "lazygit"
+# Terminal Markdown previewer with a GUI-like experience
+brew "leaf-md"
 # Terminal file manager
 brew "lf"
 # Interpreted, interactive, object-oriented programming language
@@ -73,8 +74,6 @@ cask "bitwarden"
 cask "claude-code"
 # Web browser
 cask "firefox"
-# Markdown previews in Finder QuickLook with diagrams and math
-cask "xykong/tap/flux-markdown", trusted: true
 cask "font-jetbrains-mono-nerd-font"
 # Terminal emulator that uses platform-native UI and GPU acceleration
 cask "ghostty"
@@ -96,6 +95,8 @@ cask "raycast"
 cask "steam"
 # Mesh VPN based on WireGuard
 cask "tailscale-app"
+# Open-source BitTorrent client
+cask "transmission"
 # Menu bar app for USB-C cable diagnostics
 cask "darrylmorley/whatcable/whatcable", trusted: true
 go "golang.org/x/tools/cmd/goimports"
