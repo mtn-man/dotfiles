@@ -353,15 +353,14 @@ sudo systemctl restart transmission.service
 - Monitors Transmission via RPC; auto-removes completed torrents after successful processing
 
 **Service Type**
-- systemd user service
-- mintmedia daemon running inside a tmux session
+- systemd user service, running the mintmedia daemon directly (`Type=simple`)
 
 **Service File**
 `~/.config/systemd/user/mintmedia.service`
 
 **Key Design Points**
 - Runs as a user service under `eli`; linger is enabled so it starts at boot without login
-- tmux session named `mintmedia` — attach to check live output or restart interactively
+- `Restart=on-failure` — systemd restarts the daemon automatically if it exits unexpectedly
 - Built and updated manually from source at `~/dev/golang/mintmedia`
 - Transmission integration connects to `100.106.45.25:9091` (Tailscale)
 - `defer_destination_checks = true` — daemon starts even if `/mnt/storage` is not yet mounted; queues work until storage is available
@@ -369,7 +368,6 @@ sudo systemctl restart transmission.service
 **Check the Service**
 ```bash
 systemctl --user status mintmedia.service
-tmux attach -t mintmedia
 ```
 
 **Restart the Service**
@@ -381,7 +379,14 @@ systemctl --user restart mintmedia.service
 `~/.config/mintmedia/config.toml`
 
 **Logs**
-`~/.local/state/mintmedia/history.jsonl`
+- stdout/stderr go to the journal. Use `--user-unit=`, not `--user -u` — this box has no split per-uid journal file (`user-1000.journal`), only `system.journal`, so the `--user` scope flag finds no files to search. `--user-unit=` matches the `_SYSTEMD_USER_UNIT` field directly against the system journal instead:
+```bash
+journalctl --user-unit=mintmedia.service          # full log
+journalctl --user-unit=mintmedia.service -f       # follow live
+journalctl --user-unit=mintmedia.service -n 100   # last 100 lines
+```
+- Reading the journal requires membership in the `systemd-journal` group (one-time): `sudo usermod -aG systemd-journal eli`, then re-login.
+- Structured processing history: `~/.local/state/mintmedia/history.jsonl`
 
 ---
 
@@ -844,22 +849,17 @@ sudo systemctl restart nordvpn.service
 
 ### mintmedia Not Running
 
-The service is `Type=oneshot` with `RemainAfterExit=yes` — systemd holds it as `active (exited)` after the tmux session starts, and keeps that state even if the mintmedia process inside tmux later dies. `systemctl --user start` is a no-op in this state.
+The service is `Type=simple` with `Restart=on-failure`, so systemd tracks the actual daemon process — `active`/`failed` in `systemctl --user status` reflects reality.
 
-1. Check whether the tmux session is alive
+1. Check status and recent logs
 ```bash
-tmux attach -t mintmedia
+systemctl --user status mintmedia.service
+journalctl --user-unit=mintmedia.service -n 50
 ```
-If the session is gone (`[exited]` or `no sessions`), the daemon has exited.
 
-2. Restart the service (not start — restart forces ExecStop then ExecStart)
+2. Restart if needed
 ```bash
 systemctl --user restart mintmedia.service
-```
-
-3. Attach to verify it's running
-```bash
-tmux attach -t mintmedia
 ```
 
 ---
