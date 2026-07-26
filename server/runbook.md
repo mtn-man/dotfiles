@@ -420,6 +420,31 @@ sudo firewall-cmd --list-all --zone=public
 sudo firewall-cmd --list-all --zone=trusted
 ```
 
+### Cockpit HTTPS Access via Tailscale Serve
+
+Cockpit terminates its own TLS on 9090 using a self-signed cert, which triggers a browser warning when accessed directly. `tailscale serve` adds a second, warning-free HTTPS path on port 8443, reusing the same pattern as Jellyfin (Section 5) but proxying to Cockpit's existing HTTPS backend instead of plain HTTP.
+
+Port 8443 is used instead of 443 because Jellyfin already owns the root path on 443. The `https+insecure://` scheme skips backend cert validation on the tailscaled→Cockpit hop; this hop stays on loopback, so it does not weaken anything exposed on the tailnet.
+
+**Enable (persist across reboots and terminal sessions)**
+```bash
+sudo tailscale serve --bg --https=8443 https+insecure://localhost:9090
+```
+
+**Check status**
+```bash
+tailscale serve status
+```
+
+**Disable**
+```bash
+tailscale serve --https=8443 off
+```
+
+**Result** — `https://centos.tail586311.ts.net:8443` (tailnet-only, valid cert, no browser warning), added *alongside* the existing direct access on `http://100.106.45.25:9090` and the LAN-only `public` zone exposure (Section 8, Firewalld Zone Configuration). The direct paths are left in place intentionally — they're the fallback if Tailscale itself is ever down.
+
+---
+
 ### Tailscale Exit Node
 
 The server is configured as a Tailscale exit node, routing client traffic through the server's internet connection.
