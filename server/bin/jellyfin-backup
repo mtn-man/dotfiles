@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Automates the manual steps in server/runbook.md section 11
+# ("Jellyfin Configuration Backup & Restore"). Runs on the homelab
+# server; pushes the finished archive out to the Mac over Tailscale SSH.
+#
+# Trigger stays manual — run this by hand once both this server and the
+# Mac are confirmed awake and reachable.
+
+REMOTE_CONFIG_DIR="/var/lib/jellyfin"
+TMP_ARCHIVE="/tmp/jellyfin-config-backup.tar.gz"
+MAC_HOST="user@100.79.143.1"
+MAC_DEST_DIR="dev/server"
+DATE="$(date +%F)"
+MAC_DEST_FILE="${MAC_DEST_DIR}/jellyfin-config-${DATE}.tar.gz"
+
+restarted=0
+
+restart_jellyfin() {
+    if [[ "${restarted}" -eq 0 ]]; then
+        echo "Restarting Jellyfin..."
+        sudo systemctl start jellyfin.service
+        restarted=1
+    fi
+}
+trap restart_jellyfin EXIT
+
+sudo -v
+echo "Sudo authenticated"
+
+echo "Stopping Jellyfin..."
+sudo systemctl stop jellyfin.service
+
+echo "Creating config archive..."
+sudo tar -C "${REMOTE_CONFIG_DIR}" --exclude=cache --exclude=metadata -czf "${TMP_ARCHIVE}" config
+
+restart_jellyfin
+
+echo "Pushing archive to ${MAC_HOST}:${MAC_DEST_FILE}..."
+scp "${TMP_ARCHIVE}" "${MAC_HOST}:${MAC_DEST_FILE}"
+
+echo "Removing temporary archive..."
+sudo rm "${TMP_ARCHIVE}"
+
+echo "Backup complete: ${MAC_HOST}:${MAC_DEST_FILE}"

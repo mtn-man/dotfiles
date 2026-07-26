@@ -130,6 +130,26 @@ tailscale serve --https=443 off
 
 **Result** — `https://centos.tail586311.ts.net` (tailnet-only, valid cert, no browser warning) alongside the existing `http://100.106.45.25:8096`.
 
+### Public Internet Access via Tailscale Funnel
+
+Funnel extends the `serve` rule above to the public internet (not just the tailnet), at the same hostname, so friends/family can connect without installing Tailscale. Gated behind the hardening checklist in `~/dev/server/jellyfin-funnel-checklist.md` (account lockout, permissions, resource caps, backup automation, kill switch) before being enabled.
+
+**Enable**
+```bash
+sudo tailscale funnel --bg --https=443 http://localhost:8096
+```
+
+**Check status**
+```bash
+tailscale serve status
+```
+
+**Kill switch / disable** — pulls Jellyfin off the public internet immediately without touching tailnet access, for suspected compromise, abuse, or anything that looks wrong. This is the exact command `tailscale funnel` itself echoes back after enabling, confirmed live 2026-07-26:
+```bash
+sudo tailscale funnel --https=443 off
+```
+This clears only the funnel (public) config for port 443; it does not touch the `serve` rule above, so Jellyfin stays reachable over the tailnet exactly as it does today. (`sudo tailscale funnel reset` is a broader alternative that clears *all* funnel rules on the node, not just this one — prefer the scoped command above unless you specifically want that.) Note: the Tailscale CLI changed its serve/funnel syntax at some point after this runbook was first written — the old `tailscale funnel 443 off` shorthand no longer works. Verify against `tailscale funnel --help` if this ever looks stale again.
+
 ### Jellyfin Image Update Procedure
 
 The Jellyfin service uses `--pull=never`, so a new image must be pulled explicitly before restarting. The image runs under the `eli` user account, so no `sudo` is needed for the pull.
@@ -562,6 +582,20 @@ Excluded by design:
 Rationale:
 Configuration and database state are authoritative and must be preserved.
 Metadata and cache are derived data and can be regenerated.
+
+### Backup Procedure (Automated Steps, Manual Trigger)
+
+The steps below are automated by `server/bin/jellyfin-backup` (dotfiles). It
+runs on this server — stopping Jellyfin, archiving `config` (excluding
+`cache`/`metadata`), restarting Jellyfin immediately to minimize downtime,
+then pushing the finished archive out to the Mac (`~/dev/server/`) over
+Tailscale SSH, and cleaning up the temporary archive on this server.
+
+The trigger is intentionally still manual (`./bin/jellyfin-backup`, run by
+hand): the destination is a laptop, not an always-on node, so a systemd
+timer isn't viable until both ends are confirmed awake. The manual steps
+below remain the reference for what the script does, and for restoring by
+hand if ever needed.
 
 ### Backup Procedure (Manual)
 
