@@ -30,6 +30,19 @@ else
     criticals=$(( criticals + 1 ))
 fi
 
+# Jellyfin update check — read-only; never pulls or restarts
+local_version=$(curl -s --max-time 5 http://localhost:8096/System/Info/Public 2>/dev/null | grep -oE '"Version":"[^"]+"' | cut -d'"' -f4)
+latest_version=$(curl -s --max-time 5 https://api.github.com/repos/jellyfin/jellyfin/releases/latest 2>/dev/null | grep -oE '"tag_name": *"v[0-9.]+"' | grep -oE '[0-9][0-9.]*')
+if [[ -z "$local_version" || -z "$latest_version" ]]; then
+    row "jellyfin update" "warn: check failed"
+    warnings=$(( warnings + 1 ))
+elif [[ "$local_version" == "$latest_version" ]]; then
+    row "jellyfin update" "ok (${local_version})"
+else
+    row "jellyfin update" "warn: ${local_version} -> ${latest_version} available"
+    warnings=$(( warnings + 1 ))
+fi
+
 # VPN tunnel
 vpn_status=$(sudo podman exec nordvpn nordvpn status 2>/dev/null || true)
 if printf '%s' "$vpn_status" | grep -q "Status: Connected"; then
