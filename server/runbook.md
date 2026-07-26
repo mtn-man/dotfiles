@@ -229,6 +229,8 @@ This procedure updates the nordvpn client inside the container to the latest ver
 
 **No changes to source files are required.** The Containerfile pulls the latest nordvpn package at build time.
 
+**Note**: The Containerfile is `FROM ubuntu:24.04` — NordVPN's official Linux client only ships `.deb` packages, so the build uses an Ubuntu base rather than CentOS/Fedora. This means `podman images` will always show a cached `docker.io/library/ubuntu:24.04` image alongside the app containers; it's a build dependency for this procedure, not orphaned bloat.
+
 **Steps**
 
 1. Stop both services (Transmission depends on the nordvpn network namespace and must stop first)
@@ -377,6 +379,46 @@ systemctl --user restart mintmedia.service
 **Notes**
 - Tailscale CGNAT ranges must NOT be listed as "Known Proxies" in Jellyfin
 - Jellyfin LAN subnet includes the Tailscale address range
+
+### Firewalld Zone Configuration
+
+**`trusted` zone** — `tailscale0` interface, plus the Podman bridge subnet (`10.88.0.0/16`)
+- `target: ACCEPT` — all traffic over the tailnet is allowed
+- This is what actually grants Jellyfin/SSH/Samba access described above; no per-service rules are needed here
+
+**`public` zone** — `enp1s0` (physical LAN interface)
+- `services: cockpit dhcpv6-client`
+- No ports open
+- SSH, Samba, HTTP/HTTPS, and Jellyfin (main port, alt HTTPS port, and DLNA discovery ports 1900/udp + 7359/udp) are explicitly **not** exposed to the LAN — access to all of these is Tailscale-only, matching the stated access model
+- Cockpit (port 9090) is the one intentional exception: kept reachable on the LAN for troubleshooting if Tailscale itself is ever down
+
+**Known effect of this**
+- Jellyfin client apps that rely on LAN auto-discovery (SSDP/DLNA broadcast) will no longer find the server automatically — clients must connect via the Tailscale address or the `tailscale serve` HTTPS URL directly
+
+**Commands Used to Reach This State**
+
+The `public` zone previously had `ssh samba http https` plus ports `8096/tcp 8920/tcp 1900/udp 7359/udp 8080/tcp` open — leftover from earlier manual `firewall-cmd --add-*` calls, exposing SSH/Samba/Jellyfin to the LAN in contradiction of the Tailscale-only access model. `8080/tcp` had no identifiable owner (nothing listening, no container/systemd/config reference, no shell history) and was removed as dead configuration.
+
+```bash
+sudo firewall-cmd --zone=public --remove-service=ssh --permanent
+sudo firewall-cmd --zone=public --remove-service=samba --permanent
+sudo firewall-cmd --zone=public --remove-service=http --permanent
+sudo firewall-cmd --zone=public --remove-service=https --permanent
+sudo firewall-cmd --zone=public --remove-port=8096/tcp --permanent
+sudo firewall-cmd --zone=public --remove-port=8920/tcp --permanent
+sudo firewall-cmd --zone=public --remove-port=1900/udp --permanent
+sudo firewall-cmd --zone=public --remove-port=7359/udp --permanent
+sudo firewall-cmd --zone=public --remove-port=8080/tcp --permanent
+sudo firewall-cmd --reload
+```
+
+`cockpit` and `dhcpv6-client` were left in place intentionally and required no changes.
+
+**To verify current state**
+```bash
+sudo firewall-cmd --list-all --zone=public
+sudo firewall-cmd --list-all --zone=trusted
+```
 
 ### Tailscale Exit Node
 
@@ -618,6 +660,16 @@ To enable the timer (once, after initial setup):
 systemctl --user enable --now doctor-check.timer
 ```
 
+### Kernel Cleanup
+
+DNF keeps old kernels (and their `-core`/`-devel`/`-modules`/`-modules-extra` packages) installed alongside the current one. Periodically remove everything except the running kernel:
+
+```sh
+sudo dnf remove --oldinstallonly
+```
+
+Typically frees several hundred MB. Safe to run any time — `dnf` always keeps the currently-running kernel regardless of install order.
+
 ### Check Storage Mount
 ```sh
 mountpoint /mnt/storage
@@ -774,6 +826,23 @@ sudo podman exec transmission netstat -tnp | grep 51413
 - Transmission is not configured with RPC authentication. Access is restricted to Tailscale, which provides authentication at the network level.
 - NordVPN token expires annually. Failure to renew will cause the nordvpn service to fail on restart.
 - The nordvpn container image (`localhost/nordvpn-custom:latest`) is built locally from source files in `~/nordvpn-image/`. Rebuilding after a NordVPN update requires pulling the new package and rebuilding the image.
+
+### Package Removal — 2026-07-25 Security Audit
+
+Two unused package sets were identified during a firewall/attack-surface audit and removed:
+
+**NFS client tooling** (`rpcbind`, `nfs-utils`, `libnfsidmap`, `nfs4-acl-tools`) — file sharing on this server is SMB-only (see Section 9). NFS was never configured; `rpcbind` had no exports to serve and was just an open port (111/tcp+udp) on every interface.
+
+**Domain-join tooling** (`sssd` and its sub-packages, `realmd`, `adcli`) — this server uses local-only accounts. Before removal, `authselect current` confirmed the active profile (`local`) does not reference `sss` anywhere in `passwd`/`group`/`shadow` in `nsswitch.conf`, so the removal has no effect on login/auth.
+
+```bash
+sudo dnf remove nfs-utils nfs4-acl-tools libnfsidmap rpcbind sssd sssd-ad sssd-client sssd-common sssd-common-pac sssd-ipa sssd-kcm sssd-krb5 sssd-krb5-common sssd-ldap sssd-nfs-idmap sssd-proxy libsss_idmap libsss_certmap libipa_hbac libsss_nss_idmap libsss_sudo realmd adcli adcli-selinux
+```
+
+**Side effect**: `bind-utils` (provides `dig`, `nslookup`, `host`) was installed only as an `sssd` dependency and was swept out along with it. Reinstall if DNS diagnostic tools are needed:
+```bash
+sudo dnf install bind-utils
+```
 
 ---
 
