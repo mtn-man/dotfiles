@@ -25,7 +25,7 @@ function fish_greeting --description 'Display welcome message once per terminal 
             not test -f "$TMPDIR/fish_greeted_$terminal_key"
         touch "$TMPDIR/fish_greeted_$terminal_key"
         echo "Welcome back, Eli"
-        command -q fastfetch; and fastfetch
+        command -q fastfetch; and fastfetch --logo none
     else if test -z "$terminal_key"
         echo "Welcome back, Eli"
     end
