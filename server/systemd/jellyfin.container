@@ -1,0 +1,35 @@
+[Unit]
+Description=Jellyfin Media Server Container (Podman)
+Requires=mnt-storage.mount
+After=mnt-storage.mount
+PartOf=mnt-storage.mount
+
+[Container]
+Image=docker.io/jellyfin/jellyfin:latest
+ContainerName=jellyfin
+Network=host
+AddDevice=/dev/dri:/dev/dri:rwm
+Environment=LIBVA_DRIVER_NAME=iHD
+Volume=/mnt/storage:/media
+Volume=/var/lib/jellyfin/config:/config
+Volume=/var/lib/jellyfin/cache:/cache
+Volume=/usr/lib64/dri:/usr/lib64/dri:ro
+HealthCmd=curl -sf http://localhost:8096/health
+HealthInterval=30s
+HealthTimeout=10s
+HealthRetries=3
+HealthStartPeriod=120s
+HealthOnFailure=kill
+Pull=never
+StopTimeout=10
+
+[Service]
+Type=exec
+User=eli
+Group=eli
+ExecStartPre=/bin/sh -lc 'for i in $(seq 1 180); do mountpoint -q /mnt/storage && exit 0; sleep 1; done; exit 1'
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

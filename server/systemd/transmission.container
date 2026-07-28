@@ -1,0 +1,26 @@
+[Unit]
+Description=Transmission Container
+Requires=nordvpn.service
+After=nordvpn.service
+PartOf=nordvpn.service
+
+[Container]
+Image=docker.io/linuxserver/transmission:latest
+ContainerName=transmission
+Network=nordvpn.container
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=TZ=America/Denver
+Volume=/var/lib/transmission/config:/config
+Volume=/mnt/storage/Downloads:/downloads
+Pull=never
+StopTimeout=15
+
+[Service]
+Type=exec
+ExecStartPre=/bin/sh -lc 'for i in $(seq 1 60); do sudo podman exec nordvpn nordvpn status 2>/dev/null | grep -q "Status: Connected" && exit 0; sleep 2; done; exit 1'
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
