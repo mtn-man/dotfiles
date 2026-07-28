@@ -509,6 +509,22 @@ up periodically:
 podman image prune
 ```
 
+### Removing Devbox
+
+Full teardown — service, image, build context, and persisted state:
+
+```sh
+systemctl --user stop devbox.service
+rm ~/.config/containers/systemd/devbox.container
+systemctl --user daemon-reload
+podman rmi localhost/devbox:latest
+podman image prune
+rm -rf ~/devbox-image ~/devbox
+```
+Does **not** touch `~/dev` — that's the shared workspace (also home to
+mintmedia's own source checkout), reused as-is rather than owned by devbox,
+so it's left alone regardless of how thorough a teardown this is.
+
 ---
 
 ## 9. Networking and Access
