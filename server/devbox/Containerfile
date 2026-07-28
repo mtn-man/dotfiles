@@ -1,0 +1,76 @@
+# Dev environment: Go/Rust toolchain on Alpine 3.23 (current stable branch)
+# Build: podman build -t localhost/devbox:latest -f Containerfile .
+# Run:   managed by systemd via ~/.config/containers/systemd/devbox.container
+#        (see ~/.dotfiles/server/systemd/user/devbox.container)
+
+FROM docker.io/library/alpine:3.23
+
+# --- Base tooling, all from Alpine's main/community repos ---
+RUN apk update && apk add --no-cache \
+    bash \
+    build-base \
+    git \
+    go \
+    rust \
+    cargo \
+    tmux \
+    vim \
+    lazygit \
+    golangci-lint \
+    github-cli \
+    ca-certificates \
+    curl \
+    libgcc \
+    libstdc++ \
+    ripgrep \
+    pkgconf \
+    openssl-dev \
+    python3 \
+    fzf \
+    bat \
+    jq \
+    eza \
+    fd \
+    zoxide
+
+# --- Claude Code via Anthropic's official signed apk repo ---
+# Verify the key checksum against code.claude.com/docs/en/setup before building,
+# Anthropic can rotate these.
+RUN wget -O /etc/apk/keys/claude-code.rsa.pub \
+    https://downloads.claude.ai/keys/claude-code.rsa.pub \
+    && echo "https://downloads.claude.ai/claude-code/apk/stable" >> /etc/apk/repositories \
+    && apk update \
+    && apk add --no-cache claude-code
+
+# musl workaround: prefer the system ripgrep over Claude Code's bundled
+# glibc-linked binary.
+ENV USE_BUILTIN_RIPGREP=0
+
+# --- Non-root dev user ---
+# UID/GID pinned to 1000 to match the host `eli` account (verify with `id eli`
+# on the server before first build; adjust here if it differs) so that
+# UserNS=keep-id in the Quadlet unit maps bind-mounted files transparently.
+RUN addgroup -g 1000 dev && adduser -D -u 1000 -G dev -s /bin/bash dev
+
+# Pre-create ~/.config owned by dev. Two subdirectories under it
+# (.config/gh, .config/git) are bind-mounted by the Quadlet unit; without
+# this, Podman auto-creates ~/.config itself as a mount-parent directory
+# owned root:dev with no group-write bit, which blocks `dev` from creating
+# any *other* entry directly under ~/.config (e.g. lazygit's config dir).
+RUN mkdir -p /home/dev/.config && chown dev:dev /home/dev/.config
+
+# Baked into the image, not a persisted volume -- shell config like this is
+# reproducible from the Containerfile by design (see runbook Section 8), so
+# it doesn't need the tool-state treatment lazygit/git/gh/claude got.
+COPY --chown=dev:dev bashrc /home/dev/.bashrc
+# tmux spawns pane shells as login shells, which read .bash_profile (or
+# .bash_login/.profile), NOT .bashrc, by default -- without this, .bashrc
+# (and zoxide's init inside it) never actually runs.
+COPY --chown=dev:dev bash_profile /home/dev/.bash_profile
+
+USER dev
+WORKDIR /home/dev
+
+# Keep the container alive in the background. Actual shell access happens
+# via `podman exec -it devbox tmux new -As main`, not through this entrypoint.
+CMD ["sleep", "infinity"]

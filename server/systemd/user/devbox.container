@@ -1,0 +1,55 @@
+[Unit]
+Description=Persistent Alpine dev environment (devbox)
+
+[Container]
+Image=localhost/devbox:latest
+ContainerName=devbox
+HostName=devbox
+# Maps the invoking user's host UID into the container 1:1 (rather than to
+# root), so files written from inside the container show up owned by `eli`
+# on the host. Requires the container's `dev` user to be UID/GID 1000 to
+# match (see Containerfile).
+UserNS=keep-id
+
+# Workspace: reuses the existing ~/dev tree (also home to mintmedia's
+# source checkout) rather than a separate directory, so the same repos are
+# reachable with the same ~/dev path both on the host and in the container.
+# :Z relabels the host path to a container-private SELinux context
+# (container_file_t) on start -- required on this SELinux-enforcing host,
+# confirmed via an AVC denial (container_t denied write on user_home_t).
+# Safe for ~/dev's dual host/container use: mintmedia and normal shell
+# access run unconfined, which isn't restricted from container_file_t.
+Volume=%h/dev:/home/dev/dev:Z
+
+# Tool state that should survive a crash-restart or reboot (this container,
+# like Jellyfin/Transmission, is recreated fresh from the image on every
+# systemd restart -- anything not under a Volume= is lost). Shell config
+# (.bashrc, .vimrc, .tmux.conf) is intentionally NOT persisted here -- it
+# comes from the image so it stays reproducible from the Containerfile.
+Volume=%h/devbox/state/claude:/home/dev/.claude:Z
+Volume=%h/devbox/state/claude.json:/home/dev/.claude.json:Z
+# Directory mount, not a file mount at ~/.gitconfig: git tools write config
+# via temp-file-then-rename, which fails with EBUSY against a bind-mounted
+# single file. Git falls back to $XDG_CONFIG_HOME/git/config when
+# ~/.gitconfig doesn't exist, so mounting the containing directory sidesteps
+# the problem entirely. (~/.claude.json below is the same kind of single-file
+# mount and may hit the same EBUSY if Claude Code ever rewrites it in place --
+# not yet hit in practice, revisit with the same fix if it comes up.)
+Volume=%h/devbox/state/git:/home/dev/.config/git:Z
+Volume=%h/devbox/state/gh:/home/dev/.config/gh:Z
+Volume=%h/devbox/state/lazygit:/home/dev/.config/lazygit:Z
+
+Pull=never
+StopTimeout=10
+
+[Service]
+Restart=always
+RestartSec=10
+# Resource ceiling -- this is an 8 GiB box also running Jellyfin,
+# NordVPN+Transmission, and mintmedia; a long build or an agent loop
+# shouldn't be able to starve those. Tune as needed.
+MemoryMax=3G
+CPUQuota=200%
+
+[Install]
+WantedBy=default.target
