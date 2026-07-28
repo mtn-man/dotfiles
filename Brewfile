@@ -4,8 +4,6 @@ tap "mtn-man/tap", trusted: true
 brew "bat"
 # Resource monitor. C++ version and continuation of bashtop and bpytop
 brew "btop"
-# Create and run Linux containers using lightweight virtual machines
-brew "container"
 # GNU File, Shell, and Text utilities
 brew "coreutils"
 # View disk space usage and delete unwanted data, fast
