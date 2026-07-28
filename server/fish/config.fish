@@ -9,6 +9,8 @@ if status is-interactive
 
     set -gx SYSTEMD_PAGER cat
     set -gx EDITOR vim
+    # zoxide init -- default `z`/`zi` commands, cd is left alone on purpose
+    command -q zoxide; and zoxide init fish | source
     #abbrs
     abbr -a --global u 'sudo dnf upgrade --refresh -y'
     abbr -a --global dr 'doctor'
@@ -19,4 +21,5 @@ if status is-interactive
     abbr -a --global ff 'fastfetch'
     abbr -a --global src 'source $__fish_config_dir/config.fish'
     abbr -a --global v 'vim'
+    abbr -a --global lg 'lazygit'
 end
