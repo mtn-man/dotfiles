@@ -399,6 +399,7 @@ journalctl --user-unit=mintmedia.service -n 100   # last 100 lines
   the shell tooling the Mac side already leans on (`ripgrep`, `fzf`, `bat`,
   `jq`, `eza`, `fd`) and Rust build essentials (`pkgconf`, `openssl-dev`,
   `python3`)
+- `dev`'s login shell is `fish`; `bash` stays installed as a fallback
 
 **Service Type**
 - User-level Quadlet unit (rootless Podman), same tier as mintmedia — not a
@@ -456,6 +457,11 @@ itself, so this is a manually-placed copy, same pattern as
   from the Containerfile. Like Jellyfin and Transmission, this container is
   recreated fresh from the image on every systemd restart; only
   `Volume=`-mounted paths survive
+- `fish` is the one exception to that rule: `~/.config/fish` is bind-mounted
+  straight from the host's own live fish config (`~/.dotfiles/server/fish`,
+  sourced manually per the repo's CLAUDE.md) rather than baked into the
+  Containerfile, so devbox's fish always matches whatever the host is
+  running — no image rebuild needed to pick up a config change
 - Resource ceiling: `MemoryMax=3G`, `CPUQuota=200%` — this is an 8 GiB N150
   box also running Jellyfin, NordVPN+Transmission, and mintmedia; a long
   build or an agent loop shouldn't be able to starve those

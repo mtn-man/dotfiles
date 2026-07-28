@@ -21,6 +21,13 @@ UserNS=keep-id
 # access run unconfined, which isn't restricted from container_file_t.
 Volume=%h/dev:/home/dev/dev:Z
 
+# fish is the exception to the "shell config comes from the image" rule
+# below: it's bind-mounted straight from the host's own live fish config
+# (~/.dotfiles/server/fish, sourced manually per the repo's CLAUDE.md), not
+# baked into the Containerfile, so devbox's fish always matches whatever
+# the host is running -- no rebuild needed to pick up config changes.
+Volume=%h/.config/fish:/home/dev/.config/fish:Z
+
 # Tool state that should survive a crash-restart or reboot (this container,
 # like Jellyfin/Transmission, is recreated fresh from the image on every
 # systemd restart -- anything not under a Volume= is lost). Shell config

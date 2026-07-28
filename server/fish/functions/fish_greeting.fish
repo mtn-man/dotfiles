@@ -8,7 +8,4 @@ function fish_greeting
             printf 'doctor: %s\n\n' $summary
         end
     end
-    echo "Welcome back to your server, Eli"
-    echo
-    fastfetch
 end

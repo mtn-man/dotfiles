@@ -8,6 +8,7 @@ FROM docker.io/library/alpine:3.23
 # --- Base tooling, all from Alpine's main/community repos ---
 RUN apk update && apk add --no-cache \
     bash \
+    fish \
     build-base \
     git \
     go \
@@ -50,7 +51,10 @@ ENV USE_BUILTIN_RIPGREP=0
 # UID/GID pinned to 1000 to match the host `eli` account (verify with `id eli`
 # on the server before first build; adjust here if it differs) so that
 # UserNS=keep-id in the Quadlet unit maps bind-mounted files transparently.
-RUN addgroup -g 1000 dev && adduser -D -u 1000 -G dev -s /bin/bash dev
+# Login shell is fish, not bash -- bash stays installed as a fallback
+# (`bash` from a fish prompt), and its config below is still baked in for
+# when it's invoked directly.
+RUN addgroup -g 1000 dev && adduser -D -u 1000 -G dev -s /usr/bin/fish dev
 
 # Pre-create ~/.config owned by dev. Two subdirectories under it
 # (.config/gh, .config/git) are bind-mounted by the Quadlet unit; without
