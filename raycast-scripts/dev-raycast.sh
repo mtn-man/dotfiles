@@ -5,4 +5,4 @@
 
 open -na Ghostty.app --args \
   --window-save-state=never \
-  -e ssh -t lab "tmux attach -t devbox"
+  -e ssh -t lab devbox

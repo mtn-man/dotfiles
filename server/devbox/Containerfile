@@ -76,5 +76,6 @@ USER dev
 WORKDIR /home/dev
 
 # Keep the container alive in the background. Actual shell access happens
-# via `podman exec -it devbox tmux new -As main`, not through this entrypoint.
+# via the host-side `devbox` tmux wrapper (see runbook Section 8), not
+# through this entrypoint.
 CMD ["sleep", "infinity"]

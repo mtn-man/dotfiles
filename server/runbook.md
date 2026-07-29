@@ -480,24 +480,45 @@ Recreates the container fresh from the current image tag — anything
 outside a `Volume=` mount is lost (see Key Design Points).
 
 **Interactive Access**
-```sh
-podman exec -it devbox tmux new -As main
+
+A single tmux session lives on the host (`lab`), not inside the container.
+The `devbox` fish function (`~/.config/fish/functions/devbox.fish`, sourced
+from `server/fish/functions/devbox.fish` in dotfiles) creates it on first
+use and just reattaches on every later call:
+```fish
+function devbox --description 'Attach to the persistent host-side tmux session, entering the devbox container on first use'
+    tmux new-session -A -s devbox 'podman exec -it -w /home/dev/dev devbox fish'
+end
 ```
-Creates a `tmux` session named `main` on first use, or reattaches to it on
-every subsequent call — this is what lets a long-running build or agent
-survive closing the terminal. Detach with `Ctrl-b d` rather than exiting
-to leave it running.
+`tmux new-session -A -s devbox` behaves like `attach-session` if `devbox`
+already exists — in that case the `podman exec` argument is ignored and
+you're dropped straight back into the running session, exactly as left.
+Only on first creation does it actually run `podman exec -it -w
+/home/dev/dev devbox fish`, landing in the bind-mounted `~/dev` workspace
+inside the container. Detach with `Ctrl-b d` rather than exiting, to leave
+it running.
+
+**Entry points** — the Mac's `dev` abbr (`fish/.config/fish/abbrs.fish`) and
+the `dev-raycast.sh` Raycast script both just run `ssh -t lab devbox`,
+delegating the tmux logic to the host-side function above.
+
+**Manual equivalent** (if the `devbox` function is ever unavailable):
+```sh
+ssh -t lab
+tmux new-session -A -s devbox 'podman exec -it -w /home/dev/dev devbox fish'
+```
 
 **Known limitation — Claude Code rendering inside tmux:** dynamic/special
 symbols (box-drawing corners, logo glyphs) render as stray underscores when
-`claude` runs inside this container's tmux session; running it directly
-via `podman exec -it devbox bash` (no tmux) renders cleanly. Root cause not
-isolated despite ruling out several candidates (tmux synchronized-output
-support, `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN`, Ghostty cursor style).
-Current practice: use tmux for general persistent shell work, and a
-separate direct `podman exec -it devbox bash` session (no tmux) for
-`claude` specifically, relying on its own `/resume` for continuity across
-disconnects instead of tmux.
+`claude` runs inside the host-side `devbox` tmux session; running it
+directly via `podman exec -it -w /home/dev/dev devbox bash` (no tmux)
+renders cleanly. Root cause not isolated despite ruling out several
+candidates (tmux synchronized-output support,
+`CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN`, Ghostty cursor style). Current
+practice: use the `devbox` tmux wrapper for general persistent shell work,
+and a separate direct `podman exec -it -w /home/dev/dev devbox bash`
+session (no tmux) for `claude` specifically, relying on its own `/resume`
+for continuity across disconnects instead of tmux.
 
 ### Devbox Image Rebuild Procedure
 
