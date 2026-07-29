@@ -34,9 +34,9 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
     begin
         # 1. System info
         echo '```bash'
-        fastfetch --logo none
-            | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' ''
-            | string match -rv '█'
+        fastfetch --logo none \
+            | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' '' \
+            | string match -rv '█' \
             | string replace -r 'Public IP →.*' 'Public IP → censored'
         echo '```'
 
@@ -55,9 +55,9 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
         echo
         echo "## System state"
         echo '```bash'
-        doctor 2>/dev/null
-            | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' ''
-            | string replace -r '(tailscale:\s+up) \([^)]+\)' '$1 (censored)'
+        doctor 2>/dev/null \
+            | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' '' \
+            | string replace -r '(tailscale:\s+up) \([^)]+\)' '$1 (censored)' \
             | string replace -r '(exit node:\s+\S+) \([^)]+\)' '$1 (censored)'
         echo '```'
 
@@ -145,9 +145,9 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
         __snap_file "~/.config/lazygit/config.yml" $dotfiles/lazygit/.config/lazygit/config.yml yaml
         __snap_file "~/.config/mintmedia/config.toml" $dotfiles/mintmedia/.config/mintmedia/config.toml toml
         __snap_file "~/.vimrc" ~/.vimrc vim
-    end
-        | string replace -a -- "$HOMELAB" 'censored'
-        | string replace -a -- "$HOMELAB_LOCAL" 'censored'
+    end \
+        | string replace -a -- "$HOMELAB" 'censored' \
+        | string replace -a -- "$HOMELAB_LOCAL" 'censored' \
         > $outfile
 
     echo "snap: $snap_verb $outfile"
