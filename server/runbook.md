@@ -521,6 +521,18 @@ inside the container at all), `claude` renders normally under the
 `devbox` wrapper. This points to the bug being specific to tmux running
 inside the Alpine container rather than tmux in general.
 
+**Resolved — trackpad scroll picked up as arrow keys:** with tmux's
+`mouse` option off (the default), tmux never enables mouse reporting, so
+the terminal emulator falls back to translating scroll-wheel events into
+Up/Down arrow keypresses — landing wherever focus is (shell prompt,
+Claude Code TUI, etc.) instead of scrolling. Fixed with a host-side
+`~/.tmux.conf` (`set -g mouse on`), so tmux captures wheel events itself
+and scrolls pane history via copy-mode instead. Same persistence pattern
+as `fish` above: this is host-only config, not baked into the
+Containerfile, since tmux runs on the host and never inside the
+container. Canonical copy is `server/.tmux.conf` in dotfiles; applied
+live to an already-running session with `tmux source-file ~/.tmux.conf`.
+
 ### Devbox Image Rebuild Procedure
 
 Needed when adding or updating tooling in the Containerfile.
