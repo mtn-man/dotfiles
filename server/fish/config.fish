@@ -9,8 +9,8 @@ if status is-interactive
 
     set -gx SYSTEMD_PAGER cat
     set -gx EDITOR vim
-    # zoxide init -- default `z`/`zi` commands, cd is left alone on purpose
-    command -q zoxide; and zoxide init fish | source
+    # zoxide init -- remaps cd itself, matching the Mac config
+    command -q zoxide; and zoxide init fish --cmd cd | source
     #abbrs
     abbr -a --global u 'sudo dnf upgrade --refresh -y'
     abbr -a --global dr 'doctor'
