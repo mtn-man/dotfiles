@@ -86,6 +86,8 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
         echo "ctrl+shift+t = empty trash (no confirm) -- via Supercharge"
         echo "ctrl+shift+e = eject all external disks -- via Supercharge"
         echo "cmd+return = open Ghostty (hide if already in foreground) -- via Raycast"
+        echo "ctrl+left/right = switch to previous/next Mission Control space -- native macOS"
+        echo "ctrl+{1-9,0} = jump directly to Mission Control space 1-10 -- native macOS"
         echo "Raycast also has the CAPSLOCK key bound as my meta key for the bindings below."
         echo "meta+f = search files"
         echo "meta+t = invokes my tm.fish function"
