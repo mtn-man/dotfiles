@@ -50,7 +50,7 @@ For Fedora, run `fedora/fedora-bootstrap` (installs via dnf + RPM Fusion, enable
 - **`homebrew/`** — Tracks `~/.homebrew/trust.json` (trusted taps/formulae/casks) in version control
 - **`launchd/`** — macOS launchd agents: `local.doctor.plist` runs `doctor-notify` daily at 9am
 - **`raycast-scripts/`** — Raycast script commands
-- **`server/`** — CentOS homelab: Fish config + `server.backup.sh` (rsync cold backup script)
+- **`server/`** — CentOS homelab: Fish config + `server/bin/backup` (rsync cold backup script)
 - **`fedora/`** — Fedora Sway workstation: bootstrap script + fish/lf/micro/kitty/git configs, Sway compositor, swaylock, waybar, rofi, yt-dlp, fastfetch
 
 ## Network Architecture
