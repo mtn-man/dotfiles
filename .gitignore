@@ -10,6 +10,9 @@ fish/.config/fish/conf.d/
 fish/.config/fish/env.fish
 fedora/fish/.config/fish/env.fish
 
+# host-specific IPs/hostnames/UUIDs, not tracked (see runbook-example.md)
+server/runbook.md
+
 # micro generated state (fedora only; macOS micro package was removed)
 fedora/micro/.config/micro/buffers/
 fedora/micro/.config/micro/backups/

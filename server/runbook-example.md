@@ -1,5 +1,10 @@
 # Media Server Runbook (CentOS Stream 10)
 
+> This is a sanitized template. The real, filled-in runbook is `runbook.md`
+> (gitignored, not tracked) — copy this file to `runbook.md` and replace the
+> `<placeholder>` values (Tailscale IP, MagicDNS hostname, disk UUID, local
+> username) with real ones.
+
 ## 1. Purpose and Scope
 
 This system is a single-node media server intended for family and friends use.
@@ -128,7 +133,7 @@ tailscale serve status
 tailscale serve --https=443 off
 ```
 
-**Result** — `https://centos.tail586311.ts.net` (tailnet-only, valid cert, no browser warning) alongside the existing `http://100.106.45.25:8096`.
+**Result** — `https://<hostname>.<tailnet-name>.ts.net` (tailnet-only, valid cert, no browser warning) alongside the existing `http://<tailscale-ip>:8096`.
 
 ### Public Internet Access via Tailscale Funnel
 
@@ -152,7 +157,7 @@ This clears only the funnel (public) config for port 443; it does not touch the 
 
 ### Jellyfin Image Update Procedure
 
-The Jellyfin service uses `--pull=never`, so a new image must be pulled explicitly before restarting. The image runs under the `eli` user account, so no `sudo` is needed for the pull.
+The Jellyfin service uses `--pull=never`, so a new image must be pulled explicitly before restarting. The image runs under the `<user>` user account, so no `sudo` is needed for the pull.
 
 **Steps**
 
@@ -171,7 +176,7 @@ sudo systemctl restart jellyfin.service
 sudo systemctl status jellyfin.service
 ```
 
-4. Verify Jellyfin UI loads — `http://100.106.45.25:8096` over Tailscale
+4. Verify Jellyfin UI loads — `http://<tailscale-ip>:8096` over Tailscale
 
 5. Verify media playback and thumbnails
 
@@ -196,7 +201,7 @@ podman image prune
 - `nordvpn` container owns the network namespace and establishes the VPN tunnel
 - `transmission` container shares the nordvpn network namespace
 - All torrent peer traffic is routed through the NordVPN NordLynx (WireGuard) tunnel
-- Transmission RPC is published exclusively to the Tailscale interface (`100.106.45.25:9091`)
+- Transmission RPC is published exclusively to the Tailscale interface (`<tailscale-ip>:9091`)
 
 **Key Design Points**
 - Requires `/mnt/storage` to be mounted (inherited from nordvpn service)
@@ -340,8 +345,8 @@ sudo systemctl restart transmission.service
 ```
 
 **Access Transmission**
-- Web UI: `http://100.106.45.25:9091/transmission/` (Tailscale only)
-- RPC endpoint: `http://100.106.45.25:9091/transmission/rpc`
+- Web UI: `http://<tailscale-ip>:9091/transmission/` (Tailscale only)
+- RPC endpoint: `http://<tailscale-ip>:9091/transmission/rpc`
 
 ---
 
@@ -359,10 +364,10 @@ sudo systemctl restart transmission.service
 `~/.config/systemd/user/mintmedia.service`
 
 **Key Design Points**
-- Runs as a user service under `eli`; linger is enabled so it starts at boot without login
+- Runs as a user service under `<user>`; linger is enabled so it starts at boot without login
 - `Restart=on-failure` — systemd restarts the daemon automatically if it exits unexpectedly
 - Built and updated manually from source at `~/dev/golang/mintmedia`
-- Transmission integration connects to `100.106.45.25:9091` (Tailscale)
+- Transmission integration connects to `<tailscale-ip>:9091` (Tailscale)
 - `defer_destination_checks = true` — daemon starts even if `/mnt/storage` is not yet mounted; queues work until storage is available
 
 **Check the Service**
@@ -385,7 +390,7 @@ journalctl --user-unit=mintmedia.service          # full log
 journalctl --user-unit=mintmedia.service -f       # follow live
 journalctl --user-unit=mintmedia.service -n 100   # last 100 lines
 ```
-- Reading the journal requires membership in the `systemd-journal` group (one-time): `sudo usermod -aG systemd-journal eli`, then re-login.
+- Reading the journal requires membership in the `systemd-journal` group (one-time): `sudo usermod -aG systemd-journal <user>`, then re-login.
 - Structured processing history: `~/.local/state/mintmedia/history.jsonl`
 
 ---
@@ -419,7 +424,7 @@ itself, so this is a manually-placed copy, same pattern as
 - `HostName=devbox` and `ContainerName=devbox` — fixed name and hostname
 - `UserNS=keep-id` maps the invoking host user's UID 1:1 into the container
   (rather than to root); the container's `dev` user is pinned to UID/GID
-  1000 to match `eli`, so bind-mounted file ownership is transparent on
+  1000 to match `<user>`, so bind-mounted file ownership is transparent on
   both sides
 - Workspace: the existing `~/dev` tree is bind-mounted straight through to
   `/home/dev/dev` rather than a separate directory — the same repos
@@ -643,7 +648,7 @@ tailscale serve status
 tailscale serve --https=8443 off
 ```
 
-**Result** — `https://centos.tail586311.ts.net:8443` (tailnet-only, valid cert, no browser warning), added *alongside* the existing direct access on `http://100.106.45.25:9090` and the LAN-only `public` zone exposure (Section 9, Firewalld Zone Configuration). The direct paths are left in place intentionally — they're the fallback if Tailscale itself is ever down.
+**Result** — `https://<hostname>.<tailnet-name>.ts.net:8443` (tailnet-only, valid cert, no browser warning), added *alongside* the existing direct access on `http://<tailscale-ip>:9090` and the LAN-only `public` zone exposure (Section 9, Firewalld Zone Configuration). The direct paths are left in place intentionally — they're the fallback if Tailscale itself is ever down.
 
 ---
 
@@ -797,7 +802,7 @@ hand if ever needed.
    sudo systemctl start jellyfin.service
 
 4. Copy the backup to a safe location (example: Mac over Tailscale)  
-   scp eli@100.106.45.25:/tmp/jellyfin-config-backup.tar.gz ~/jellyfin-config-backup.tar.gz
+   scp <user>@<tailscale-ip>:/tmp/jellyfin-config-backup.tar.gz ~/jellyfin-config-backup.tar.gz
 
 5. Rename the backup with the current date  
    mv ~/jellyfin-config-backup.tar.gz ~/jellyfin-config-YYYY-MM-DD.tar.gz
@@ -831,13 +836,13 @@ This procedure is used after:
    sudo rm -rf /var/lib/jellyfin/config
 
 3. Copy backup archive onto the server  
-   scp ~/jellyfin-config-YYYY-MM-DD.tar.gz eli@100.106.45.25:/tmp/
+   scp ~/jellyfin-config-YYYY-MM-DD.tar.gz <user>@<tailscale-ip>:/tmp/
 
 4. Extract the backup  
    sudo tar -C /var/lib/jellyfin -xzf /tmp/jellyfin-config-YYYY-MM-DD.tar.gz
 
 5. Ensure correct ownership  
-   sudo chown -R eli:eli /var/lib/jellyfin/config
+   sudo chown -R <user>:<user> /var/lib/jellyfin/config
 
 6. Start Jellyfin  
    sudo systemctl start jellyfin.service
@@ -886,9 +891,9 @@ A systemd user timer runs `doctor-check` daily at 6am, caching the result to `~/
 `doctor` requires passwordless sudo for two commands. These are configured in `/etc/sudoers.d/doctor`:
 
 ```
-eli ALL=(ALL) NOPASSWD: /usr/bin/podman exec nordvpn nordvpn status
-eli ALL=(ALL) NOPASSWD: /usr/sbin/blkid -U d477f156-a70d-4aba-ab3d-5fa6d194e982
-eli ALL=(ALL) NOPASSWD: /usr/sbin/smartctl -d sat -l scttemp /dev/sd*
+<user> ALL=(ALL) NOPASSWD: /usr/bin/podman exec nordvpn nordvpn status
+<user> ALL=(ALL) NOPASSWD: /usr/sbin/blkid -U <disk-uuid>
+<user> ALL=(ALL) NOPASSWD: /usr/sbin/smartctl -d sat -l scttemp /dev/sd*
 ```
 
 To edit:
