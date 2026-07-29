@@ -508,17 +508,18 @@ ssh -t lab
 tmux new-session -A -s devbox 'podman exec -it -w /home/dev/dev devbox fish'
 ```
 
-**Known limitation — Claude Code rendering inside tmux:** dynamic/special
-symbols (box-drawing corners, logo glyphs) render as stray underscores when
-`claude` runs inside the host-side `devbox` tmux session; running it
-directly via `podman exec -it -w /home/dev/dev devbox bash` (no tmux)
-renders cleanly. Root cause not isolated despite ruling out several
-candidates (tmux synchronized-output support,
-`CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN`, Ghostty cursor style). Current
-practice: use the `devbox` tmux wrapper for general persistent shell work,
-and a separate direct `podman exec -it -w /home/dev/dev devbox bash`
-session (no tmux) for `claude` specifically, relying on its own `/resume`
-for continuity across disconnects instead of tmux.
+**Resolved — Claude Code rendering inside tmux:** dynamic/special symbols
+(box-drawing corners, logo glyphs) used to render as stray underscores when
+`claude` ran inside the *container's own* tmux session, back when the
+persistent session lived inside the container (`podman exec -it devbox
+tmux new -As main`). Several candidates were ruled out at the time (tmux
+synchronized-output support, `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN`,
+Ghostty cursor style) without isolating a definitive cause. Since moving
+the persistent tmux session to the host (see Interactive Access above —
+`devbox` now wraps a plain `podman exec ... fish`, with no tmux running
+inside the container at all), `claude` renders normally under the
+`devbox` wrapper. This points to the bug being specific to tmux running
+inside the Alpine container rather than tmux in general.
 
 ### Devbox Image Rebuild Procedure
 
