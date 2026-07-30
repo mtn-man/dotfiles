@@ -30,7 +30,6 @@
     "disk",
     "wifi",
     "localip",
-    "publicip",
     "battery",
     "poweradapter",
     "break"
