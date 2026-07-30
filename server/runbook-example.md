@@ -395,184 +395,7 @@ journalctl --user-unit=mintmedia.service -n 100   # last 100 lines
 
 ---
 
-## 8. Devbox — Persistent Dev Container
-
-**Purpose**
-- Persistent, reproducible Alpine Linux container for long-running builds,
-  coding agents, and other dev tasks that don't need to live on the Mac client
-- Provides `git`, `gh`, Go, Rust, `tmux`, `lazygit`, and Claude Code, plus
-  the shell tooling the Mac side already leans on (`ripgrep`, `fzf`, `bat`,
-  `jq`, `eza`, `fd`) and Rust build essentials (`pkgconf`, `openssl-dev`,
-  `python3`)
-- `dev`'s login shell is `fish`; `bash` stays installed as a fallback
-
-**Service Type**
-- User-level Quadlet unit (rootless Podman), same tier as mintmedia — not a
-  system service like Jellyfin
-
-**Image Source**
-`~/devbox-image/Containerfile` — no git checkout exists on the server
-itself, so this is a manually-placed copy, same pattern as
-`~/nordvpn-image/`. Canonical, version-controlled source is on the Mac at
-`~/.dotfiles/server/devbox/Containerfile`.
-
-**Quadlet Unit File**
-`~/.config/containers/systemd/devbox.container` (canonical copy:
-`~/.dotfiles/server/systemd/user/devbox.container`)
-
-**Key Design Points**
-- `HostName=devbox` and `ContainerName=devbox` — fixed name and hostname
-- `UserNS=keep-id` maps the invoking host user's UID 1:1 into the container
-  (rather than to root); the container's `dev` user is pinned to UID/GID
-  1000 to match `<user>`, so bind-mounted file ownership is transparent on
-  both sides
-- Workspace: the existing `~/dev` tree is bind-mounted straight through to
-  `/home/dev/dev` rather than a separate directory — the same repos
-  (including mintmedia's own source checkout) are reachable at the same
-  path on host and in-container
-- All `Volume=` mounts use the `:Z` SELinux relabel suffix — this host runs
-  SELinux Enforcing, and without it the container (`container_t`) can't
-  write to host paths labeled `user_home_t`
-- No SSH client in the image (`openssh-client` deliberately omitted) — the
-  access model is host SSH (Tailscale) + `podman exec` in from there, never
-  SSH directly into the container itself, so an in-container SSH client
-  serves no purpose here
-- Tool state is split from the workspace and persisted separately, so
-  logins/config survive a crash-restart: `~/devbox/state/{claude,claude.json,gh,lazygit}`
-  and `~/devbox/state/git` (mounted at `~/.config/git`, not `~/.gitconfig`
-  directly — git falls back to the XDG path when `~/.gitconfig` doesn't
-  exist, which avoids a bind-mounted single file breaking tools that write
-  config via temp-file-then-rename)
-- `~/devbox/state/lazygit/config.yml` intentionally diverges from the
-  Mac's tracked copy (`~/.dotfiles/lazygit/.config/lazygit/config.yml`):
-  Alpine 3.23 ships `lazygit 0.48.0-r12`, which predates a v0.62.0 syntax
-  rework, so the `confirmInEditor` keybinding uses the old `<a-enter>` form
-  rather than the Mac's `<alt+enter>`. Don't sync the Mac's file over this
-  one without translating the syntax again.
-- The Containerfile explicitly pre-creates `/home/dev/.config` (owned
-  `dev:dev`) before `USER dev`. Without this, Podman auto-creates it as a
-  mount-parent directory (needed to attach `.config/gh` and `.config/git`)
-  owned `root:dev` with no group-write bit, which silently blocks `dev`
-  from creating any *other* entry directly under `~/.config` — this is how
-  the `lazygit` persistence above was found to be broken initially. Any
-  future bind mount under a not-yet-existing parent directory is at risk
-  of the same problem.
-- Shell configuration (`.bashrc`, `.vimrc`, `.tmux.conf`) is intentionally
-  **not** persisted — it comes from the image, so it stays reproducible
-  from the Containerfile. Like Jellyfin and Transmission, this container is
-  recreated fresh from the image on every systemd restart; only
-  `Volume=`-mounted paths survive
-- `fish` is the one exception to that rule: `~/.config/fish` is bind-mounted
-  straight from the host's own live fish config (`~/.dotfiles/server/fish`,
-  sourced manually per the repo's CLAUDE.md) rather than baked into the
-  Containerfile, so devbox's fish always matches whatever the host is
-  running — no image rebuild needed to pick up a config change
-- Resource ceiling: `MemoryMax=3G`, `CPUQuota=200%` — this is an 8 GiB N150
-  box also running Jellyfin, NordVPN+Transmission, and mintmedia; a long
-  build or an agent loop shouldn't be able to starve those
-
-**Check the Service**
-```sh
-systemctl --user status devbox.service
-podman ps
-```
-
-**Restart the Service**
-```sh
-systemctl --user restart devbox.service
-```
-Recreates the container fresh from the current image tag — anything
-outside a `Volume=` mount is lost (see Key Design Points).
-
-**Interactive Access**
-
-A single tmux session lives on the host (`lab`), not inside the container.
-The `devbox` fish function (`~/.config/fish/functions/devbox.fish`, sourced
-from `server/fish/functions/devbox.fish` in dotfiles) creates it on first
-use and just reattaches on every later call:
-```fish
-function devbox --description 'Attach to the persistent host-side tmux session, entering the devbox container on first use'
-    tmux new-session -A -s devbox 'podman exec -it -w /home/dev/dev devbox fish'
-end
-```
-`tmux new-session -A -s devbox` behaves like `attach-session` if `devbox`
-already exists — in that case the `podman exec` argument is ignored and
-you're dropped straight back into the running session, exactly as left.
-Only on first creation does it actually run `podman exec -it -w
-/home/dev/dev devbox fish`, landing in the bind-mounted `~/dev` workspace
-inside the container. Detach with `Ctrl-b d` rather than exiting, to leave
-it running.
-
-**Entry points** — the Mac's `dev` abbr (`fish/.config/fish/abbrs.fish`) and
-the `dev-raycast.sh` Raycast script both just run `ssh -t lab devbox`,
-delegating the tmux logic to the host-side function above.
-
-**Manual equivalent** (if the `devbox` function is ever unavailable):
-```sh
-ssh -t lab
-tmux new-session -A -s devbox 'podman exec -it -w /home/dev/dev devbox fish'
-```
-
-**Resolved — Claude Code rendering inside tmux:** dynamic/special symbols
-(box-drawing corners, logo glyphs) used to render as stray underscores when
-`claude` ran inside the *container's own* tmux session, back when the
-persistent session lived inside the container (`podman exec -it devbox
-tmux new -As main`). Several candidates were ruled out at the time (tmux
-synchronized-output support, `CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN`,
-Ghostty cursor style) without isolating a definitive cause. Since moving
-the persistent tmux session to the host (see Interactive Access above —
-`devbox` now wraps a plain `podman exec ... fish`, with no tmux running
-inside the container at all), `claude` renders normally under the
-`devbox` wrapper. This points to the bug being specific to tmux running
-inside the Alpine container rather than tmux in general.
-
-**Resolved — trackpad scroll picked up as arrow keys:** with tmux's
-`mouse` option off (the default), tmux never enables mouse reporting, so
-the terminal emulator falls back to translating scroll-wheel events into
-Up/Down arrow keypresses — landing wherever focus is (shell prompt,
-Claude Code TUI, etc.) instead of scrolling. Fixed with a host-side
-`~/.tmux.conf` (`set -g mouse on`), so tmux captures wheel events itself
-and scrolls pane history via copy-mode instead. Same persistence pattern
-as `fish` above: this is host-only config, not baked into the
-Containerfile, since tmux runs on the host and never inside the
-container. Canonical copy is `server/.tmux.conf` in dotfiles; applied
-live to an already-running session with `tmux source-file ~/.tmux.conf`.
-
-### Devbox Image Rebuild Procedure
-
-Needed when adding or updating tooling in the Containerfile.
-
-```sh
-cd ~/devbox-image
-podman build -t localhost/devbox:latest -f Containerfile .
-systemctl --user restart devbox.service
-```
-Rebuilding with the same tag retags `localhost/devbox:latest` to the new
-image; the previous image becomes dangling (untagged, not deleted). Clean
-up periodically:
-```sh
-podman image prune
-```
-
-### Removing Devbox
-
-Full teardown — service, image, build context, and persisted state:
-
-```sh
-systemctl --user stop devbox.service
-rm ~/.config/containers/systemd/devbox.container
-systemctl --user daemon-reload
-podman rmi localhost/devbox:latest
-podman image prune
-rm -rf ~/devbox-image ~/devbox
-```
-Does **not** touch `~/dev` — that's the shared workspace (also home to
-mintmedia's own source checkout), reused as-is rather than owned by devbox,
-so it's left alone regardless of how thorough a teardown this is.
-
----
-
-## 9. Networking and Access
+## 8. Networking and Access
 
 **Access Model**
 - Tailscale provides encrypted access
@@ -648,7 +471,7 @@ tailscale serve status
 tailscale serve --https=8443 off
 ```
 
-**Result** — `https://<hostname>.<tailnet-name>.ts.net:8443` (tailnet-only, valid cert, no browser warning), added *alongside* the existing direct access on `http://<tailscale-ip>:9090` and the LAN-only `public` zone exposure (Section 9, Firewalld Zone Configuration). The direct paths are left in place intentionally — they're the fallback if Tailscale itself is ever down.
+**Result** — `https://<hostname>.<tailnet-name>.ts.net:8443` (tailnet-only, valid cert, no browser warning), added *alongside* the existing direct access on `http://<tailscale-ip>:9090` and the LAN-only `public` zone exposure (Section 8, Firewalld Zone Configuration). The direct paths are left in place intentionally — they're the fallback if Tailscale itself is ever down.
 
 ---
 
@@ -714,7 +537,7 @@ IPv6 forwarding is not enabled — `net.ipv6.conf.all.forwarding` is not set. Th
 
 ---
 
-## 10. SMB File Sharing
+## 9. SMB File Sharing
 
 - SMB is enabled for:
   - Home directory
@@ -728,7 +551,7 @@ Usage expectations:
 
 ---
 
-## 11. Backups
+## 10. Backups
 
 **Frequency**
 - Weekly
@@ -746,7 +569,7 @@ Usage expectations:
 
 ---
 
-## 12. Jellyfin Configuration Backup & Restore
+## 11. Jellyfin Configuration Backup & Restore
 
 This section documents how Jellyfin configuration and state are backed up and restored.
 Media files are treated separately and are not covered here.
@@ -861,7 +684,7 @@ This procedure is used after:
 
 ---
 
-## 13. Update Policy
+## 12. Update Policy
 
 **Automatic**
 - Security updates only
@@ -876,7 +699,7 @@ See section 5 for the Jellyfin image update procedure, section 6 for the Transmi
 
 ---
 
-## 14. Routine Checks
+## 13. Routine Checks
 
 ### Daily Health Check (doctor)
 
@@ -929,7 +752,7 @@ podman ps -a
 last -x | head -n 30
 ```
 
-## 15. Common Failure Scenarios
+## 14. Common Failure Scenarios
 
 ### Jellyfin Not Running
 1. Check service status
@@ -1055,7 +878,7 @@ sudo podman exec transmission netstat -tnp | grep 51413
 
 ---
 
-## 16. Known Design Decisions
+## 15. Known Design Decisions
 
 - Single-node deployment by design
 - USB-attached storage accepted as a trade-off
@@ -1087,7 +910,7 @@ sudo dnf install bind-utils
 
 ---
 
-## 17. Shell Tooling
+## 16. Shell Tooling
 
 ### lf (terminal file manager)
 
@@ -1106,7 +929,7 @@ The `lf` fish function (`~/.config/fish/functions/lf.fish`) wraps lf with quit-a
 
 ---
 
-## 18. Final Notes
+## 17. Final Notes
 
 This system is intentionally simple and conservative.
 
