@@ -14,10 +14,12 @@ set -gx HOMEBREW_REQUIRE_TAP_TRUST 1
 
 # 2. Homebrew Initialization
 # Homebrew (Apple Silicon):
-# ensure /opt/homebrew/{bin,sbin} are at the front of PATH.
+# move /opt/homebrew/{bin,sbin} to the front of PATH, ahead of system paths.
 fish_add_path -gPm /opt/homebrew/bin /opt/homebrew/sbin
 
 # 3. Go Binary Path
+# Prepended after Homebrew so ~/go/bin shadows same-named Homebrew formulae,
+# for testing locally-built Go tools.
 fish_add_path -gP ~/go/bin
 
 # 4. Interactive Session Configuration
