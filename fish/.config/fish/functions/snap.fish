@@ -55,7 +55,7 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
         echo
         echo "## System state"
         echo '```bash'
-        doctor 2>/dev/null \
+        doctor 2>&1 \
             | string replace -ra '\x1b\[[0-9;]*[A-Za-z]' '' \
             | string replace -r '(tailscale:\s+up) \([^)]+\)' '$1 (censored)' \
             | string replace -r '(exit node:\s+\S+) \([^)]+\)' '$1 (censored)'
