@@ -48,8 +48,8 @@ function yt --description 'Download YouTube videos with options'
     # Setup output directory
     set -l outdir "$HOME/Movies/YouTube"
     set -l statedir "$HOME/.local/state/youtube"
-    if not mkdir -p "$outdir"
-        echo "yt: failed to create output directory: $outdir" >&2
+    if not mkdir -p "$outdir" "$statedir"
+        echo "yt: failed to create output/state directory" >&2
         return 1
     end
     
