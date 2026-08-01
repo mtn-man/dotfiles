@@ -169,8 +169,11 @@ function doctor --description 'Report system status and verify connectivity'
     # Dotfiles repo check
     set -l dotfiles ~/.dotfiles
     if test -d $dotfiles
+        set -l fetch_failed 0
         if set -q _flag_remote
-            git -C $dotfiles fetch --quiet 2>/dev/null
+            if not git -C $dotfiles fetch --quiet 2>/dev/null
+                set fetch_failed 1
+            end
         end
         set -l dirty (git -C $dotfiles status --porcelain 2>/dev/null)
         set -l has_upstream (git -C $dotfiles rev-parse --abbrev-ref @{upstream} 2>/dev/null)
@@ -183,6 +186,9 @@ function doctor --description 'Report system status and verify connectivity'
             set warnings (math $warnings + 1)
         else if test -z "$has_upstream"
             printf '%-20s %sno upstream configured%s\n' dotfiles: (set_color yellow) (set_color normal)
+            set warnings (math $warnings + 1)
+        else if test $fetch_failed -eq 1
+            printf '%-20s %sfetch failed (ahead/behind may be stale)%s\n' dotfiles: (set_color yellow) (set_color normal)
             set warnings (math $warnings + 1)
         else if test -n "$ahead_behind"
             set -l behind (string split \t $ahead_behind)[1]
