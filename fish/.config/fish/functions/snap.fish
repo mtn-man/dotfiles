@@ -99,6 +99,7 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
         echo "meta+j = open Jellyfin web client in browser"
         echo "meta+c = open Claude AI in browser"
         echo "meta+g = open ChatGPT in browser"
+        echo "meta+u = triggers the u abbr (brew update && upgrade && cleanup)"
         echo
 
         # 2. Applications
