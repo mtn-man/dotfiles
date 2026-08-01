@@ -146,7 +146,12 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
         __snap_file "~/.config/ghostty/config.ghostty" $dotfiles/ghostty/.config/ghostty/config.ghostty tex
         __snap_file "~/.config/lazygit/config.yml" $dotfiles/lazygit/.config/lazygit/config.yml yaml
         __snap_file "~/.config/mintmedia/config.toml" $dotfiles/mintmedia/.config/mintmedia/config.toml toml
+        __snap_file "~/.config/fastfetch/config.jsonc" $dotfiles/fastfetch/.config/fastfetch/config.jsonc jsonc
+        __snap_file "~/.homebrew/trust.json" $dotfiles/homebrew/.homebrew/trust.json json
+        __snap_file "~/.config/linearmouse/linearmouse.json" $dotfiles/linearmouse/.config/linearmouse/linearmouse.json json
         __snap_file "~/.vimrc" ~/.vimrc vim
+        # .gitconfig is left out for security purposes.
+        # btop.conf is left out: mostly default boilerplate, low signal.
     end \
         | string replace -a -- "$HOMELAB" 'censored' \
         | string replace -a -- "$HOMELAB_LOCAL" 'censored' \
