@@ -26,8 +26,7 @@ set hidden!
 # --- zoxide integration (fish-compatible) ---
 
 # Teach zoxide about directories visited in lf
-cmd cd ${{
-    command cd -- $argv
+cmd on-cd &{{
     if type -q zoxide
         zoxide add -- $PWD >/dev/null 2>&1
     end
