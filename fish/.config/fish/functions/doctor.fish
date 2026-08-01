@@ -4,7 +4,9 @@ function doctor --description 'Report system status and verify connectivity'
     set -l criticals 0
 
     # Env var checks
-    for var in HOMELAB HOMELAB_LOCAL MEDIA_SHARE
+    # HOMELAB_LOCAL is not checked here: access is now primarily over Tailscale,
+    # so its absence isn't an error, even though it's still useful to have set.
+    for var in HOMELAB MEDIA_SHARE
         if not set -q $var
             printf '%serror: $%s is not set%s\n' (set_color red) $var (set_color normal) >&2
             set criticals (math $criticals + 1)
