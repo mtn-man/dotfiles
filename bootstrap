@@ -50,7 +50,7 @@ fi
 
 echo "==> Removing files that Homebrew creates on first run (will be replaced by stow)..."
 if ! test -L "$HOME/.homebrew"; then
-    rm -f "$HOME/.homebrew/trust.json"
+    rm -rf "$HOME/.homebrew"
 fi
 
 echo "==> Removing .DS_Store files from dotfiles..."
