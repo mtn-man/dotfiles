@@ -62,7 +62,7 @@ find "$DOTFILES" -name '.DS_Store' -delete
 STOW_PKGS=()
 while IFS= read -r pkg; do
     STOW_PKGS+=("$pkg")
-done < <(grep -v '^#' "$DOTFILES/stow-packages" | grep -v '^[[:space:]]*$')
+done < <(grep -v '^[[:space:]]*$' "$DOTFILES/stow-packages")
 
 echo "==> Checking for stow conflicts..."
 if ! stow_output=$(stow -nRt "$HOME" --dir="$DOTFILES" "${STOW_PKGS[@]}" 2>&1); then

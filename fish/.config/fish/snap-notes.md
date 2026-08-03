@@ -6,6 +6,11 @@ Full system backups are performed frequently to an air-gapped time machine SSD
 (see doctor output for exact time since last backup).
 My dotfiles are also backed up to a remote github repo.
 
+stow-packages is the single source of truth for which packages get stowed:
+bootstrap reads it to know what to stow, and doctor reads it to dry-run stow
+and confirm everything is actually deployed. stow-add and stow-remove keep
+it in sync automatically.
+
 A CentOS Stream 10 homelab server is accessible over Tailscale, with SMB shares mounted on demand via Finder.
 
 At my desk, a 40w underspecced charger is used to keep battery heat to a minumum.

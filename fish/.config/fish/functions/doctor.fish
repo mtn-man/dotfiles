@@ -107,7 +107,7 @@ function doctor --description 'Report system status and verify connectivity'
     # `bootstrap` deploys (stow-packages), instead of hand-tracking targets
     # that can silently drift out of sync with what bootstrap actually stows.
     set -l dotfiles ~/.dotfiles
-    set -l stow_pkgs (grep -v '^#' $dotfiles/stow-packages 2>/dev/null | string match -rv '^[[:space:]]*$')
+    set -l stow_pkgs (cat $dotfiles/stow-packages 2>/dev/null | string match -rv '^[[:space:]]*$')
     if test -z "$stow_pkgs"
         printf '%sstow: could not read %s/stow-packages%s\n' (set_color red) $dotfiles (set_color normal) >&2
         set warnings (math $warnings + 1)
