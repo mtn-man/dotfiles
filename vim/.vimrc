@@ -5,6 +5,7 @@ set backspace=indent,eol,start
 set incsearch
 set hlsearch
 set clipboard=unnamed
+set mouse=a
 
 autocmd FileType go setlocal noexpandtab tabstop=4 shiftwidth=4
 
