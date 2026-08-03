@@ -62,44 +62,12 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
         echo '```'
 
         echo
-        echo "System notes:"
-        echo "This snapshot provides a single-file view of the system configuration, useful"
-        echo "for recovery, human review, and giving AI assistants full context about this machine."
-        echo "Full system backups are performed frequently to an air-gapped time machine SSD"
-        echo "(see doctor output for exact time since last backup)."
-        echo "Dotfiles are also backed up to a remote github repo and symlinked into place with GNU stow."
-        echo "A CentOS Stream 10 homelab is accessible over Tailscale, with SMB shares mounted on demand"
-        echo "via Finder."
-        echo "At my desk, a 40w underspecced charger is used to keep battery heat to a minumum."
-        echo "This machine is not used for long-running intensive tasks when in this docked state."
-        echo "kitty is kept installed for its kitten icat image rendering;"
-        echo "Ghostty is my primary terminal emulator."
-        echo "On macOS, raw memory utilization is less meaningful than memory pressure — the OS aggressively"
-        echo "compresses inactive pages and reclaims memory on demand, so high utilization alone doesn't"
-        echo "indicate a problem."
-        echo
-        echo "Keybinds: Aside from the bindings recorded in the dotfiles, there are several other relevant keybinds."
-        echo "ctrl+option+arrows = window resizing actions (half screen) via Raycast (magnet-style bindings)."
-        echo "ctrl+option={uijk} = window resizing (corners) -- via Raycast"
-        echo "ctrl+option+return = maximize focused window -- via Raycast"
-        echo "ctrl+option=m = almost maximize window -- via Raycast"
-        echo "ctrl+shift+t = empty trash (no confirm) -- via Supercharge"
-        echo "ctrl+shift+e = eject all external disks -- via Supercharge"
-        echo "cmd+return = open Ghostty (hide if already in foreground) -- via Raycast"
-        echo "ctrl+left/right = switch to previous/next Mission Control space -- native macOS"
-        echo "ctrl+{1-9,0} = jump directly to Mission Control space 1-10 -- native macOS"
-        echo "Raycast also has the CAPSLOCK key bound as my meta key for the bindings below."
-        echo "meta+f = search files"
-        echo "meta+t = invokes my tm.fish function"
-        echo "meta+k = open Google Keep in browser (my notes app)"
-        echo "meta+y = open YouTube in browser"
-        echo "meta+p = search Perplexity"
-        echo "meta+m = search Google Maps"
-        echo "meta+d = search DuckDuckGo (my preferred engine)"
-        echo "meta+j = open Jellyfin web client in browser"
-        echo "meta+c = open Claude AI in browser"
-        echo "meta+g = open ChatGPT in browser"
-        echo "meta+u = triggers the u abbr (brew update && upgrade && cleanup)"
+        if test -f $__fish_config_dir/snap-notes.md
+            cat $__fish_config_dir/snap-notes.md
+        else
+            echo "snap: missing $__fish_config_dir/snap-notes.md" >&2
+            set -ga __snap_errors $__fish_config_dir/snap-notes.md
+        end
         echo
 
         # 2. Applications
