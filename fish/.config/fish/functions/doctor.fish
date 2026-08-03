@@ -103,35 +103,25 @@ function doctor --description 'Report system status and verify connectivity'
         printf '%-20s %sok%s\n' toolchain: (set_color green) (set_color normal)
     end
 
-    # Stow symlinks check
-    set -l stow_links \
-        "$HOME/.config/fish" \
-        "$HOME/.config/ghostty" \
-        "$HOME/.config/lf" \
-        "$HOME/.config/fastfetch" \
-        "$HOME/.config/btop" \
-        "$HOME/.hammerspoon" \
-        "$HOME/.config/linearmouse" \
-        "$HOME/.config/mintmedia" \
-        "$HOME/.config/lazygit" \
-        "$HOME/.gitconfig" \
-        "$HOME/.vimrc" \
-        "$HOME/.homebrew" \
-        "$HOME/Library/LaunchAgents/local.doctor.plist"
-    set -l stow_ok 1
-    for link in $stow_links
-        if not test -L $link
-            printf '%sstow: %s missing%s\n' (set_color red) $link (set_color normal) >&2
-            set stow_ok 0
+    # Stow symlinks check: dry-run stow itself against the same package list
+    # `bootstrap` deploys (stow-packages), instead of hand-tracking targets
+    # that can silently drift out of sync with what bootstrap actually stows.
+    set -l dotfiles ~/.dotfiles
+    set -l stow_pkgs (grep -v '^#' $dotfiles/stow-packages 2>/dev/null | string match -rv '^[[:space:]]*$')
+    if test -z "$stow_pkgs"
+        printf '%sstow: could not read %s/stow-packages%s\n' (set_color red) $dotfiles (set_color normal) >&2
+        set warnings (math $warnings + 1)
+    else
+        set -l stow_output (stow -nv -t $HOME --dir=$dotfiles $stow_pkgs 2>&1)
+        set -l stow_status $status
+        if test $stow_status -ne 0
+            or string match -q '*LINK:*' -- "$stow_output"
+            printf '%sstow: packages not fully deployed%s\n' (set_color red) (set_color normal) >&2
+            printf '%s\n' $stow_output >&2
             set warnings (math $warnings + 1)
-        else if not test -e $link
-            printf '%sstow: %s broken symlink%s\n' (set_color red) $link (set_color normal) >&2
-            set stow_ok 0
-            set warnings (math $warnings + 1)
+        else
+            printf '%-20s %sok%s\n' 'stow links:' (set_color green) (set_color normal)
         end
-    end
-    if test $stow_ok -eq 1
-        printf '%-20s %sok%s\n' 'stow links:' (set_color green) (set_color normal)
     end
 
     # Brewfile drift check

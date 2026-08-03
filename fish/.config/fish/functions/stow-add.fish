@@ -23,4 +23,11 @@ function stow-add --description 'Move a ~/.config package into dotfiles and stow
     mv $src $dest
 
     stow -vt $HOME -d $dotfiles $package
+
+    # Keep stow-packages (bootstrap's and doctor's shared package list) in
+    # sync so newly tracked packages don't have to be added there by hand.
+    set -l pkglist $dotfiles/stow-packages
+    if test -f $pkglist; and not grep -qxF $package $pkglist
+        echo $package >> $pkglist
+    end
 end

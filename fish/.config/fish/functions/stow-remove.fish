@@ -25,4 +25,13 @@ function stow-remove --description 'Unstow a dotfiles package and move it back t
         return 1
     end
     rm -rf $dotfiles/$package
+
+    # Keep stow-packages (bootstrap's and doctor's shared package list) in
+    # sync so removed packages don't linger there by hand.
+    set -l pkglist $dotfiles/stow-packages
+    if test -f $pkglist
+        set -l tmp (mktemp)
+        grep -vxF -- $package $pkglist > $tmp
+        mv $tmp $pkglist
+    end
 end

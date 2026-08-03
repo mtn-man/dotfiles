@@ -87,6 +87,7 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
         # 3. Dotfiles
         __snap_file "~/.dotfiles/Brewfile (also backed-up to dotfiles repo)" $dotfiles/Brewfile ruby
         __snap_file "~/.dotfiles/bootstrap" $dotfiles/bootstrap bash
+        __snap_file "~/.dotfiles/stow-packages" $dotfiles/stow-packages text
 
         # 4. Fish config
         __snap_file "~/.config/fish/config.fish" $__fish_config_dir/config.fish fish

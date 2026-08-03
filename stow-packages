@@ -1,0 +1,15 @@
+# Single source of truth for which packages get stowed by `bootstrap`
+# and validated by `doctor`. One package name per line; # starts a comment.
+fish
+ghostty
+lf
+fastfetch
+btop
+hammerspoon
+linearmouse
+mintmedia
+homebrew
+launchd
+git
+vim
+lazygit
