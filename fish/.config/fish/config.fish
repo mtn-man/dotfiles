@@ -24,7 +24,8 @@ fish_add_path -gP ~/go/bin
 
 # 4. Interactive Session Configuration
 if status is-interactive
-    source ~/.config/fish/abbrs.fish
+    source $__fish_config_dir/abbrs.fish
+    source $__fish_config_dir/aliases.fish
     # zoxide init
     command -q zoxide; and zoxide init fish --cmd cd | source
     set -x GPG_TTY (tty)
