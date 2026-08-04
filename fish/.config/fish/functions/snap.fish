@@ -92,7 +92,7 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
         # 4. Fish config
         __snap_file "~/.config/fish/config.fish" $__fish_config_dir/config.fish fish
         __snap_file "~/.config/fish/abbrs.fish" $__fish_config_dir/abbrs.fish fish
-        __snap_file "~/.config/fish/aliases.fish" $__fish_config_dir/aliases.fish
+        __snap_file "~/.config/fish/aliases.fish" $__fish_config_dir/aliases.fish fish
 
         echo "The following reside in separate files within the ~/.config/fish/functions directory:"
         echo
