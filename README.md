@@ -2,7 +2,7 @@
 
 ### Notes
 
-* `stow -vt $HOME <package>` from repo root
+* `./bootstrap` from repo root
 * `server/` = CentOS Stream 10 homelab
 * `fedora/` = Fedora development/testing machine
 * Everything else targets macOS unless otherwise noted
