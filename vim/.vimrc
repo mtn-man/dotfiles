@@ -4,7 +4,7 @@ set number
 set backspace=indent,eol,start
 set incsearch
 set hlsearch
-set clipboard=unnamedplus
+set clipboard=unnamed
 set mouse=a
 set ignorecase smartcase
 set hidden
