@@ -107,14 +107,14 @@ function snap --description 'Rebuild ~/dev/snapshots/snapshot-<date>.md with liv
         end
 
         # 5. lf config
-        __snap_file "~/.config/lf/lfrc" $dotfiles/lf/.config/lf/lfrc tex
+        __snap_file "~/.config/lf/lfrc" $dotfiles/lf/.config/lf/lfrc text
         __snap_file "~/.config/lf/pv.sh" $dotfiles/lf/.config/lf/pv.sh bash
         __snap_file "~/.config/lf/clean.sh" $dotfiles/lf/.config/lf/clean.sh bash
 
         # 6. App configs
         __snap_file "~/Library/LaunchAgents/local.doctor.plist" $dotfiles/launchd/Library/LaunchAgents/local.doctor.plist xml
         __snap_file "~/.hammerspoon/init.lua" $dotfiles/hammerspoon/.hammerspoon/init.lua lua
-        __snap_file "~/.config/ghostty/config.ghostty" $dotfiles/ghostty/.config/ghostty/config.ghostty tex
+        __snap_file "~/.config/ghostty/config.ghostty" $dotfiles/ghostty/.config/ghostty/config.ghostty text
         __snap_file "~/.config/lazygit/config.yml" $dotfiles/lazygit/.config/lazygit/config.yml yaml
         __snap_file "~/.config/mintmedia/config.toml" $dotfiles/mintmedia/.config/mintmedia/config.toml toml
         __snap_file "~/.config/fastfetch/config.jsonc" $dotfiles/fastfetch/.config/fastfetch/config.jsonc jsonc
