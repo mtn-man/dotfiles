@@ -6,7 +6,7 @@ function doctor --description 'Report system status and verify connectivity'
     # Env var checks
     # HOMELAB_LOCAL is not checked here: access is now primarily over Tailscale,
     # so its absence isn't an error, even though it's still useful to have set.
-    for var in HOMELAB MEDIA_SHARE
+    for var in HOMELAB
         if not set -q $var
             printf '%serror: $%s is not set%s\n' (set_color red) $var (set_color normal) >&2
             set criticals (math $criticals + 1)
@@ -66,8 +66,9 @@ function doctor --description 'Report system status and verify connectivity'
     end
 
     # Media mount
+    set -l media_volume media
     set -l media_mounted no
-    if mount | string match -q "* on /Volumes/$MEDIA_SHARE (*"
+    if mount | string match -q "* on /Volumes/$media_volume (*"
         set media_mounted yes
     end
     if test "$media_mounted" = yes

@@ -1,6 +1,5 @@
 # 1. Environment Variables
 set -gx EDITOR "vim"
-set -g  MEDIA_SHARE "media"
 # Host-specific secrets/IPs (gitignored, not tracked) — see env.fish.example
 if test -f ~/.config/fish/env.fish
     source ~/.config/fish/env.fish
