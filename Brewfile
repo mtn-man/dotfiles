@@ -6,6 +6,8 @@ brew "bat"
 brew "btop"
 # GNU File, Shell, and Text utilities
 brew "coreutils"
+# DuckDuckGo from the terminal
+brew "ddgr"
 # View disk space usage and delete unwanted data, fast
 brew "dua-cli"
 # Select default apps for documents and URL schemes on macOS
@@ -37,11 +39,13 @@ brew "jq"
 # Simple terminal UI for git commands
 brew "lazygit"
 # Terminal Markdown previewer with a GUI-like experience
-brew "leaf-md"
+brew "leaf-markdown-viewer"
 # Terminal file manager
 brew "lf"
 # Interpreted, interactive, object-oriented programming language
 brew "python@3.14"
+# Port scanning utility for large networks
+brew "nmap"
 # Search tool like grep and The Silver Searcher
 brew "ripgrep"
 # Rust toolchain installer
