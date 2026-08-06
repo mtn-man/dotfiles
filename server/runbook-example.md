@@ -248,6 +248,12 @@ sudo restorecon -Rv /var/lib/transmission /mnt/storage/Downloads
 - Tailscale interface (`tailscale0`) is in the trusted zone
 - NordVPN allowlist includes `10.88.0.0/16` and `100.64.0.0/10` (baked into container entrypoint)
 
+### Known Non-Leak: nordvpnd Control-Plane Traffic on the Bridge
+
+Bridge-sourced connections (`10.88.0.3`) to arbitrary external IPs are expected — `nordvpnd`'s kill switch exempts its own control-plane traffic (fwmark `0xe1f1`) from the forced-VPN table. Confirmed 2026-08-06 via socket inode lookup that one such connection belonged to `nordvpnd`, not Transmission; torrent/peer traffic correctly routes via `10.5.0.2` (tunnel) and is unaffected.
+
+---
+
 ### NordVPN Container Rebuild Procedure
 
 This procedure updates the nordvpn client inside the container to the latest version available from NordVPN's apt repository. It is needed when upstream NordVPN changes cause connection failures, or as a proactive maintenance step.
