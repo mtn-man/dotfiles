@@ -66,8 +66,6 @@ brew "yt-dlp"
 brew "zoxide"
 # Fast CLI countdown timer with live terminal feedback and optional alarms
 brew "mtn-man/tap/after", trusted: true
-# Organize downloaded media into clean Movies and Shows libraries
-brew "mtn-man/tap/mintmedia", trusted: true
 # Application uninstaller
 cask "appcleaner"
 # Desktop password and login vault
