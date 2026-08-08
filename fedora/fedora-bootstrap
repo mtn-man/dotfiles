@@ -61,6 +61,7 @@ PKGS=(
     fd-find
     ripgrep
     zoxide
+    ddgr
     vim
     btop
 
@@ -222,8 +223,16 @@ if [[ -f "$HOME/.config/git/config" && ! -L "$HOME/.config/git" ]]; then
     rm "$HOME/.config/git/config"
 fi
 
-PACKAGES=(fish lf vim kitty sway swaylock waybar rofi yt-dlp fastfetch)
+[[ -s "$DOTFILES/stow-packages" ]] || die "$DOTFILES/stow-packages is missing or empty — nothing to stow"
+
+mapfile -t ALL_PACKAGES < <(grep -v '^[[:space:]]*$' "$DOTFILES/stow-packages")
 PACKAGES_NO_FOLD=(git)
+PACKAGES=()
+for pkg in "${ALL_PACKAGES[@]}"; do
+    if [[ ! " ${PACKAGES_NO_FOLD[*]} " =~ " ${pkg} " ]]; then
+        PACKAGES+=("$pkg")
+    fi
+done
 
 for pkg in "${PACKAGES[@]}"; do
     if [[ -d "$DOTFILES/$pkg" ]]; then

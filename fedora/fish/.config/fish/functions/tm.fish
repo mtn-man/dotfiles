@@ -12,7 +12,17 @@ function tm --description 'Manage Transmission-CLI services and magnet links'
             return
     end
 
-    # Preflight: ensure Transmission RPC is reachable
+    # Preflight: fast port probe first so a dead tunnel fails in ~1s instead of
+    # waiting out the OS TCP connect timeout, then confirm the RPC actually responds.
+    # -w is Ncat's (nmap-ncat) connect timeout, unlike classic BSD/GNU nc where
+    # -w is idle-only and doesn't bound connect() at all.
+    set -l host_ip (string split ':' $host)[1]
+    set -l host_port (string split ':' $host)[2]
+    if not nc -z -w 1 $host_ip $host_port >/dev/null 2>&1
+        echo "tm: Transmission RPC at $host is unreachable (connection timed out)" >&2
+        echo "tm: ensure tailscale is active and the Transmission server is up." >&2
+        return 1
+    end
     if not transmission-remote "$host" -l >/dev/null 2>&1
         echo "tm: Transmission RPC not reachable at $host" >&2
         echo "tm: ensure tailscale is active and homelab is up." >&2

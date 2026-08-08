@@ -19,7 +19,7 @@ stow -vt $HOME */
 Each package follows XDG convention: `<package>/.config/<package>/` → `~/.config/<package>/`.
 
 - `server/` Fish config is sourced manually on the homelab (not stow-deployed).
-- `fedora/` has its own bootstrap and stows `fish`, `lf`, `micro`, `kitty`, `sway`, `swaylock`, `waybar`, `rofi`, `yt-dlp`, `fastfetch`, and `git` (Sway desktop stack, with Linux-specific paths).
+- `fedora/` has its own bootstrap and stows the packages listed in `fedora/stow-packages` (Sway desktop stack, with Linux-specific paths).
 
 ## Package Installation
 
@@ -51,7 +51,7 @@ For Fedora, run `fedora/fedora-bootstrap` (installs via dnf + RPM Fusion, enable
 - **`launchd/`** — macOS launchd agents: `local.doctor.plist` runs `doctor-notify` daily at 9am
 - **`raycast-scripts/`** — Raycast script commands
 - **`server/`** — CentOS homelab: Fish config + `server/bin/backup` (rsync cold backup script)
-- **`fedora/`** — Fedora Sway workstation: bootstrap script + fish/lf/micro/kitty/git configs, Sway compositor, swaylock, waybar, rofi, yt-dlp, fastfetch
+- **`fedora/`** — Fedora Sway workstation: bootstrap script + fish/lf/vim/kitty/git configs, Sway compositor, swaylock, waybar, rofi, yt-dlp, fastfetch
 
 ## Network Architecture
 
@@ -96,4 +96,4 @@ Never create commits unless explicitly instructed to. The user reviews all chang
 
 ## Git-ignored Paths
 
-Fish shell state (`fish_history`, `fish_variables`, `conf.d/`), micro editor buffers/history, and `.DS_Store` files are excluded from version control.
+Fish shell state (`fish_history`, `fish_variables`, `conf.d/`) and `.DS_Store` files are excluded from version control.

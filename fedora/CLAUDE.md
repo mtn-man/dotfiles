@@ -10,7 +10,7 @@ Notes on the Fedora Sway spin that aren't obvious from the code.
 
 ## Packages
 
-Deployed via GNU Stow from the `fedora/` subdirectory: `fish`, `lf`, `micro`, `vim`, `kitty`, `sway`, `swaylock`, `waybar`, `rofi`, `yt-dlp`, `fastfetch`.
+Deployed via GNU Stow from the `fedora/` subdirectory. The package list lives in `fedora/stow-packages` — the shared source of truth read by `fedora-bootstrap` and kept in sync automatically by `stow-add`/`stow-remove`.
 
 Out-of-repo packages are handled by bootstrap section 3 via COPR / external repos:
 - **lazygit** — `atim/lazygit` COPR
@@ -63,7 +63,7 @@ Stripped-down compared to macOS — no VPN, media, or doctor functions. Fedora-s
 | `update` | Runs `fedora-bootstrap` — installs missing packages, upgrades all packages, updates flatpaks, and re-applies all system configuration |
 | `snap` | Rebuilds `~/dev/snapshot.md` with live system data |
 | `yt` | yt-dlp wrapper: reads URL from clipboard if omitted, interactive codec/res picker (`-i`), downloads to `~/Videos/YouTube`, embeds metadata & thumbnails, maintains archive |
-| `fv` | File search + open in vim (fd + fzf + bat preview), supports leading vim flags (e.g. `fv -y`, `fv +42`) |
+| `fv` | File search + open in vim (fd + fzf + bat preview), supports vim flags anywhere in the arguments (e.g. `fv -y`, `fv +42`) |
 | `lf` | Wraps lf with quit-and-cd integration, evicts old thumbnails (30d+) and stale tmp files (1d+) |
 | `stow-add` | Moves `~/.config/<pkg>` into dotfiles and stows it |
 | `tm` | Send magnet links and torrents to homelab Transmission via `transmission-remote` (shared with macOS) |

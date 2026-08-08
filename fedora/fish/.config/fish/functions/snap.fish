@@ -57,9 +57,8 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         echo
         echo "System note: Fedora 44 Sway spin on ThinkPad T14 Gen 1 (i5-10210U, 16GB RAM)."
         echo "Dotfiles managed with GNU Stow from ~/.dotfiles/fedora/."
-        echo "Packages stowed: fish, lf, vim, kitty, sway, swaylock, waybar, rofi, fastfetch, yt-dlp."
         echo "Notification daemon is dunst; idle/lock is swayidle — both provided by the Fedora Sway spin."
-        echo "Full package list is in fedora-bootstrap."
+        echo "Stowed package list is in stow-packages (below)."
         echo
 
         # 2. Installed packages
@@ -78,6 +77,7 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
 
         # 3. Bootstrap
         __snap_file "~/.dotfiles/fedora/fedora-bootstrap" $dotfiles/fedora-bootstrap bash
+        __snap_file "~/.dotfiles/fedora/stow-packages" $dotfiles/stow-packages text
 
         # 4. Fish config
         __snap_file "~/.config/fish/config.fish" $__fish_config_dir/config.fish fish
@@ -87,6 +87,12 @@ function snap --description 'Rebuild ~/dev/snapshot.md with live data'
         echo
         for f in $__fish_config_dir/functions/*.fish
             __snap_file "~/.config/fish/functions/"(basename $f) $f fish
+        end
+
+        echo "The following reside in separate files within the ~/.config/fish/completions directory:"
+        echo
+        for f in $__fish_config_dir/completions/*.fish
+            __snap_file "~/.config/fish/completions/"(basename $f) $f fish
         end
 
         # 5. lf config
