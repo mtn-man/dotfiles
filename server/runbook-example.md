@@ -361,7 +361,7 @@ sudo systemctl restart transmission.service
 **Purpose**
 - Watches `/mnt/storage/Downloads/complete` for completed downloads
 - Renames and moves media to `/mnt/storage/Movies` or `/mnt/storage/Shows`
-- Monitors Transmission via RPC; auto-removes completed torrents after successful processing
+- Does not talk to Transmission directly — Transmission's own "move completed downloads to" setting drops finished files into the watch folder; mintmedia only reacts to what appears there
 
 **Service Type**
 - systemd user service, running the mintmedia daemon directly (`Type=simple`)
@@ -373,7 +373,7 @@ sudo systemctl restart transmission.service
 - Runs as a user service under `<user>`; linger is enabled so it starts at boot without login
 - `Restart=on-failure` — systemd restarts the daemon automatically if it exits unexpectedly
 - Built and updated manually from source at `~/dev/golang/mintmedia`
-- Transmission integration connects to `<tailscale-ip>:9091` (Tailscale)
+- Transmission RPC integration (`[torrent]` / clipboard automation) is disabled in this instance's config — the server is headless, so there's no desktop session or clipboard to ingest magnet links from. That role is handled from a client machine on the tailnet (e.g. `tm.fish`, or a client-side mintmedia instance pointed at `<tailscale-ip>:9091`), which sends links/torrents to the server's Transmission over Tailscale
 - `defer_destination_checks = true` — daemon starts even if `/mnt/storage` is not yet mounted; queues work until storage is available
 
 **Check the Service**
