@@ -202,10 +202,10 @@ function doctor --description 'Report system status and verify connectivity'
     # Note: Intentionally querying Destinations[0] to strictly monitor the primary air-gapped drive.
     # Flattening the array risks matching local APFS MobileBackups, which masks failed hardware commits.
     set -l last_snapshot (defaults export /Library/Preferences/com.apple.TimeMachine - 2>/dev/null | python3 -c "
-    import plistlib, sys
-    p = plistlib.loads(sys.stdin.buffer.read())
-    dates = p['Destinations'][0]['SnapshotDates']
-    print(dates[-1].strftime('%Y-%m-%d %H:%M:%S +0000'))
+import plistlib, sys
+p = plistlib.loads(sys.stdin.buffer.read())
+dates = p['Destinations'][0]['SnapshotDates']
+print(dates[-1].strftime('%Y-%m-%d %H:%M:%S +0000'))
     " 2>/dev/null)
     if test -n "$last_snapshot" -a "$last_snapshot" != null
         set -l backup_epoch (date -j -f "%Y-%m-%d %H:%M:%S %z" $last_snapshot "+%s" 2>/dev/null)
