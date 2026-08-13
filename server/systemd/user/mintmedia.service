@@ -1,10 +1,11 @@
 [Unit]
 Description=mintmedia daemon
 After=network.target
+RequiresMountsFor=/mnt/storage
 
 [Service]
 Type=simple
-ExecStart=%h/go/bin/mintmedia --daemon
+ExecStart=%h/go/bin/mintmedia --daemon --verbose
 Restart=on-failure
 
 [Install]
