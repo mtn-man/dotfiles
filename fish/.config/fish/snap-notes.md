@@ -28,9 +28,7 @@ Keybinds: Aside from the bindings recorded in the dotfiles, there are several ot
     ctrl+option={uijk} = window resizing (corners) -- via Raycast
     ctrl+option+return = maximize focused window -- via Raycast
     ctrl+option=m = almost maximize window -- via Raycast
-    ctrl+shift+t = empty trash (no confirm) -- via Supercharge
     ctrl+shift+e = eject all external disks -- via Raycast
-    ctrl+shift+n = clear system notifications -- via Supercharge (currently broken in macOS 27 beta)
     cmd+return = open Ghostty (hide if already in foreground) -- via Raycast
     ctrl+left/right = switch to previous/next Mission Control space -- native macOS
     ctrl+{1-9,0} = jump directly to Mission Control space 1-10 -- native macOS
