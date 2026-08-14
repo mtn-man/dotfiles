@@ -30,23 +30,10 @@ function fv --description 'Open file in vim via fd search (fzf when multiple mat
     # Search $search_dirs together
     set -l matches (fd $fd_opts "$query[1]" $search_dirs)
 
-    # Fallback: search current working directory if no matches, unless cwd is
-    # already inside one of $search_dirs (already covered by the search above)
+    # Fallback: search current working directory if no matches
     if test (count $matches) -eq 0
-        set -l pwd_real (path resolve $PWD)
-        set -l cwd_in_search_dirs 0
-        for d in $search_dirs
-            set -l d_real (path resolve $d)
-            if test "$pwd_real" = "$d_real"; or string match -q -- "$d_real/*" "$pwd_real"
-                set cwd_in_search_dirs 1
-                break
-            end
-        end
-
-        if test $cwd_in_search_dirs -eq 0
-            echo "fv: no matches in $search_dirs, searching cwd..."
-            set matches (fd $fd_opts "$query[1]" .)
-        end
+        echo "fv: no matches in $search_dirs, searching cwd..."
+        set matches (fd $fd_opts "$query[1]" .)
     end
 
     switch (count $matches)
