@@ -81,5 +81,5 @@ Stripped-down compared to macOS — no VPN, media, or doctor functions. Fedora-s
 
 ## Fish Prompt
 
-- Git status caches for **3 seconds per directory**, invalidating on `.git/HEAD` change (catches branch switches and resets without stat-ing on every keystroke)
+- Git status comes from fish's stock `fish_vcs_prompt`, called directly on every render
 - Right prompt shows command duration only when > 3 seconds
