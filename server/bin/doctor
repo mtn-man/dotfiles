@@ -91,6 +91,21 @@ else
     row "drive temp" "ok (standby)"
 fi
 
+# Drive health — SMART overall-health self-assessment + reallocated/pending sector counts (informational)
+health_output=$(sudo smartctl -H -A -d sat "$storage_dev" 2>/dev/null || true)
+health_line=$(printf '%s' "$health_output" | grep -i "overall-health self-assessment")
+realloc=$(printf '%s' "$health_output" | awk '$1 == 5 {print $NF}')
+pending=$(printf '%s' "$health_output" | awk '$1 == 197 {print $NF}')
+if printf '%s' "$health_line" | grep -q "PASSED"; then
+    row "drive health" "ok (PASSED, reallocated=${realloc:-?}, pending=${pending:-?})"
+elif printf '%s' "$health_line" | grep -q "FAILED"; then
+    row "drive health" "CRITICAL: SMART self-assessment FAILED (reallocated=${realloc:-?}, pending=${pending:-?})"
+    criticals=$(( criticals + 1 ))
+else
+    row "drive health" "warn: check failed"
+    warnings=$(( warnings + 1 ))
+fi
+
 # Recent reboot
 boot_epoch=$(date -d "$(uptime -s)" +%s)
 now_epoch=$(date +%s)
