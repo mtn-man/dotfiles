@@ -6,7 +6,7 @@ PartOf=nordvpn.service
 
 [Service]
 Type=exec
-ExecStartPre=/bin/sh -lc 'for i in $(seq 1 60); do sudo podman exec nordvpn nordvpn status 2>/dev/null | grep -q "Status: Connected" && exit 0; sleep 2; done; exit 1'
+ExecStartPre=/bin/sh -lc 'for i in $(seq 1 60); do podman exec nordvpn nordvpn status 2>/dev/null | grep -q "Status: Connected" && exit 0; sleep 2; done; exit 1'
 ExecStart=/usr/bin/podman run \
   --name transmission \
   --replace \

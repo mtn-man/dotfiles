@@ -55,19 +55,28 @@ Design assumption:
 - USB storage may take significant time to spin up and enumerate after an unplanned power cut
 
 Mitigation:
-- Jellyfin startup is explicitly tied to storage availability
-- Jellyfin will not start until storage is mounted
-- Jellyfin will stop if storage disappears
+- Jellyfin, NordVPN, and Transmission startup are all explicitly tied to storage availability via `Requires=mnt-storage.mount`
+- None of these services start until storage is mounted; all stop if storage disappears
+- If `/mnt/storage` isn't ready by the time systemd first evaluates these services at boot, their start jobs fail with a "dependency" result. Systemd does not automatically retry a dependency-failed job on its own once the mount later succeeds — a service that only `Requires=` the mount can be left permanently `inactive` even after storage comes online.
+- `/etc/systemd/system/mnt-storage.mount.d/override.conf` closes that gap:
+  ```ini
+  [Unit]
+  Wants=jellyfin.service nordvpn.service transmission.service
+  ```
+  This is a forward dependency declared on the mount unit itself, not on the services. Whenever `mnt-storage.mount` (re-)starts — including a delayed, udev-triggered mount after a slow USB enumeration — that job's own transaction pulls in all three services fresh, regardless of whether their own earlier start attempt already failed. This is what lets them self-heal after a slow boot instead of needing a manual restart. Confirmed 2026-08-15: the first boot after a storage enclosure swap came up before the new enclosure was physically reconnected (a one-time setup artifact of the swap itself, not a characteristic of the enclosure), so the mount wasn't available until ~1m44s in. Jellyfin self-healed (its `Wants=` entry already existed) while NordVPN and Transmission needed manual restarts — the drop-in was then extended to include both, closing the gap. A subsequent clean test reboot mounted storage in ~3s, confirming the enclosure itself enumerates quickly; the fix still stands as protection against any future boot where the mount is delayed for any reason (power cut, USB fault, human error).
+- mintmedia is not covered by this mechanism — it's a `systemd --user` service, unreachable from a system-level unit's `Wants=` — and does not currently self-heal from this class of failure. See the "mintmedia Not Running" entry in Section 14.
 
 ---
 
 ## 4. Storage Layout
 
+**Enclosure**: TerraMaster D2-320 (2-bay USB DAS). Replaced a single-bay USB dock on 2026-08-15 for better drive cooling, bay expandability, and full SMART passthrough (confirmed below). Only bay 1 is populated; bay 2 is free for future expansion. `/mnt/storage` is mounted by the XFS filesystem UUID, not by enclosure or `/dev/sdX` device node, so the drive migrated to the new enclosure with no fstab changes required.
+
 | Path | Purpose | Notes |
 |-----|--------|-------|
 | `/` | OS | XFS |
 | `/home` | User data | XFS |
-| `/mnt/storage` | Media library | XFS, USB-attached |
+| `/mnt/storage` | Media library | XFS, USB-attached (TerraMaster D2-320 DAS) |
 | `/mnt/storage/Movies` | Processed movies | mintmedia destination |
 | `/mnt/storage/Shows` | Processed TV shows | mintmedia destination |
 | `/mnt/storage/Downloads` | Transmission download root | |
@@ -78,8 +87,7 @@ Mitigation:
 | `/var/lib/transmission/config` | Transmission configuration | Persistent |
 
 **Storage Characteristics**
-- USB dock does not pass full SMART data
-- Drive temperature monitoring is available
+- Full SMART data is available via the D2-320's SAT-compliant USB bridge, including the SCT temperature history table and the dedicated SMART status query — both were broken on the previous USB dock (confirmed via a before/after `smartctl -a -d sat` comparison on 2026-08-15)
 - Weekly cold backups are maintained
 - Full drive swap and restore has been tested
 
@@ -785,7 +793,7 @@ Confirm `/mnt/storage` is mounted
    mountpoint /mnt/storage
 ```
 
-Check USB dock power and cabling
+Check DAS power and cabling
 
 Restart Jellyfin  
 
@@ -803,7 +811,7 @@ Reboot the system if necessary
 1. Power down the system  
    sudo poweroff
 
-2. Replace the disk in the USB dock
+2. Replace the disk in the DAS
 
 3. Restore data from weekly cold backup
 
