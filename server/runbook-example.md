@@ -88,6 +88,7 @@ Mitigation:
 
 **Storage Characteristics**
 - Full SMART data is available via the D2-320's SAT-compliant USB bridge, including the SCT temperature history table and the dedicated SMART status query — both were broken on the previous USB dock (confirmed via a before/after `smartctl -a -d sat` comparison on 2026-08-15)
+- The drive does not spin down when idle under the D2-320, unlike the previous dock. Investigated 2026-08-16: `hdparm -I /dev/sdb` shows `Advanced power management level: disabled` — a setting stored on the drive itself (WD Gold WD102KRYZ, a 24/7 enterprise-duty model WD ships with APM disabled by default), not the enclosure, and unchanged by the swap. The previous dock's spin-down was almost certainly its bridge chip issuing STANDBY on its own after inactivity, independent of the drive's APM state. Decision: leave as-is — this drive class is rated for continuous spinning, not frequent load/unload cycling, so not forcing spin-down is the better outcome for long-term drive health, not a regression
 - Weekly cold backups are maintained
 - Full drive swap and restore has been tested
 
@@ -897,6 +898,7 @@ sudo podman exec transmission netstat -tnp | grep 51413
 
 - Single-node deployment by design
 - USB-attached storage accepted as a trade-off
+- Drive is intentionally left spinning 24/7 (no APM/spin-down); see Storage Characteristics in Section 4
 - Always-on deployment; power cuts are unplanned upstream events only
 - Jellyfin lifecycle tied to storage mount availability
 - SELinux remains enabled
