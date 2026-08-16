@@ -39,9 +39,9 @@ Downtime of several hours is acceptable. Data loss is not acceptable.
 - SSH access
 
 **Remote Access**
-- Tailscale only
-- No public internet exposure
-- No reverse proxy
+- Tailscale only by default; no LAN exposure of Jellyfin/SSH/Samba (Section 8)
+- `tailscale serve` reverse-proxies HTTPS for Jellyfin and Cockpit on top of Tailscale's own access control (Section 5)
+- Two explicit exceptions to tailnet-only access: Jellyfin is reachable from the public internet via Tailscale Funnel, enabled since 2026-07-26 behind a hardening checklist (Section 5); Cockpit is reachable on the LAN as an intentional troubleshooting fallback if Tailscale itself is down (Section 8)
 
 ---
 
@@ -146,9 +146,19 @@ tailscale serve --https=443 off
 
 ### Public Internet Access via Tailscale Funnel
 
-Funnel extends the `serve` rule above to the public internet (not just the tailnet), at the same hostname, so friends/family can connect without installing Tailscale. Gated behind the hardening checklist in `~/dev/server/jellyfin-funnel-checklist.md` (account lockout, permissions, resource caps, backup automation, kill switch) before being enabled.
+Funnel extends the `serve` rule above to the public internet (not just the tailnet), at the same hostname, so friends/family can connect without installing Tailscale.
 
-**Enable**
+**Status: Enabled since 2026-07-26.** Jellyfin is the one explicit exception to the tailnet-only access model (Section 2) — this is the only service reachable from the public internet. The hardening checklist in `~/dev/server/jellyfin-funnel-checklist.md` (account lockout, permissions, resource caps, backup automation, kill switch) was completed first. Sign-in attempts and access records are monitored on an ongoing basis; only authorized traffic has been observed so far.
+
+**Hardening applied (prerequisite to enabling Funnel)**
+- **Permissions**: user accounts are scoped to read-only access on only the libraries they need — no write/delete permissions
+- **Resource caps**: each user account is limited to 2 concurrent streams
+- **Account hygiene**: inactive user accounts disabled; stricter password requirements enabled for all accounts
+- **Admin account**: password rotated to a long, high-entropy random string; admin login hidden from the main landing page
+- **Account lockout**: 5 failed sign-in attempts locks a standard account, 3 for the admin account. fail2ban was evaluated and ruled out — it can't see real client IPs behind Funnel, since Tailscale terminates and proxies the connection — so lockout is enforced by Jellyfin's own account-lockout setting instead
+- **2FA plugin**: considered a third-party Jellyfin 2FA plugin for the admin account, decided against — added third-party attack surface for a benefit that's currently theoretical (no illicit sign-on attempts observed yet). Revisit if that changes
+
+**Enable** (already applied; reference for re-enabling after a kill-switch disable)
 ```bash
 sudo tailscale funnel --bg --https=443 http://localhost:8096
 ```
@@ -414,10 +424,10 @@ journalctl --user-unit=mintmedia.service -n 100   # last 100 lines
 
 **Access Model**
 - Tailscale provides encrypted access
-- No ports exposed to the public internet
+- One exception: Jellyfin is exposed to the public internet via Tailscale Funnel on 443, hardened and monitored — see Section 5
 
 **Services Accessible Over Tailscale**
-- Jellyfin (HTTP on 8096, HTTPS on 443 via `tailscale serve` — see Section 5)
+- Jellyfin (HTTP on 8096, HTTPS on 443 via `tailscale serve`; also public via Funnel — see Section 5)
 - SMB
 - SSH
 
@@ -568,19 +578,18 @@ Usage expectations:
 
 ## 10. Backups
 
-**Frequency**
-- Weekly
+Two independent mechanisms cover this system — different scope, cadence, and destination each. Jellyfin configuration is detailed further in Section 11.
 
-**Type**
-- Cold backups (offline when not in use)
+**Media Library**
+- Frequency: Weekly
+- Type: Cold backup (offline when not in use)
+- Trigger: `server/bin/backup` (dotfiles), run by hand
+- Recovery: Drive replacement and restore tested; achievable in under 1 hour
 
-**Scope**
-- Media library
-- Jellyfin configuration
-
-**Recovery**
-- Drive replacement and restore tested
-- Recovery achievable in under 1 hour
+**Jellyfin Configuration**
+- Frequency: Manual / ad hoc — trigger is intentionally not automated (Section 11)
+- Type: Archived and pushed off-host to the Mac over Tailscale SSH
+- Trigger: `server/bin/jellyfin-backup` (dotfiles), run by hand
 
 ---
 
@@ -907,6 +916,7 @@ sudo podman exec transmission netstat -tnp | grep 51413
 - Transmission is not configured with RPC authentication. Access is restricted to Tailscale, which provides authentication at the network level.
 - NordVPN token expires annually. Failure to renew will cause the nordvpn service to fail on restart.
 - The nordvpn container image (`localhost/nordvpn-custom:latest`) is built locally from source files in `~/nordvpn-image/`. Rebuilding after a NordVPN update requires pulling the new package and rebuilding the image.
+- Jellyfin is intentionally exposed to the public internet via Tailscale Funnel (enabled 2026-07-26), the sole exception to the tailnet-only access model. fail2ban was evaluated and ruled out — it can't see real client IPs behind Funnel's proxy — so brute-force protection relies on the checklist's other hardening steps instead. Access logs are monitored on an ongoing basis; see Section 5.
 
 ### Package Removal — 2026-07-25 Security Audit
 
