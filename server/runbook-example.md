@@ -382,7 +382,7 @@ sudo systemctl restart transmission.service
 - Runs as a user service under `<user>`; linger is enabled so it starts at boot without login
 - `Restart=on-failure` — systemd restarts the daemon automatically if it exits unexpectedly
 - Built and updated manually from source at `~/dev/golang/mintmedia`
-- Transmission RPC integration (`[torrent]` / clipboard automation) is disabled in this instance's config — the server is headless, so there's no desktop session or clipboard to ingest magnet links from. That role is handled from a client machine on the tailnet (e.g. `tm.fish`, or a client-side mintmedia instance pointed at `<tailscale-ip>:9091`), which sends links/torrents to the server's Transmission over Tailscale
+- Transmission RPC integration (`[torrent]` / clipboard automation) is disabled in this instance's config — the server is headless, so there's no desktop session or clipboard to ingest magnet links from. That role is handled from the Mac (`tm.fish`, or the Mac's own mintmedia instance pointed at `<tailscale-ip>:9091`), which sends links/torrents to the server's Transmission over Tailscale
 - `defer_destination_checks = true` — daemon starts even if `/mnt/storage` is not yet mounted; queues work until storage is available
 
 **Check the Service**
