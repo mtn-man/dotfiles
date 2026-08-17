@@ -231,6 +231,8 @@ podman image prune
 - Both services stop if storage disappears
 - Leftover containers are force-removed on each start to handle unclean shutdowns
 - Manual container image updates only
+- Transmission resumes interrupted downloads automatically after a restart — standard behavior, no special config
+- No RPC authentication configured; access is restricted to the Tailscale interface only (Section 8)
 
 **Storage Paths**
 
@@ -244,6 +246,7 @@ podman image prune
 **Authentication**
 - NordVPN authenticates via an access token stored as a Podman secret (`nordvpn_token`)
 - Token expires annually and must be regenerated from the NordVPN dashboard
+- If not renewed before expiry, `nordvpn.service` will fail to (re)connect on next restart
 - To regenerate: log in at `my.nordaccount.com` → Services → NordVPN → Set up NordVPN manually → Access token
 - Update the secret:
 ```bash
@@ -897,12 +900,12 @@ sudo podman exec transmission netstat -tnp | grep 51413
 - Jellyfin lifecycle tied to storage mount availability
 - SELinux remains enabled
 - Manual updates preferred for non-security changes
-- Upstream power cuts may interrupt in-progress downloads. Transmission resumes incomplete downloads on restart.
-- Transmission is not configured with RPC authentication. Access is restricted to Tailscale, which provides authentication at the network level.
-- NordVPN token expires annually. Failure to renew will cause the nordvpn service to fail on restart.
-- The nordvpn container image (`localhost/nordvpn-custom:latest`) is built locally from source files in `~/nordvpn-image/`. Rebuilding after a NordVPN update requires pulling the new package and rebuilding the image.
-- Jellyfin is intentionally exposed to the public internet via Tailscale Funnel (enabled 2026-07-26), the sole exception to the tailnet-only access model. fail2ban was evaluated and ruled out — it can't see real client IPs behind Funnel's proxy — so brute-force protection relies on the checklist's other hardening steps instead. Access logs are monitored on an ongoing basis; see Section 5.
-- NFS client tooling and domain-join tooling (`sssd`, `realmd`, etc.) are not installed — this server is SMB-only with local accounts. See `server-history.md` for the 2026-07-25 audit that removed them.
+- Transmission resumes interrupted downloads automatically after a power cut; see Section 6
+- Transmission RPC has no authentication of its own — access is Tailscale-only; see Section 6
+- NordVPN token expires annually; see Section 6 for renewal
+- NordVPN container image is built locally from source; see Section 6 for the rebuild procedure
+- Jellyfin is exposed to the public internet via Tailscale Funnel; see Section 5
+- NFS and domain-join tooling are not installed — SMB-only, local accounts; see `server-history.md`
 
 ---
 
