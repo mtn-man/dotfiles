@@ -8,8 +8,7 @@ PartOf=mnt-storage.mount
 Type=exec
 User=eli
 Group=eli
-ExecStartPre=/bin/sh -lc 'for i in $(seq 1 180); do mountpoint -q /mnt/storage && exit 0; sleep 1; done; exit 1'
-ExecStart=/usr/bin/podman run --name jellyfin-systemd \
+ExecStart=/usr/bin/podman run --name jellyfin \
   --replace \
   --network host \
   --device /dev/dri:/dev/dri:rwm \
@@ -26,7 +25,7 @@ ExecStart=/usr/bin/podman run --name jellyfin-systemd \
   --health-on-failure=kill \
   --pull=never \
   docker.io/jellyfin/jellyfin:latest
-ExecStop=/usr/bin/podman stop -t 10 jellyfin-systemd
+ExecStop=/usr/bin/podman stop -t 10 jellyfin
 Restart=always
 RestartSec=30
 
