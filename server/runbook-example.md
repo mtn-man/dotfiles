@@ -64,7 +64,6 @@ Mitigation:
   Wants=jellyfin.service nordvpn.service transmission.service
   ```
   This is a forward dependency declared on the mount unit itself, not on the services. Whenever `mnt-storage.mount` (re-)starts — including a delayed, udev-triggered mount after a slow USB enumeration — that job's own transaction pulls in all three services fresh, regardless of whether their own earlier start attempt already failed. This is what lets them self-heal after a slow boot instead of needing a manual restart. Confirmed 2026-08-15: the first boot after the DAS swap below came up before the DAS was physically reconnected (a one-time setup artifact of the swap itself, not a characteristic of the DAS), so the mount wasn't available until ~1m44s in. Jellyfin self-healed (its `Wants=` entry already existed) while NordVPN and Transmission needed manual restarts — the drop-in was then extended to include both, closing the gap. A subsequent clean test reboot mounted storage in ~3s, confirming the DAS itself enumerates quickly; the fix still stands as protection against any future boot where the mount is delayed for any reason (power cut, USB fault, human error).
-- mintmedia is not covered by this mechanism — it's a `systemd --user` service, unreachable from a system-level unit's `Wants=` — and does not currently self-heal from this class of failure. See the "mintmedia Not Running" entry in Section 14.
 
 ---
 
