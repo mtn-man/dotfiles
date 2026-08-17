@@ -5,6 +5,10 @@
 > `<placeholder>` values (Tailscale IP, MagicDNS hostname, disk UUID, local
 > username) with real ones.
 
+> Dated investigation notes, forensic detail, and old audit-trail commands
+> live in `server-history.md` instead of here — this document stays
+> focused on current architecture and operations.
+
 ## 1. Purpose and Scope
 
 This system is a single-node media server intended for family and friends use.
@@ -63,13 +67,13 @@ Mitigation:
   [Unit]
   Wants=jellyfin.service nordvpn.service transmission.service
   ```
-  This is a forward dependency declared on the mount unit itself, not on the services. Whenever `mnt-storage.mount` (re-)starts — including a delayed, udev-triggered mount after a slow USB enumeration — that job's own transaction pulls in all three services fresh, regardless of whether their own earlier start attempt already failed. This is what lets them self-heal after a slow boot instead of needing a manual restart. Confirmed 2026-08-15: the first boot after the DAS swap below came up before the DAS was physically reconnected (a one-time setup artifact of the swap itself, not a characteristic of the DAS), so the mount wasn't available until ~1m44s in. Jellyfin self-healed (its `Wants=` entry already existed) while NordVPN and Transmission needed manual restarts — the drop-in was then extended to include both, closing the gap. A subsequent clean test reboot mounted storage in ~3s, confirming the DAS itself enumerates quickly; the fix still stands as protection against any future boot where the mount is delayed for any reason (power cut, USB fault, human error).
+  This is a forward dependency declared on the mount unit itself, not on the services. Whenever `mnt-storage.mount` (re-)starts — including a delayed, udev-triggered mount after a slow USB enumeration — that job's own transaction pulls in all three services fresh, regardless of whether their own earlier start attempt already failed. This is what lets them self-heal after a slow boot instead of needing a manual restart (see `server-history.md` for the boot race that originally exposed this gap). A typical reboot mounts storage within seconds; a massively delayed mount is expected to be a rare edge case, but the fix costs nothing to leave in place.
 
 ---
 
 ## 4. Storage Layout
 
-**Enclosure**: TerraMaster D2-320 (2-bay USB DAS). Replaced a single-bay USB dock on 2026-08-15 for better drive cooling, bay expandability, and full SMART passthrough (confirmed below). Only bay 1 is populated; bay 2 is free for future expansion. `/mnt/storage` is mounted by the XFS filesystem UUID, not by enclosure or `/dev/sdX` device node, so the drive migrated to the new enclosure with no fstab changes required.
+**Enclosure**: TerraMaster D2-320 (2-bay USB DAS). Only bay 1 is populated; bay 2 is free for future expansion. `/mnt/storage` is mounted by the XFS filesystem UUID, not by enclosure or `/dev/sdX` device node, so the drive can migrate enclosures with no fstab changes required.
 
 | Path | Purpose | Notes |
 |-----|--------|-------|
@@ -86,8 +90,8 @@ Mitigation:
 | `/var/lib/transmission/config` | Transmission configuration | Persistent |
 
 **Storage Characteristics**
-- Full SMART data is available via the D2-320's SAT-compliant USB bridge, including the SCT temperature history table and the dedicated SMART status query — both were broken on the previous USB dock (confirmed via a before/after `smartctl -a -d sat` comparison on 2026-08-15)
-- The drive does not spin down when idle under the D2-320, unlike the previous dock. Investigated 2026-08-16: `hdparm -I /dev/sdb` shows `Advanced power management level: disabled` — a setting stored on the drive itself (WD Gold WD102KRYZ, a 24/7 enterprise-duty model WD ships with APM disabled by default), not the enclosure, and unchanged by the swap. The previous dock's spin-down was almost certainly its bridge chip issuing STANDBY on its own after inactivity, independent of the drive's APM state. Decision: leave as-is — this drive class is rated for continuous spinning, not frequent load/unload cycling, so not forcing spin-down is the better outcome for long-term drive health, not a regression
+- Full SMART data is available via the D2-320's SAT-compliant USB bridge, including the SCT temperature history table and the dedicated SMART status query (see `server-history.md` for the prior enclosure's SMART limitations)
+- The drive intentionally does not spin down when idle — APM is disabled on the drive itself (WD Gold WD102KRYZ, a 24/7 enterprise-duty model), which is correct for a drive rated for continuous spinning rather than frequent load/unload cycling; see `server-history.md` for the investigation
 - Weekly cold backups are maintained
 - Full drive swap and restore has been tested
 
@@ -103,8 +107,7 @@ Mitigation:
 /etc/systemd/system/jellyfin.service
 
 **Key Design Points**
-- Requires `/mnt/storage` to be mounted
-- Wait loop allows for slow USB disk spin-up after unplanned power cuts
+- Requires `/mnt/storage` to be mounted; self-heals after a delayed mount via the `Wants=` drop-in described in Section 3
 - Manual container image updates only
 - Container health check polls `/health` every 30s; kills container on 3 consecutive failures (systemd restarts it)
 
@@ -167,11 +170,11 @@ sudo tailscale funnel --bg --https=443 http://localhost:8096
 tailscale serve status
 ```
 
-**Kill switch / disable** — pulls Jellyfin off the public internet immediately without touching tailnet access, for suspected compromise, abuse, or anything that looks wrong. This is the exact command `tailscale funnel` itself echoes back after enabling, confirmed live 2026-07-26:
+**Kill switch / disable** — pulls Jellyfin off the public internet immediately without touching tailnet access, for suspected compromise, abuse, or anything that looks wrong. This is the exact command `tailscale funnel` itself echoes back after enabling:
 ```bash
 sudo tailscale funnel --https=443 off
 ```
-This clears only the funnel (public) config for port 443; it does not touch the `serve` rule above, so Jellyfin stays reachable over the tailnet exactly as it does today. (`sudo tailscale funnel reset` is a broader alternative that clears *all* funnel rules on the node, not just this one — prefer the scoped command above unless you specifically want that.) Note: the Tailscale CLI changed its serve/funnel syntax at some point after this runbook was first written — the old `tailscale funnel 443 off` shorthand no longer works. Verify against `tailscale funnel --help` if this ever looks stale again.
+This clears only the funnel (public) config for port 443; it does not touch the `serve` rule above, so Jellyfin stays reachable over the tailnet exactly as it does today. (`sudo tailscale funnel reset` is a broader alternative that clears *all* funnel rules on the node, not just this one — prefer the scoped command above unless you specifically want that.) If this command ever looks stale, see `server-history.md` — the CLI has changed this syntax before.
 
 ### Jellyfin Image Update Procedure
 
@@ -268,7 +271,7 @@ sudo restorecon -Rv /var/lib/transmission /mnt/storage/Downloads
 
 ### Known Non-Leak: nordvpnd Control-Plane Traffic on the Bridge
 
-Bridge-sourced connections (`10.88.0.3`) to arbitrary external IPs are expected — `nordvpnd`'s kill switch exempts its own control-plane traffic (fwmark `0xe1f1`) from the forced-VPN table. Confirmed 2026-08-06 via socket inode lookup that one such connection belonged to `nordvpnd`, not Transmission; torrent/peer traffic correctly routes via `10.5.0.2` (tunnel) and is unaffected.
+Bridge-sourced connections (`10.88.0.3`) to arbitrary external IPs are expected — `nordvpnd`'s kill switch exempts its own control-plane traffic (fwmark `0xe1f1`) from the forced-VPN table. Only `10.5.0.2`-sourced (tunnel) traffic needs to be verified as VPN-routed; see `server-history.md` for how this was confirmed.
 
 ---
 
@@ -449,24 +452,7 @@ journalctl --user-unit=mintmedia.service -n 100   # last 100 lines
 **Known effect of this**
 - Jellyfin client apps that rely on LAN auto-discovery (SSDP/DLNA broadcast) will no longer find the server automatically — clients must connect via the Tailscale address or the `tailscale serve` HTTPS URL directly
 
-**Commands Used to Reach This State**
-
-The `public` zone previously had `ssh samba http https` plus ports `8096/tcp 8920/tcp 1900/udp 7359/udp 8080/tcp` open — leftover from earlier manual `firewall-cmd --add-*` calls, exposing SSH/Samba/Jellyfin to the LAN in contradiction of the Tailscale-only access model. `8080/tcp` had no identifiable owner (nothing listening, no container/systemd/config reference, no shell history) and was removed as dead configuration.
-
-```bash
-sudo firewall-cmd --zone=public --remove-service=ssh --permanent
-sudo firewall-cmd --zone=public --remove-service=samba --permanent
-sudo firewall-cmd --zone=public --remove-service=http --permanent
-sudo firewall-cmd --zone=public --remove-service=https --permanent
-sudo firewall-cmd --zone=public --remove-port=8096/tcp --permanent
-sudo firewall-cmd --zone=public --remove-port=8920/tcp --permanent
-sudo firewall-cmd --zone=public --remove-port=1900/udp --permanent
-sudo firewall-cmd --zone=public --remove-port=7359/udp --permanent
-sudo firewall-cmd --zone=public --remove-port=8080/tcp --permanent
-sudo firewall-cmd --reload
-```
-
-`cockpit` and `dhcpv6-client` were left in place intentionally and required no changes.
+The `public` zone previously exposed SSH/Samba/Jellyfin in contradiction of the Tailscale-only access model; see `server-history.md` for the cleanup commands and what was removed.
 
 **To verify current state**
 ```bash
@@ -916,23 +902,7 @@ sudo podman exec transmission netstat -tnp | grep 51413
 - NordVPN token expires annually. Failure to renew will cause the nordvpn service to fail on restart.
 - The nordvpn container image (`localhost/nordvpn-custom:latest`) is built locally from source files in `~/nordvpn-image/`. Rebuilding after a NordVPN update requires pulling the new package and rebuilding the image.
 - Jellyfin is intentionally exposed to the public internet via Tailscale Funnel (enabled 2026-07-26), the sole exception to the tailnet-only access model. fail2ban was evaluated and ruled out — it can't see real client IPs behind Funnel's proxy — so brute-force protection relies on the checklist's other hardening steps instead. Access logs are monitored on an ongoing basis; see Section 5.
-
-### Package Removal — 2026-07-25 Security Audit
-
-Two unused package sets were identified during a firewall/attack-surface audit and removed:
-
-**NFS client tooling** (`rpcbind`, `nfs-utils`, `libnfsidmap`, `nfs4-acl-tools`) — file sharing on this server is SMB-only (see Section 10). NFS was never configured; `rpcbind` had no exports to serve and was just an open port (111/tcp+udp) on every interface.
-
-**Domain-join tooling** (`sssd` and its sub-packages, `realmd`, `adcli`) — this server uses local-only accounts. Before removal, `authselect current` confirmed the active profile (`local`) does not reference `sss` anywhere in `passwd`/`group`/`shadow` in `nsswitch.conf`, so the removal has no effect on login/auth.
-
-```bash
-sudo dnf remove nfs-utils nfs4-acl-tools libnfsidmap rpcbind sssd sssd-ad sssd-client sssd-common sssd-common-pac sssd-ipa sssd-kcm sssd-krb5 sssd-krb5-common sssd-ldap sssd-nfs-idmap sssd-proxy libsss_idmap libsss_certmap libipa_hbac libsss_nss_idmap libsss_sudo realmd adcli adcli-selinux
-```
-
-**Side effect**: `bind-utils` (provides `dig`, `nslookup`, `host`) was installed only as an `sssd` dependency and was swept out along with it. Reinstall if DNS diagnostic tools are needed:
-```bash
-sudo dnf install bind-utils
-```
+- NFS client tooling and domain-join tooling (`sssd`, `realmd`, etc.) are not installed — this server is SMB-only with local accounts. See `server-history.md` for the 2026-07-25 audit that removed them.
 
 ---
 
