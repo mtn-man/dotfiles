@@ -1,4 +1,3 @@
-#System notes:
 This snapshot provides a single-file view of the system configuration, useful
 for recovery, human review, and giving AI assistants full context about this machine.
 
