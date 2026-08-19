@@ -68,6 +68,7 @@ Mitigation:
   Wants=jellyfin.service nordvpn.service transmission.service
   ```
   This is a forward dependency declared on the mount unit itself, not on the services. Whenever `mnt-storage.mount` (re-)starts — including a delayed, udev-triggered mount after a slow USB enumeration — that job's own transaction pulls in all three services fresh, regardless of whether their own earlier start attempt already failed. This is what lets them self-heal after a slow boot instead of needing a manual restart (see `server-history.md` for the boot race that originally exposed this gap). A typical reboot mounts storage within seconds; a massively delayed mount is expected to be a rare edge case, but the fix costs nothing to leave in place.
+- This override only reaches **system-level** units. mintmedia is a **user-level** service (Section 7) and can't be pulled in by it — a system unit's `Wants=`/`Requires=` can't start or block on units belonging to a per-user systemd instance. mintmedia's protection against a slow-mounting storage device is handled entirely within its own unit (`ExecStartPre` poll) and app config (`defer_destination_checks`) instead — see Section 7.
 
 ---
 
@@ -395,10 +396,11 @@ sudo systemctl restart transmission.service
 
 **Key Design Points**
 - Runs as a user service under `<user>`; linger is enabled so it starts at boot without login
-- `Restart=on-failure` — systemd restarts the daemon automatically if it exits unexpectedly
+- `Restart=on-failure`, `RestartSec=5` — systemd restarts the daemon automatically if it exits unexpectedly; the 5s delay (raised from the 100ms default) keeps a genuine failure loop from burning through the default restart-limit burst (5 tries/10s) before a slow-mounting storage device has a chance to catch up
 - Built and updated manually from source at `~/dev/golang/mintmedia`
 - Transmission RPC integration (`[torrent]` / clipboard automation) is disabled in this instance's config — the server is headless, so there's no desktop session or clipboard to ingest magnet links from. That role is handled from the Mac (`tm.fish`, or the Mac's own mintmedia instance pointed at `<tailscale-ip>:9091`), which sends links/torrents to the server's Transmission over Tailscale
-- `defer_destination_checks = true` — daemon starts even if `/mnt/storage` is not yet mounted; queues work until storage is available
+- `defer_destination_checks = true` — defers checks on the *destination* dirs (`Movies`/`Shows`) if `/mnt/storage` isn't mounted yet at startup. Does **not** cover the watch dir (`Downloads/complete`) — mintmedia still fails to initialize if that can't be created at runtime. Known gap in mintmedia itself, to be patched there.
+- `ExecStartPre` polls `mountpoint -q /mnt/storage` (up to 30s, 1s interval) before the daemon starts, so the watch-dir gap above can't be hit in practice — mintmedia never attempts to start until storage is a real mount, regardless of what `defer_destination_checks` does or doesn't cover. This exists because mintmedia can't join the system-level self-healing mechanism in Section 3 (the `Wants=` drop-in on `mnt-storage.mount`) — that mechanism only works between system-manager units; a system unit can't pull in a user-manager service the same way. `RequiresMountsFor=/mnt/storage` is also set on the unit but does not reliably enforce a hard wait for a *user*-level service the way it does for a system-level one — confirmed empirically (`systemctl --user show mintmedia.service -p Requires` never listed `mnt-storage.mount`, despite the directive; it only produced the non-blocking `After=` ordering hint). See `server-history.md` for the incident that surfaced this.
 
 **Check the Service**
 ```bash
