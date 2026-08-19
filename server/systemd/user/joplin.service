@@ -1,0 +1,23 @@
+[Unit]
+Description=Joplin Sync Server (Podman, rootless)
+After=network-online.target
+RequiresMountsFor=/mnt/storage
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/podman run --name joplin \
+  --replace \
+  -p 100.106.45.25:22300:22300 \
+  -p 127.0.0.1:22300:22300 \
+  -e APP_PORT=22300 \
+  -e APP_BASE_URL=https://centos.tail586311.ts.net:8444 \
+  -e SQLITE_DATABASE=/database/db.sqlite \
+  -v /mnt/storage/Joplin:/database:Z \
+  --pull=never \
+  docker.io/joplin/server:latest
+ExecStop=/usr/bin/podman stop -t 10 joplin
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=default.target

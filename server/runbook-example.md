@@ -39,13 +39,14 @@ Downtime of several hours is acceptable. Data loss is not acceptable.
 **Primary Services**
 - Jellyfin (Podman container, systemd-managed)
 - Transmission-Remote (bound to VPN connection)
+- Joplin Server (Podman container, rootless, systemd user-managed)
 - SMB file sharing
 - SSH access
 
 **Remote Access**
-- Tailscale only by default; no LAN exposure of Jellyfin/SSH/Samba (Section 8)
-- `tailscale serve` reverse-proxies HTTPS for Jellyfin and Cockpit on top of Tailscale's own access control (Section 5)
-- Two explicit exceptions to tailnet-only access: Jellyfin is reachable from the public internet via Tailscale Funnel, enabled since 2026-07-26 behind a hardening checklist (Section 5); Cockpit is reachable on the LAN as an intentional troubleshooting fallback if Tailscale itself is down (Section 8)
+- Tailscale only by default; no LAN exposure of Jellyfin/SSH/Samba (Section 9)
+- `tailscale serve` reverse-proxies HTTPS for Jellyfin and Cockpit on top of Tailscale's own access control (Section 5); Joplin also requires it, for iOS client compatibility — see Section 8
+- Two explicit exceptions to tailnet-only access: Jellyfin is reachable from the public internet via Tailscale Funnel, enabled since 2026-07-26 behind a hardening checklist (Section 5); Cockpit is reachable on the LAN as an intentional troubleshooting fallback if Tailscale itself is down (Section 9)
 
 ---
 
@@ -89,6 +90,7 @@ Mitigation:
 | `/var/lib/jellyfin/config` | Jellyfin configuration | Persistent |
 | `/var/lib/jellyfin/cache` | Jellyfin cache | Persistent |
 | `/var/lib/transmission/config` | Transmission configuration | Persistent |
+| `/mnt/storage/Joplin` | Joplin Server data (SQLite database) | |
 
 **Storage Characteristics**
 - Full SMART data is available via the D2-320's SAT-compliant USB bridge, including the SCT temperature history table and the dedicated SMART status query (see `server-history.md` for the prior enclosure's SMART limitations)
@@ -233,7 +235,7 @@ podman image prune
 - Leftover containers are force-removed on each start to handle unclean shutdowns
 - Manual container image updates only
 - Transmission resumes interrupted downloads automatically after a restart — standard behavior, no special config
-- No RPC authentication configured; access is restricted to the Tailscale interface only (Section 8)
+- No RPC authentication configured; access is restricted to the Tailscale interface only (Section 9)
 
 **Storage Paths**
 
@@ -427,7 +429,63 @@ journalctl --user-unit=mintmedia.service -n 100   # last 100 lines
 
 ---
 
-## 8. Networking and Access
+## 8. Joplin Sync Server
+
+**Purpose**
+- Sync target for Joplin note-taking clients (desktop and mobile)
+
+**Service Type**
+- systemd **user** service, unlike Jellyfin/NordVPN/Transmission (system services)
+- Podman-managed container, fully rootless as `<user>` — no root in the service's own lifecycle
+
+**Service File**
+`~/.config/systemd/user/joplin.service`
+
+**Key Design Points**
+- Requires `/mnt/storage` to be mounted; data lives at `/mnt/storage/Joplin` so it's covered by the existing weekly cold backup (Section 11) — no separate backup mechanism needed. Trade-off: that backup runs live, and rsync-ing an active SQLite file carries a small risk of a torn copy, the same class of risk Section 12 stops Jellyfin for; low-probability here given light personal use
+- SQLite (image default), not Postgres — no separate database container
+- Container runs as its own internal non-root user (`joplin`, UID 1001); the bind-mounted data dir is chowned to match via `podman unshare chown -R 1001:1001 /mnt/storage/Joplin` rather than forcing the container onto a different UID. Forcing a different UID via `--userns=keep-id:uid=,gid=` plus `--user` was tried first — it triggers an expensive one-time ID-mapped copy of the image's layers, and still surfaced hardcoded `/home/joplin` write paths (PM2's log file, the app's own `logs/` dir) needing patching one at a time
+- Port is published on both `<tailscale-ip>:22300` (direct Tailscale) and `127.0.0.1:22300` — the latter because `tailscaled` runs in the host's own network namespace, not the container's, so `tailscale serve`'s `localhost` target needs a real loopback listener
+
+**Check the Service**
+```bash
+systemctl --user status joplin.service
+```
+
+**Restart the Service**
+```bash
+systemctl --user restart joplin.service
+```
+
+### HTTPS Access via Tailscale Serve
+
+Required, not optional — the iOS app blocks plain HTTP (see Known Gotchas).
+
+**Enable**
+```bash
+sudo tailscale serve --bg --https=8444 http://localhost:22300
+```
+
+**Check status**
+```bash
+tailscale serve status
+```
+
+**Disable**
+```bash
+tailscale serve --https=8444 off
+```
+
+**Result** — `https://<hostname>.<tailnet-name>.ts.net:8444`, the canonical (and only working) URL for every client.
+
+### Known Gotchas
+
+- **iOS requires HTTPS**: App Transport Security blocks plain `http://` sync targets, which is why the iPhone app failed with confirmed-correct credentials while the Mac app worked fine on the same URL
+- **Single-origin only**: Joplin Server rejects any request whose Host header doesn't match `APP_BASE_URL` exactly (`isValidOrigin()` in `routeUtils.ts`, compares host:port). Unlike Jellyfin, it can't serve a direct-IP URL and a `tailscale serve` URL at the same time — every client must point at the same URL
+
+---
+
+## 9. Networking and Access
 
 **Access Model**
 - Tailscale provides encrypted access
@@ -435,6 +493,7 @@ journalctl --user-unit=mintmedia.service -n 100   # last 100 lines
 
 **Services Accessible Over Tailscale**
 - Jellyfin (HTTP on 8096, HTTPS on 443 via `tailscale serve`; also public via Funnel — see Section 5)
+- Joplin Server (HTTPS on 8444 via `tailscale serve` only — see Section 8)
 - SMB
 - SSH
 
@@ -486,7 +545,7 @@ tailscale serve status
 tailscale serve --https=8443 off
 ```
 
-**Result** — `https://<hostname>.<tailnet-name>.ts.net:8443` (tailnet-only, valid cert, no browser warning), added *alongside* the existing direct access on `http://<tailscale-ip>:9090` and the LAN-only `public` zone exposure (Section 8, Firewalld Zone Configuration). The direct paths are left in place intentionally — they're the fallback if Tailscale itself is ever down.
+**Result** — `https://<hostname>.<tailnet-name>.ts.net:8443` (tailnet-only, valid cert, no browser warning), added *alongside* the existing direct access on `http://<tailscale-ip>:9090` and the LAN-only `public` zone exposure (Section 9, Firewalld Zone Configuration). The direct paths are left in place intentionally — they're the fallback if Tailscale itself is ever down.
 
 ---
 
@@ -552,7 +611,7 @@ IPv6 forwarding is not enabled — `net.ipv6.conf.all.forwarding` is not set. Th
 
 ---
 
-## 9. SMB File Sharing
+## 10. SMB File Sharing
 
 - SMB is enabled for:
   - Home directory
@@ -566,9 +625,9 @@ Usage expectations:
 
 ---
 
-## 10. Backups
+## 11. Backups
 
-Two independent mechanisms cover this system — different scope, cadence, and destination each. Jellyfin configuration is detailed further in Section 11.
+Two independent mechanisms cover this system — different scope, cadence, and destination each. Jellyfin configuration is detailed further in Section 12.
 
 **Media Library**
 - Frequency: Weekly
@@ -577,13 +636,13 @@ Two independent mechanisms cover this system — different scope, cadence, and d
 - Recovery: Drive replacement and restore tested; achievable in under 1 hour
 
 **Jellyfin Configuration**
-- Frequency: Manual / ad hoc — trigger is intentionally not automated (Section 11)
+- Frequency: Manual / ad hoc — trigger is intentionally not automated (Section 12)
 - Type: Archived and pushed off-host to the Mac over Tailscale SSH
 - Trigger: `server/bin/jellyfin-backup` (dotfiles), run by hand
 
 ---
 
-## 11. Jellyfin Configuration Backup & Restore
+## 12. Jellyfin Configuration Backup & Restore
 
 This section documents how Jellyfin configuration and state are backed up and restored.
 Media files are treated separately and are not covered here.
@@ -698,7 +757,7 @@ This procedure is used after:
 
 ---
 
-## 12. Update Policy
+## 13. Update Policy
 
 **Automatic**
 - Security updates only
@@ -713,7 +772,7 @@ See section 5 for the Jellyfin image update procedure, section 6 for the Transmi
 
 ---
 
-## 13. Routine Checks
+## 14. Routine Checks
 
 ### Daily Health Check (doctor)
 
@@ -767,7 +826,7 @@ podman ps -a
 last -x | head -n 30
 ```
 
-## 14. Common Failure Scenarios
+## 15. Common Failure Scenarios
 
 ### Jellyfin Not Running
 1. Check service status
@@ -867,6 +926,24 @@ sudo systemctl restart nordvpn.service
 
 ---
 
+### Joplin Not Running
+
+1. Check status and recent logs
+```bash
+systemctl --user status joplin.service
+journalctl --user-unit=joplin.service -n 50
+```
+2. Confirm the sync endpoint responds
+```bash
+curl https://<hostname>.<tailnet-name>.ts.net:8444/api/ping
+```
+3. Restart if needed
+```bash
+systemctl --user restart joplin.service
+```
+
+---
+
 ### mintmedia Not Running
 
 The service is `Type=simple` with `Restart=on-failure`, so systemd tracks the actual daemon process — `active`/`failed` in `systemctl --user status` reflects reality.
@@ -893,7 +970,7 @@ sudo podman exec transmission netstat -tnp | grep 51413
 
 ---
 
-## 15. Known Design Decisions
+## 16. Known Design Decisions
 
 - Single-node deployment by design
 - USB-attached storage accepted as a trade-off
@@ -907,11 +984,13 @@ sudo podman exec transmission netstat -tnp | grep 51413
 - NordVPN token expires annually; see Section 6 for renewal
 - NordVPN container image is built locally from source; see Section 6 for the rebuild procedure
 - Jellyfin is exposed to the public internet via Tailscale Funnel; see Section 5
+- Joplin Server runs fully rootless with no root in its lifecycle, unlike the other containerized services; see Section 8
+- Joplin Server requires all clients on one canonical URL — it cannot serve a direct-IP and a `tailscale serve` URL simultaneously the way Jellyfin does; see Section 8
 - NFS and domain-join tooling are not installed — SMB-only, local accounts; see `server-history.md`
 
 ---
 
-## 16. Shell Tooling
+## 17. Shell Tooling
 
 ### lf (terminal file manager)
 
@@ -930,7 +1009,7 @@ The `lf` fish function (`~/.config/fish/functions/lf.fish`) wraps lf with quit-a
 
 ---
 
-## 17. Final Notes
+## 18. Final Notes
 
 This system is intentionally simple and conservative.
 
