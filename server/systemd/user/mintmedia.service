@@ -1,12 +1,14 @@
 [Unit]
 Description=mintmedia daemon
-After=network.target
+After=network.target mnt-storage.mount
 RequiresMountsFor=/mnt/storage
 
 [Service]
 Type=simple
+ExecStartPre=/usr/bin/bash -c 'for i in $(seq 1 30); do mountpoint -q /mnt/storage && exit 0; sleep 1; done; echo "mnt-storage not mounted after 30s" >&2; exit 1'
 ExecStart=%h/go/bin/mintmedia --daemon --verbose
 Restart=on-failure
+RestartSec=5
 
 [Install]
 WantedBy=default.target
