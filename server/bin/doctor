@@ -126,6 +126,26 @@ else
     warnings=$(( warnings + 1 ))
 fi
 
+# Tailscale Funnel — expected steady state is on, for Jellyfin only (see runbook Section 5)
+funnel_output=$(tailscale serve status 2>/dev/null || true)
+funnel_count=$(printf '%s' "$funnel_output" | grep -cF '(Funnel on)' || true)
+if [[ "$funnel_count" -eq 0 ]]; then
+    row "funnel" "warn: expected on for Jellyfin, found off"
+    warnings=$(( warnings + 1 ))
+elif [[ "$funnel_count" -gt 1 ]]; then
+    row "funnel" "warn: on for multiple services"
+    warnings=$(( warnings + 1 ))
+else
+    proxy_target=$(printf '%s' "$funnel_output" | grep -A1 -F '(Funnel on)' | grep '^|--' | awk '{print $NF}')
+    case "$proxy_target" in
+        *:8096) row "funnel" "on (Jellyfin)" ;;
+        *)
+            row "funnel" "warn: on for unexpected target ${proxy_target}"
+            warnings=$(( warnings + 1 ))
+            ;;
+    esac
+fi
+
 # Summary
 echo
 if [[ "$criticals" -gt 0 && "$warnings" -gt 0 ]]; then
