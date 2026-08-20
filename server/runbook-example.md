@@ -6,7 +6,7 @@
 > username) with real ones.
 
 > Dated investigation notes, forensic detail, and old audit-trail commands
-> live in `server-history.md` instead of here — this document stays
+> live in `server-history.md` instead of here -- this document stays
 > focused on current architecture and operations.
 
 ## 1. Purpose and Scope
@@ -43,9 +43,21 @@ Downtime of several hours is acceptable. Minor data loss is acceptable.
 - SMB file sharing
 - SSH access
 
+**Deployed Versions**
+
+Spot-checked manually on 2026-08-20 -- a point-in-time snapshot, not automatically kept in sync.
+
+| Service | Version | Checked via |
+|---------|---------|-------------|
+| Jellyfin | 10.11.11 | `curl localhost:8096/System/Info/Public` |
+| Transmission | 4.1.1 | `podman exec transmission transmission-daemon --version` |
+| NordVPN client | 5.3.0 | `podman exec nordvpn nordvpn version` |
+| Joplin Server | 3.7.1 | image label `org.opencontainers.image.version`, via `journalctl --user-unit=joplin.service` |
+| mintmedia | v0.1.7-0.20260817150730-40e231eed596 | `mintmedia -V` |
+
 **Remote Access**
 - Tailscale only by default; no LAN exposure of Jellyfin/SSH/Samba (Section 9)
-- `tailscale serve` reverse-proxies HTTPS for Jellyfin and Cockpit on top of Tailscale's own access control (Section 5); Joplin also requires it, for iOS client compatibility — see Section 8
+- `tailscale serve` reverse-proxies HTTPS for Jellyfin and Cockpit on top of Tailscale's own access control (Section 5); Joplin also requires it, for iOS client compatibility -- see Section 8
 - Two explicit exceptions to tailnet-only access: Jellyfin is reachable from the public internet via Tailscale Funnel, enabled since 2026-07-26 behind a hardening checklist (Section 5); Cockpit is reachable on the LAN as an intentional troubleshooting fallback if Tailscale itself is down (Section 9)
 
 ---
@@ -62,14 +74,14 @@ Design assumption:
 Mitigation:
 - Jellyfin, NordVPN, and Transmission startup are all explicitly tied to storage availability via `Requires=mnt-storage.mount`
 - None of these services start until storage is mounted; all stop if storage disappears
-- If `/mnt/storage` isn't ready by the time systemd first evaluates these services at boot, their start jobs fail with a "dependency" result. Systemd does not automatically retry a dependency-failed job on its own once the mount later succeeds — a service that only `Requires=` the mount can be left permanently `inactive` even after storage comes online.
+- If `/mnt/storage` isn't ready by the time systemd first evaluates these services at boot, their start jobs fail with a "dependency" result. Systemd does not automatically retry a dependency-failed job on its own once the mount later succeeds -- a service that only `Requires=` the mount can be left permanently `inactive` even after storage comes online.
 - `/etc/systemd/system/mnt-storage.mount.d/override.conf` closes that gap:
   ```ini
   [Unit]
   Wants=jellyfin.service nordvpn.service transmission.service
   ```
-  This is a forward dependency declared on the mount unit itself, not on the services. Whenever `mnt-storage.mount` (re-)starts — including a delayed, udev-triggered mount after a slow USB enumeration — that job's own transaction pulls in all three services fresh, regardless of whether their own earlier start attempt already failed. This is what lets them self-heal after a slow boot instead of needing a manual restart (see `server-history.md` for the boot race that originally exposed this gap). A typical reboot mounts storage within seconds; a massively delayed mount is expected to be a rare edge case, but the fix costs nothing to leave in place.
-- This override only reaches **system-level** units. mintmedia is a **user-level** service (Section 7) and can't be pulled in by it — a system unit's `Wants=`/`Requires=` can't start or block on units belonging to a per-user systemd instance. mintmedia's protection against a slow-mounting storage device is handled entirely within its own unit (`ExecStartPre` poll) and app config (`defer_destination_checks`) instead — see Section 7.
+  This is a forward dependency declared on the mount unit itself, not on the services. Whenever `mnt-storage.mount` (re-)starts -- including a delayed, udev-triggered mount after a slow USB enumeration -- that job's own transaction pulls in all three services fresh, regardless of whether their own earlier start attempt already failed. This is what lets them self-heal after a slow boot instead of needing a manual restart (see `server-history.md` for the boot race that originally exposed this gap). A typical reboot mounts storage within seconds; a massively delayed mount is expected to be a rare edge case, but the fix costs nothing to leave in place.
+- This override only reaches **system-level** units. mintmedia is a **user-level** service (Section 7) and can't be pulled in by it -- a system unit's `Wants=`/`Requires=` can't start or block on units belonging to a per-user systemd instance. mintmedia's protection against a slow-mounting storage device is handled entirely within its own unit (`ExecStartPre` poll) and app config (`defer_destination_checks`) instead -- see Section 7.
 
 ---
 
@@ -94,7 +106,7 @@ Mitigation:
 
 **Storage Characteristics**
 - Full SMART data is available via the D2-320's SAT-compliant USB bridge, including the SCT temperature history table and the dedicated SMART status query (see `server-history.md` for the prior enclosure's SMART limitations)
-- The drive intentionally does not spin down when idle — APM is disabled on the drive itself (WD Gold WD102KRYZ, a 24/7 enterprise-duty model), which is correct for a drive rated for continuous spinning rather than frequent load/unload cycling; see `server-history.md` for the investigation
+- The drive intentionally does not spin down when idle -- APM is disabled on the drive itself (WD Gold WD102KRYZ, a 24/7 enterprise-duty model), which is correct for a drive rated for continuous spinning rather than frequent load/unload cycling; see `server-history.md` for the investigation
 - Weekly cold backups are maintained
 - Full drive swap and restore has been tested
 
@@ -135,7 +147,7 @@ Requires MagicDNS and HTTPS Certificates to be enabled for the tailnet in the Ta
 sudo tailscale serve --bg --https=443 http://localhost:8096
 ```
 
-`--bg` is required — without it, the rule only stays active for the life of the foreground terminal session and is torn down as soon as it exits.
+`--bg` is required -- without it, the rule only stays active for the life of the foreground terminal session and is torn down as soon as it exits.
 
 **Check status**
 ```bash
@@ -147,21 +159,21 @@ tailscale serve status
 tailscale serve --https=443 off
 ```
 
-**Result** — `https://<hostname>.<tailnet-name>.ts.net` (tailnet-only, valid cert, no browser warning) alongside the existing `http://<tailscale-ip>:8096`.
+**Result** -- `https://<hostname>.<tailnet-name>.ts.net` (tailnet-only, valid cert, no browser warning) alongside the existing `http://<tailscale-ip>:8096`.
 
 ### Public Internet Access via Tailscale Funnel
 
 Funnel extends the `serve` rule above to the public internet (not just the tailnet), at the same hostname, so friends/family can connect without installing Tailscale.
 
-**Status: Enabled since 2026-07-26.** Jellyfin is the one explicit exception to the tailnet-only access model (Section 2) — this is the only service reachable from the public internet. The hardening checklist in `~/dev/server/jellyfin-funnel-checklist.md` (account lockout, permissions, resource caps, backup automation, kill switch) was completed first. Sign-in attempts and access records are monitored on an ongoing basis; only authorized traffic has been observed so far.
+**Status: Enabled since 2026-07-26.** Jellyfin is the one explicit exception to the tailnet-only access model (Section 2) -- this is the only service reachable from the public internet. The hardening checklist in `~/dev/server/jellyfin-funnel-checklist.md` (account lockout, permissions, resource caps, backup automation, kill switch) was completed first. Sign-in attempts and access records are monitored on an ongoing basis; only authorized traffic has been observed so far.
 
 **Hardening applied (prerequisite to enabling Funnel)**
-- **Permissions**: user accounts are scoped to read-only access on only the libraries they need — no write/delete permissions
+- **Permissions**: user accounts are scoped to read-only access on only the libraries they need -- no write/delete permissions
 - **Resource caps**: each user account is limited to 2 concurrent streams
 - **Account hygiene**: inactive user accounts disabled; stricter password requirements enabled for all accounts
 - **Admin account**: password rotated to a long, high-entropy random string; admin login hidden from the main landing page
-- **Account lockout**: 5 failed sign-in attempts locks a standard account, 3 for the admin account. fail2ban was evaluated and ruled out — it can't see real client IPs behind Funnel, since Tailscale terminates and proxies the connection — so lockout is enforced by Jellyfin's own account-lockout setting instead
-- **2FA plugin**: considered a third-party Jellyfin 2FA plugin for the admin account, decided against — added third-party attack surface for a benefit that's currently theoretical (no illicit sign-on attempts observed yet). Revisit if that changes
+- **Account lockout**: 5 failed sign-in attempts locks a standard account, 3 for the admin account. fail2ban was evaluated and ruled out -- it can't see real client IPs behind Funnel, since Tailscale terminates and proxies the connection -- so lockout is enforced by Jellyfin's own account-lockout setting instead
+- **2FA plugin**: considered a third-party Jellyfin 2FA plugin for the admin account, decided against -- added third-party attack surface for a benefit that's currently theoretical (no illicit sign-on attempts observed yet). Revisit if that changes
 
 **Enable** (already applied; reference for re-enabling after a kill-switch disable)
 ```bash
@@ -173,11 +185,11 @@ sudo tailscale funnel --bg --https=443 http://localhost:8096
 tailscale serve status
 ```
 
-**Kill switch / disable** — pulls Jellyfin off the public internet immediately without touching tailnet access, for suspected compromise, abuse, or anything that looks wrong. This is the exact command `tailscale funnel` itself echoes back after enabling:
+**Kill switch / disable** -- pulls Jellyfin off the public internet immediately without touching tailnet access, for suspected compromise, abuse, or anything that looks wrong. This is the exact command `tailscale funnel` itself echoes back after enabling:
 ```bash
 sudo tailscale funnel --https=443 off
 ```
-This clears only the funnel (public) config for port 443; it does not touch the `serve` rule above, so Jellyfin stays reachable over the tailnet exactly as it does today. (`sudo tailscale funnel reset` is a broader alternative that clears *all* funnel rules on the node, not just this one — prefer the scoped command above unless you specifically want that.) If this command ever looks stale, see `server-history.md` — the CLI has changed this syntax before.
+This clears only the funnel (public) config for port 443; it does not touch the `serve` rule above, so Jellyfin stays reachable over the tailnet exactly as it does today. (`sudo tailscale funnel reset` is a broader alternative that clears *all* funnel rules on the node, not just this one -- prefer the scoped command above unless you specifically want that.) If this command ever looks stale, see `server-history.md` -- the CLI has changed this syntax before.
 
 ### Jellyfin Image Update Procedure
 
@@ -200,7 +212,7 @@ sudo systemctl restart jellyfin.service
 sudo systemctl status jellyfin.service
 ```
 
-4. Verify Jellyfin UI loads — `http://<tailscale-ip>:8096` over Tailscale
+4. Verify Jellyfin UI loads -- `http://<tailscale-ip>:8096` over Tailscale
 
 5. Verify media playback and thumbnails
 
@@ -227,7 +239,7 @@ sudo systemctl stop jellyfin.service
 podman pull docker.io/jellyfin/jellyfin:10.11.11
 ```
 
-3. Retag it `latest` — the service runs whatever image is locally tagged `latest` (`--pull=never`, so it never fetches on its own)
+3. Retag it `latest` -- the service runs whatever image is locally tagged `latest` (`--pull=never`, so it never fetches on its own)
 ```bash
 podman tag docker.io/jellyfin/jellyfin:10.11.11 docker.io/jellyfin/jellyfin:latest
 ```
@@ -251,8 +263,8 @@ Expect `"Version":"10.11.11"`.
 7. Verify media playback and thumbnails
 
 **Notes**
-- The broken image (`10.11.12`) is left in place, now dangling — intentional, in case the rollback needs undoing. Prune once stable.
-- To move forward again later (e.g. once `10.11.13` fixes the bug), no explicit untag step is needed — `latest` is just a mutable pointer, so re-running the standard update procedure's `podman pull docker.io/jellyfin/jellyfin:latest` overwrites it automatically.
+- The broken image (`10.11.12`) is left in place, now dangling -- intentional, in case the rollback needs undoing. Prune once stable.
+- To move forward again later (e.g. once `10.11.13` fixes the bug), no explicit untag step is needed -- `latest` is just a mutable pointer, so re-running the standard update procedure's `podman pull docker.io/jellyfin/jellyfin:latest` overwrites it automatically.
 
 ---
 
@@ -279,7 +291,7 @@ Expect `"Version":"10.11.11"`.
 - Both services stop if storage disappears
 - Leftover containers are force-removed on each start to handle unclean shutdowns
 - Manual container image updates only
-- Transmission resumes interrupted downloads automatically after a restart — standard behavior, no special config
+- Transmission resumes interrupted downloads automatically after a restart -- standard behavior, no special config
 - No RPC authentication configured; access is restricted to the Tailscale interface only (Section 9)
 
 **Storage Paths**
@@ -322,7 +334,7 @@ sudo restorecon -Rv /var/lib/transmission /mnt/storage/Downloads
 
 ### Known Non-Leak: nordvpnd Control-Plane Traffic on the Bridge
 
-Bridge-sourced connections (`10.88.0.3`) to arbitrary external IPs are expected — `nordvpnd`'s kill switch exempts its own control-plane traffic (fwmark `0xe1f1`) from the forced-VPN table. Only `10.5.0.2`-sourced (tunnel) traffic needs to be verified as VPN-routed; see `server-history.md` for how this was confirmed.
+Bridge-sourced connections (`10.88.0.3`) to arbitrary external IPs are expected -- `nordvpnd`'s kill switch exempts its own control-plane traffic (fwmark `0xe1f1`) from the forced-VPN table. Only `10.5.0.2`-sourced (tunnel) traffic needs to be verified as VPN-routed; see `server-history.md` for how this was confirmed.
 
 ---
 
@@ -332,7 +344,7 @@ This procedure updates the nordvpn client inside the container to the latest ver
 
 **No changes to source files are required.** The Containerfile pulls the latest nordvpn package at build time.
 
-**Note**: The Containerfile is `FROM ubuntu:24.04` — NordVPN's official Linux client only ships `.deb` packages, so the build uses an Ubuntu base rather than CentOS/Fedora. This means `podman images` will always show a cached `docker.io/library/ubuntu:24.04` image alongside the app containers; it's a build dependency for this procedure, not orphaned bloat.
+**Note**: The Containerfile is `FROM ubuntu:24.04` -- NordVPN's official Linux client only ships `.deb` packages, so the build uses an Ubuntu base rather than CentOS/Fedora. This means `podman images` will always show a cached `docker.io/library/ubuntu:24.04` image alongside the app containers; it's a build dependency for this procedure, not orphaned bloat.
 
 **Steps**
 
@@ -346,7 +358,7 @@ sudo systemctl stop nordvpn.service
 ```bash
 sudo podman build --no-cache -t localhost/nordvpn-custom:latest ~/nordvpn-image/
 ```
-> `--no-cache` is required — without it Podman reuses cached layers and will not pull the latest NordVPN package from the apt repo.
+> `--no-cache` is required -- without it Podman reuses cached layers and will not pull the latest NordVPN package from the apt repo.
 
 3. Restart both services
 ```bash
@@ -433,7 +445,7 @@ sudo systemctl restart transmission.service
 **Purpose**
 - Watches `/mnt/storage/Downloads/complete` for completed downloads
 - Renames and moves media to `/mnt/storage/Movies` or `/mnt/storage/Shows`
-- Does not talk to Transmission directly — Transmission's own "move completed downloads to" setting drops finished files into the watch folder; mintmedia only reacts to what appears there
+- Does not talk to Transmission directly -- Transmission's own "move completed downloads to" setting drops finished files into the watch folder; mintmedia only reacts to what appears there
 
 **Service Type**
 - systemd user service, running the mintmedia daemon directly (`Type=simple`)
@@ -443,11 +455,11 @@ sudo systemctl restart transmission.service
 
 **Key Design Points**
 - Runs as a user service under `<user>`; linger is enabled so it starts at boot without login
-- `Restart=on-failure`, `RestartSec=5` — systemd restarts the daemon automatically if it exits unexpectedly; the 5s delay (raised from the 100ms default) keeps a genuine failure loop from burning through the default restart-limit burst (5 tries/10s) before a slow-mounting storage device has a chance to catch up
+- `Restart=on-failure`, `RestartSec=5` -- systemd restarts the daemon automatically if it exits unexpectedly; the 5s delay (raised from the 100ms default) keeps a genuine failure loop from burning through the default restart-limit burst (5 tries/10s) before a slow-mounting storage device has a chance to catch up
 - Built and updated manually from source at `~/dev/golang/mintmedia`
-- Transmission RPC integration (`[torrent]` / clipboard automation) is disabled in this instance's config — the server is headless, so there's no desktop session or clipboard to ingest magnet links from. That role is handled from the Mac (`tm.fish`, or the Mac's own mintmedia instance pointed at `<tailscale-ip>:9091`), which sends links/torrents to the server's Transmission over Tailscale
-- `defer_destination_checks = true` — defers checks on the *destination* dirs (`Movies`/`Shows`) if `/mnt/storage` isn't mounted yet at startup. Does **not** cover the watch dir (`Downloads/complete`) — mintmedia still fails to initialize if that can't be created at runtime. Known gap in mintmedia itself, to be patched there.
-- `ExecStartPre` polls `mountpoint -q /mnt/storage` (up to 30s, 1s interval) before the daemon starts, so the watch-dir gap above can't be hit in practice — mintmedia never attempts to start until storage is a real mount, regardless of what `defer_destination_checks` does or doesn't cover. This exists because mintmedia can't join the system-level self-healing mechanism in Section 3 (the `Wants=` drop-in on `mnt-storage.mount`) — that mechanism only works between system-manager units; a system unit can't pull in a user-manager service the same way. `RequiresMountsFor=/mnt/storage` is also set on the unit but does not reliably enforce a hard wait for a *user*-level service the way it does for a system-level one — confirmed empirically (`systemctl --user show mintmedia.service -p Requires` never listed `mnt-storage.mount`, despite the directive; it only produced the non-blocking `After=` ordering hint). See `server-history.md` for the incident that surfaced this.
+- Transmission RPC integration (`[torrent]` / clipboard automation) is disabled in this instance's config -- the server is headless, so there's no desktop session or clipboard to ingest magnet links from. That role is handled from the Mac (`tm.fish`, or the Mac's own mintmedia instance pointed at `<tailscale-ip>:9091`), which sends links/torrents to the server's Transmission over Tailscale
+- `defer_destination_checks = true` -- defers checks on the *destination* dirs (`Movies`/`Shows`) if `/mnt/storage` isn't mounted yet at startup. Does **not** cover the watch dir (`Downloads/complete`) -- mintmedia still fails to initialize if that can't be created at runtime. Known gap in mintmedia itself, to be patched there.
+- `ExecStartPre` polls `mountpoint -q /mnt/storage` (up to 30s, 1s interval) before the daemon starts, so the watch-dir gap above can't be hit in practice -- mintmedia never attempts to start until storage is a real mount, regardless of what `defer_destination_checks` does or doesn't cover. This exists because mintmedia can't join the system-level self-healing mechanism in Section 3 (the `Wants=` drop-in on `mnt-storage.mount`) -- that mechanism only works between system-manager units; a system unit can't pull in a user-manager service the same way. `RequiresMountsFor=/mnt/storage` is also set on the unit but does not reliably enforce a hard wait for a *user*-level service the way it does for a system-level one -- confirmed empirically (`systemctl --user show mintmedia.service -p Requires` never listed `mnt-storage.mount`, despite the directive; it only produced the non-blocking `After=` ordering hint). See `server-history.md` for the incident that surfaced this.
 
 **Check the Service**
 ```bash
@@ -463,7 +475,7 @@ systemctl --user restart mintmedia.service
 `~/.config/mintmedia/config.toml`
 
 **Logs**
-- stdout/stderr go to the journal. Use `--user-unit=`, not `--user -u` — this box has no split per-uid journal file (`user-1000.journal`), only `system.journal`, so the `--user` scope flag finds no files to search. `--user-unit=` matches the `_SYSTEMD_USER_UNIT` field directly against the system journal instead:
+- stdout/stderr go to the journal. Use `--user-unit=`, not `--user -u` -- this box has no split per-uid journal file (`user-1000.journal`), only `system.journal`, so the `--user` scope flag finds no files to search. `--user-unit=` matches the `_SYSTEMD_USER_UNIT` field directly against the system journal instead:
 ```bash
 journalctl --user-unit=mintmedia.service          # full log
 journalctl --user-unit=mintmedia.service -f       # follow live
@@ -481,17 +493,17 @@ journalctl --user-unit=mintmedia.service -n 100   # last 100 lines
 
 **Service Type**
 - systemd **user** service, unlike Jellyfin/NordVPN/Transmission (system services)
-- Podman-managed container, fully rootless as `<user>` — no root in the service's own lifecycle
+- Podman-managed container, fully rootless as `<user>` -- no root in the service's own lifecycle
 
 **Service File**
 `~/.config/systemd/user/joplin.service`
 
 **Key Design Points**
-- Requires `/mnt/storage` to be mounted; data lives at `/mnt/storage/Joplin` so it's covered by the existing weekly cold backup (Section 11) — no separate backup mechanism needed. Trade-off: that backup runs live, and rsync-ing an active SQLite file carries a small risk of a torn copy, the same class of risk Section 12 stops Jellyfin for; low-probability here given light personal use
-- Same self-heal gap as mintmedia (Section 7): as a user-level service, `RequiresMountsFor=/mnt/storage` doesn't reliably enforce a hard wait the way it does for a system-level unit. Unmitigated, this was worse for Joplin than for mintmedia — `podman run -v /mnt/storage/Joplin:/database:Z` doesn't fail when storage isn't mounted yet, it silently binds the empty root-fs directory, so the container comes up "healthy" against the wrong, empty database with no automatic recovery once storage actually mounts (the process never exits, so `Restart=always` never gets a chance to retry). Fixed the same way as mintmedia: an `ExecStartPre` poll (`mountpoint -q /mnt/storage`, up to 30s) gates the start so it fails fast instead of silently mounting the wrong path; combined with the unit's existing `Restart=always`/`RestartSec=30`, this retries indefinitely until storage is actually ready
-- SQLite (image default), not Postgres — no separate database container
-- Container runs as its own internal non-root user (`joplin`, UID 1001); the bind-mounted data dir is chowned to match via `podman unshare chown -R 1001:1001 /mnt/storage/Joplin` rather than forcing the container onto a different UID. Forcing a different UID via `--userns=keep-id:uid=,gid=` plus `--user` was tried first — it triggers an expensive one-time ID-mapped copy of the image's layers, and still surfaced hardcoded `/home/joplin` write paths (PM2's log file, the app's own `logs/` dir) needing patching one at a time
-- Port is published on both `<tailscale-ip>:22300` (direct Tailscale) and `127.0.0.1:22300` — the latter because `tailscaled` runs in the host's own network namespace, not the container's, so `tailscale serve`'s `localhost` target needs a real loopback listener
+- Requires `/mnt/storage` to be mounted; data lives at `/mnt/storage/Joplin` so it's covered by the existing weekly cold backup (Section 11) -- no separate backup destination needed. Joplin is stopped for the duration of that backup run to avoid rsync-ing an active SQLite file, the same class of torn-copy risk Section 12 stops Jellyfin for -- see Weekly Backup Procedure below
+- Same self-heal gap as mintmedia (Section 7): as a user-level service, `RequiresMountsFor=/mnt/storage` doesn't reliably enforce a hard wait the way it does for a system-level unit. Unmitigated, this was worse for Joplin than for mintmedia -- `podman run -v /mnt/storage/Joplin:/database:Z` doesn't fail when storage isn't mounted yet, it silently binds the empty root-fs directory, so the container comes up "healthy" against the wrong, empty database with no automatic recovery once storage actually mounts (the process never exits, so `Restart=always` never gets a chance to retry). Fixed the same way as mintmedia: an `ExecStartPre` poll (`mountpoint -q /mnt/storage`, up to 30s) gates the start so it fails fast instead of silently mounting the wrong path; combined with the unit's existing `Restart=always`/`RestartSec=30`, this retries indefinitely until storage is actually ready
+- SQLite (image default), not Postgres -- no separate database container
+- Container runs as its own internal non-root user (`joplin`, UID 1001); the bind-mounted data dir is chowned to match via `podman unshare chown -R 1001:1001 /mnt/storage/Joplin` rather than forcing the container onto a different UID. Forcing a different UID via `--userns=keep-id:uid=,gid=` plus `--user` was tried first -- it triggers an expensive one-time ID-mapped copy of the image's layers, and still surfaced hardcoded `/home/joplin` write paths (PM2's log file, the app's own `logs/` dir) needing patching one at a time
+- Port is published on both `<tailscale-ip>:22300` (direct Tailscale) and `127.0.0.1:22300` -- the latter because `tailscaled` runs in the host's own network namespace, not the container's, so `tailscale serve`'s `localhost` target needs a real loopback listener
 
 **Check the Service**
 ```bash
@@ -503,9 +515,37 @@ systemctl --user status joplin.service
 systemctl --user restart joplin.service
 ```
 
+### Weekly Backup Procedure
+
+The weekly cold backup (`server/bin/backup`, Section 11) rsyncs all of `/mnt/storage`, including `/mnt/storage/Joplin`. Unlike Jellyfin's dedicated backup script, `bin/backup` is a generic whole-drive mirror with no per-service awareness, so keeping the SQLite database closed for the duration is a manual step wrapped around it rather than something built into the script.
+
+**Steps**
+
+1. Stop Joplin
+```bash
+systemctl --user stop joplin.service
+```
+
+2. Run the weekly cold backup as usual
+```bash
+backup
+```
+
+3. Restart Joplin
+```bash
+systemctl --user start joplin.service
+```
+
+4. Verify Joplin is back up
+```bash
+systemctl --user status joplin.service
+```
+
+**Note** -- Joplin stays down for the full backup run, not just the moment its own directory is copied, since `bin/backup` doesn't expose progress into which subdirectory it's currently on. Acceptable given the system's stated downtime tolerance (Section 1) and that this backup is already manual/weekly, not something running silently underneath active use.
+
 ### HTTPS Access via Tailscale Serve
 
-Required, not optional — the iOS app blocks plain HTTP (see Known Gotchas).
+Required, not optional -- the iOS app blocks plain HTTP (see Known Gotchas).
 
 **Enable**
 ```bash
@@ -522,12 +562,12 @@ tailscale serve status
 tailscale serve --https=8444 off
 ```
 
-**Result** — `https://<hostname>.<tailnet-name>.ts.net:8444`, the canonical (and only working) URL for every client.
+**Result** -- `https://<hostname>.<tailnet-name>.ts.net:8444`, the canonical (and only working) URL for every client.
 
 ### Known Gotchas
 
 - **iOS requires HTTPS**: App Transport Security blocks plain `http://` sync targets, which is why the iPhone app failed with confirmed-correct credentials while the Mac app worked fine on the same URL
-- **Single-origin only**: Joplin Server rejects any request whose Host header doesn't match `APP_BASE_URL` exactly (`isValidOrigin()` in `routeUtils.ts`, compares host:port). Unlike Jellyfin, it can't serve a direct-IP URL and a `tailscale serve` URL at the same time — every client must point at the same URL
+- **Single-origin only**: Joplin Server rejects any request whose Host header doesn't match `APP_BASE_URL` exactly (`isValidOrigin()` in `routeUtils.ts`, compares host:port). Unlike Jellyfin, it can't serve a direct-IP URL and a `tailscale serve` URL at the same time -- every client must point at the same URL
 
 ---
 
@@ -538,8 +578,8 @@ tailscale serve --https=8444 off
 - Two explicit exceptions, matching Section 2: Jellyfin is exposed to the public internet via Tailscale Funnel on 443, hardened and monitored (see Section 5); Cockpit is reachable on the LAN as an intentional troubleshooting fallback if Tailscale itself is down (see Firewalld Zone Configuration below)
 
 **Services Accessible Over Tailscale**
-- Jellyfin (HTTP on 8096, HTTPS on 443 via `tailscale serve`; also public via Funnel — see Section 5)
-- Joplin Server (HTTPS on 8444 via `tailscale serve` only — see Section 8)
+- Jellyfin (HTTP on 8096, HTTPS on 443 via `tailscale serve`; also public via Funnel -- see Section 5)
+- Joplin Server (HTTPS on 8444 via `tailscale serve` only -- see Section 8)
 - SMB
 - SSH
 
@@ -549,18 +589,18 @@ tailscale serve --https=8444 off
 
 ### Firewalld Zone Configuration
 
-**`trusted` zone** — `tailscale0` interface, plus the Podman bridge subnet (`10.88.0.0/16`)
-- `target: ACCEPT` — all traffic over the tailnet is allowed
+**`trusted` zone** -- `tailscale0` interface, plus the Podman bridge subnet (`10.88.0.0/16`)
+- `target: ACCEPT` -- all traffic over the tailnet is allowed
 - This is what actually grants Jellyfin/SSH/Samba access described above; no per-service rules are needed here
 
-**`public` zone** — `enp1s0` (physical LAN interface)
+**`public` zone** -- `enp1s0` (physical LAN interface)
 - `services: cockpit dhcpv6-client`
 - No ports open
-- SSH, Samba, HTTP/HTTPS, and Jellyfin (main port, alt HTTPS port, and DLNA discovery ports 1900/udp + 7359/udp) are explicitly **not** exposed to the LAN — access to all of these is Tailscale-only, matching the stated access model
+- SSH, Samba, HTTP/HTTPS, and Jellyfin (main port, alt HTTPS port, and DLNA discovery ports 1900/udp + 7359/udp) are explicitly **not** exposed to the LAN -- access to all of these is Tailscale-only, matching the stated access model
 - Cockpit (port 9090) is the one intentional exception: kept reachable on the LAN for troubleshooting if Tailscale itself is ever down
 
 **Known effect of this**
-- Jellyfin client apps that rely on LAN auto-discovery (SSDP/DLNA broadcast) will no longer find the server automatically — clients must connect via the Tailscale address or the `tailscale serve` HTTPS URL directly
+- Jellyfin client apps that rely on LAN auto-discovery (SSDP/DLNA broadcast) will no longer find the server automatically -- clients must connect via the Tailscale address or the `tailscale serve` HTTPS URL directly
 
 The `public` zone previously exposed SSH/Samba/Jellyfin in contradiction of the Tailscale-only access model; see `server-history.md` for the cleanup commands and what was removed.
 
@@ -591,7 +631,7 @@ tailscale serve status
 tailscale serve --https=8443 off
 ```
 
-**Result** — `https://<hostname>.<tailnet-name>.ts.net:8443` (tailnet-only, valid cert, no browser warning), added *alongside* the existing direct access on `http://<tailscale-ip>:9090` and the LAN-only `public` zone exposure (Section 9, Firewalld Zone Configuration). The direct paths are left in place intentionally — they're the fallback if Tailscale itself is ever down.
+**Result** -- `https://<hostname>.<tailnet-name>.ts.net:8443` (tailnet-only, valid cert, no browser warning), added *alongside* the existing direct access on `http://<tailscale-ip>:9090` and the LAN-only `public` zone exposure (Section 9, Firewalld Zone Configuration). The direct paths are left in place intentionally -- they're the fallback if Tailscale itself is ever down.
 
 ---
 
@@ -653,7 +693,7 @@ After running `tailscale up --advertise-exit-node`, the node must be approved in
 
 **Known Remaining Warning**
 
-IPv6 forwarding is not enabled — `net.ipv6.conf.all.forwarding` is not set. The exit node functions for IPv4 traffic only. IPv6 client traffic will not route through the server.
+IPv6 forwarding is not enabled -- `net.ipv6.conf.all.forwarding` is not set. The exit node functions for IPv4 traffic only. IPv6 client traffic will not route through the server.
 
 ---
 
@@ -673,16 +713,16 @@ Usage expectations:
 
 ## 11. Backups
 
-Two independent mechanisms cover this system — different scope, cadence, and destination each. Jellyfin configuration is detailed further in Section 12.
+Two independent mechanisms cover this system -- different scope, cadence, and destination each. Jellyfin configuration is detailed further in Section 12.
 
 **Media Library**
 - Frequency: Weekly
 - Type: Cold backup (offline when not in use)
-- Trigger: `server/bin/backup` (dotfiles), run by hand
+- Trigger: `server/bin/backup` (dotfiles), run by hand -- Joplin must be stopped first; see Section 8's Weekly Backup Procedure
 - Recovery: Drive replacement and restore tested; achievable in under 1 hour
 
 **Jellyfin Configuration**
-- Frequency: Manual / ad hoc — trigger is intentionally not automated (Section 12)
+- Frequency: Manual / ad hoc -- trigger is intentionally not automated (Section 12)
 - Type: Archived and pushed off-host to the Mac over Tailscale SSH
 - Trigger: `server/bin/jellyfin-backup` (dotfiles), run by hand
 
@@ -715,7 +755,7 @@ Metadata and cache are derived data and can be regenerated.
 ### Backup Procedure (Automated Steps, Manual Trigger)
 
 The steps below are automated by `server/bin/jellyfin-backup` (dotfiles). It
-runs on this server — stopping Jellyfin, archiving `config` (excluding
+runs on this server -- stopping Jellyfin, archiving `config` (excluding
 `cache`/`metadata`), restarting Jellyfin immediately to minimize downtime,
 then pushing the finished archive out to the Mac (`~/dev/server/`) over
 Tailscale SSH, and cleaning up the temporary archive on this server.
@@ -857,7 +897,7 @@ DNF keeps old kernels (and their `-core`/`-devel`/`-modules`/`-modules-extra` pa
 sudo dnf remove --oldinstallonly
 ```
 
-Typically frees several hundred MB. Safe to run any time — `dnf` always keeps the currently-running kernel regardless of install order.
+Typically frees several hundred MB. Safe to run any time -- `dnf` always keeps the currently-running kernel regardless of install order.
 
 ### Check Storage Mount
 ```sh
@@ -992,7 +1032,7 @@ systemctl --user restart joplin.service
 
 ### mintmedia Not Running
 
-The service is `Type=simple` with `Restart=on-failure`, so systemd tracks the actual daemon process — `active`/`failed` in `systemctl --user status` reflects reality.
+The service is `Type=simple` with `Restart=on-failure`, so systemd tracks the actual daemon process -- `active`/`failed` in `systemctl --user status` reflects reality.
 
 1. Check status and recent logs
 ```bash
@@ -1026,13 +1066,13 @@ sudo podman exec transmission netstat -tnp | grep 51413
 - SELinux remains enabled
 - Manual updates preferred for non-security changes
 - Transmission resumes interrupted downloads automatically after a power cut; see Section 6
-- Transmission RPC has no authentication of its own — access is Tailscale-only; see Section 6
+- Transmission RPC has no authentication of its own -- access is Tailscale-only; see Section 6
 - NordVPN token expires annually; see Section 6 for renewal
 - NordVPN container image is built locally from source; see Section 6 for the rebuild procedure
 - Jellyfin is exposed to the public internet via Tailscale Funnel; see Section 5
 - Joplin Server runs fully rootless with no root in its lifecycle, unlike the other containerized services; see Section 8
-- Joplin Server requires all clients on one canonical URL — it cannot serve a direct-IP and a `tailscale serve` URL simultaneously the way Jellyfin does; see Section 8
-- NFS and domain-join tooling are not installed — SMB-only, local accounts; see `server-history.md`
+- Joplin Server requires all clients on one canonical URL -- it cannot serve a direct-IP and a `tailscale serve` URL simultaneously the way Jellyfin does; see Section 8
+- NFS and domain-join tooling are not installed -- SMB-only, local accounts; see `server-history.md`
 
 ---
 
@@ -1047,9 +1087,9 @@ go install github.com/gokcehan/lf@latest
 ```
 
 Config is at `~/.config/lf/` (sourced from `server/lf/` in dotfiles):
-- `lfrc` — keybindings and settings; no zoxide, no image previews
-- `pv.sh` — text file previewer (bat with cat fallback)
-- `icons` — Nerd Font icon mappings
+- `lfrc` -- keybindings and settings; no zoxide, no image previews
+- `pv.sh` -- text file previewer (bat with cat fallback)
+- `icons` -- Nerd Font icon mappings
 
 The `lf` fish function (`~/.config/fish/functions/lf.fish`) wraps lf with quit-and-cd integration.
 
