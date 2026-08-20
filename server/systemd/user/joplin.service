@@ -1,10 +1,11 @@
 [Unit]
 Description=Joplin Sync Server (Podman, rootless)
-After=network-online.target
+After=network-online.target mnt-storage.mount
 RequiresMountsFor=/mnt/storage
 
 [Service]
 Type=exec
+ExecStartPre=/usr/bin/bash -c 'for i in $(seq 1 30); do mountpoint -q /mnt/storage && exit 0; sleep 1; done; echo "mnt-storage not mounted after 30s" >&2; exit 1'
 ExecStart=/usr/bin/podman run --name joplin \
   --replace \
   -p 100.106.45.25:22300:22300 \

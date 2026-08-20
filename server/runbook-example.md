@@ -24,7 +24,7 @@ Non-goals:
 - Redundancy across nodes
 - Zero-downtime upgrades
 
-Downtime of several hours is acceptable. Data loss is not acceptable.
+Downtime of several hours is acceptable. Minor data loss is acceptable.
 
 ---
 
@@ -443,6 +443,7 @@ journalctl --user-unit=mintmedia.service -n 100   # last 100 lines
 
 **Key Design Points**
 - Requires `/mnt/storage` to be mounted; data lives at `/mnt/storage/Joplin` so it's covered by the existing weekly cold backup (Section 11) — no separate backup mechanism needed. Trade-off: that backup runs live, and rsync-ing an active SQLite file carries a small risk of a torn copy, the same class of risk Section 12 stops Jellyfin for; low-probability here given light personal use
+- Same self-heal gap as mintmedia (Section 7): as a user-level service, `RequiresMountsFor=/mnt/storage` doesn't reliably enforce a hard wait the way it does for a system-level unit. Unmitigated, this was worse for Joplin than for mintmedia — `podman run -v /mnt/storage/Joplin:/database:Z` doesn't fail when storage isn't mounted yet, it silently binds the empty root-fs directory, so the container comes up "healthy" against the wrong, empty database with no automatic recovery once storage actually mounts (the process never exits, so `Restart=always` never gets a chance to retry). Fixed the same way as mintmedia: an `ExecStartPre` poll (`mountpoint -q /mnt/storage`, up to 30s) gates the start so it fails fast instead of silently mounting the wrong path; combined with the unit's existing `Restart=always`/`RestartSec=30`, this retries indefinitely until storage is actually ready
 - SQLite (image default), not Postgres — no separate database container
 - Container runs as its own internal non-root user (`joplin`, UID 1001); the bind-mounted data dir is chowned to match via `podman unshare chown -R 1001:1001 /mnt/storage/Joplin` rather than forcing the container onto a different UID. Forcing a different UID via `--userns=keep-id:uid=,gid=` plus `--user` was tried first — it triggers an expensive one-time ID-mapped copy of the image's layers, and still surfaced hardcoded `/home/joplin` write paths (PM2's log file, the app's own `logs/` dir) needing patching one at a time
 - Port is published on both `<tailscale-ip>:22300` (direct Tailscale) and `127.0.0.1:22300` — the latter because `tailscaled` runs in the host's own network namespace, not the container's, so `tailscale serve`'s `localhost` target needs a real loopback listener
@@ -489,7 +490,7 @@ tailscale serve --https=8444 off
 
 **Access Model**
 - Tailscale provides encrypted access
-- One exception: Jellyfin is exposed to the public internet via Tailscale Funnel on 443, hardened and monitored — see Section 5
+- Two explicit exceptions, matching Section 2: Jellyfin is exposed to the public internet via Tailscale Funnel on 443, hardened and monitored (see Section 5); Cockpit is reachable on the LAN as an intentional troubleshooting fallback if Tailscale itself is down (see Firewalld Zone Configuration below)
 
 **Services Accessible Over Tailscale**
 - Jellyfin (HTTP on 8096, HTTPS on 443 via `tailscale serve`; also public via Funnel — see Section 5)
@@ -784,7 +785,7 @@ doctor
 
 A systemd user timer runs `doctor-check` daily at 6am, caching the result to `~/.local/state/doctor/status`. The fish greeting reads this cache and displays any warnings or criticals on login.
 
-`doctor` requires passwordless sudo for two commands. These are configured in `/etc/sudoers.d/doctor`:
+`doctor` requires passwordless sudo for four commands. These are configured in `/etc/sudoers.d/doctor`:
 
 ```
 <user> ALL=(ALL) NOPASSWD: /usr/bin/podman exec nordvpn nordvpn status
