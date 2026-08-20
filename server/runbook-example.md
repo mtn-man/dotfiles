@@ -209,6 +209,51 @@ sudo systemctl status jellyfin.service
 podman image prune
 ```
 
+### Jellyfin Image Rollback Procedure
+
+Use if a version just deployed via the update procedure above turns out to be broken. Re-pulls the known-good version by tag rather than relying on the old image still being cached, so it works even after `podman image prune`.
+
+**Example**: rolling back from a broken `10.11.12` to the known-good `10.11.11`.
+
+**Steps**
+
+1. Stop Jellyfin
+```bash
+sudo systemctl stop jellyfin.service
+```
+
+2. Pull the known-good version by tag
+```bash
+podman pull docker.io/jellyfin/jellyfin:10.11.11
+```
+
+3. Retag it `latest` — the service runs whatever image is locally tagged `latest` (`--pull=never`, so it never fetches on its own)
+```bash
+podman tag docker.io/jellyfin/jellyfin:10.11.11 docker.io/jellyfin/jellyfin:latest
+```
+
+4. Start Jellyfin
+```bash
+sudo systemctl start jellyfin.service
+```
+
+5. Verify the service is running
+```bash
+sudo systemctl status jellyfin.service
+```
+
+6. Verify the running version
+```bash
+curl -s http://localhost:8096/System/Info/Public | grep -o '"Version":"[^"]*"'
+```
+Expect `"Version":"10.11.11"`.
+
+7. Verify media playback and thumbnails
+
+**Notes**
+- The broken image (`10.11.12`) is left in place, now dangling — intentional, in case the rollback needs undoing. Prune once stable.
+- To move forward again later (e.g. once `10.11.13` fixes the bug), no explicit untag step is needed — `latest` is just a mutable pointer, so re-running the standard update procedure's `podman pull docker.io/jellyfin/jellyfin:latest` overwrites it automatically.
+
 ---
 
 ## 6. VPN + Transmission Service
