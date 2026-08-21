@@ -860,6 +860,25 @@ See section 5 for the Jellyfin image update procedure, section 6 for the Transmi
 
 ## 14. Routine Checks
 
+### Persistent Journal Storage (Initial Setup)
+
+CentOS Stream 10 doesn't create `/var/log/journal` by default, so `systemd-journald` runs on a small volatile (`/run`) journal that fills up and silently evicts old entries after roughly a day of normal activity. Enable persistent storage as part of initial setup, before logs are actually needed:
+
+```sh
+sudo mkdir -p /var/log/journal
+sudo systemd-tmpfiles --create --prefix /var/log/journal
+sudo systemctl restart systemd-journald
+sudo journalctl --flush
+```
+
+The `--flush` step is required -- creating the directory and restarting journald alone does not migrate anything off the volatile journal. Verify:
+
+```sh
+journalctl -u systemd-journald -b --no-pager | tail -5
+```
+
+Should show a `System Journal ... max 4G` line, not just `Runtime Journal`. See `server-history.md` for the investigation that surfaced this gap on the already-running server.
+
 ### Daily Health Check (doctor)
 
 `doctor` checks storage, services, VPN tunnel, drive temperature, recent reboots, and Tailscale. Exits 0=ok, 1=warn, 2=crit.
