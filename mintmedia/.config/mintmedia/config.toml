@@ -3,11 +3,11 @@ drop_folder = "~/Downloads/MintDrop"
 state_dir   = "~/.local/state/mintmedia"
 
 [destinations]
-dest_dir_movies = "/Volumes/media/Movies"
-dest_dir_shows  = "/Volumes/media/Shows"
+dest_dir_movies = "/Users/user/Movies/Movies"
+dest_dir_shows  = "/Users/user/Movies/Shows"
 
 [system]
-auto_create_missing_dirs = true
+auto_create_missing_dirs = false
 defer_destination_checks = true
 done_notification_mode = "per_file"
 shutdown_grace_duration = "10m"
