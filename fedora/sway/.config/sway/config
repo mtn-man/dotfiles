@@ -29,6 +29,11 @@ for_window [app_id="mpv"] inhibit_idle fullscreen
 for_window [app_id="org.jellyfin.JellyfinDesktop"] inhibit_idle fullscreen
 for_window [app_id="firefox"] inhibit_idle fullscreen
 
+### Workspace assignment
+#
+assign [app_id="firefox"] workspace number 1
+assign [app_id="kitty"] workspace number 2
+
 ### Output configuration
 #
 output * bg ~/.config/sway/assets/wallhaven-yxyye7_3840x2400.png fill
@@ -236,6 +241,10 @@ include '$(/usr/libexec/sway/layered-include "/usr/share/sway/config.d/*.conf" "
 exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK
 exec autotiling
+
+# Auto-launch startup apps into their assigned workspaces
+exec $browser
+exec $term
 
 # Lid switch -- disable internal display when closed
 bindswitch --reload --locked lid:on output eDP-1 disable
