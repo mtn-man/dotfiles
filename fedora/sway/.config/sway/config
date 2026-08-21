@@ -246,6 +246,9 @@ exec autotiling
 exec $browser
 exec $term
 
+# Land on a numbered workspace instead of the scratch workspace at startup
+exec swaymsg workspace number 2
+
 # Lid switch -- disable internal display when closed
 bindswitch --reload --locked lid:on output eDP-1 disable
 bindswitch --reload --locked lid:off output eDP-1 enable
