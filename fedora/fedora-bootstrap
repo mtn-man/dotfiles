@@ -213,6 +213,14 @@ else
     success "after installed"
 fi
 
+if command -v bluetuith &>/dev/null; then
+    success "bluetuith already installed"
+else
+    info "Installing bluetuith..."
+    go install github.com/darkhz/bluetuith@latest
+    success "bluetuith installed"
+fi
+
 # -----------------------------------------------------------------------------
 # 6. Stow dotfiles
 # -----------------------------------------------------------------------------

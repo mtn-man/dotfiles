@@ -43,6 +43,7 @@ Sway and Swaylock both use `~/.config/sway/assets/wallhaven-yxyye7_3840x2400.png
 - **Signal 8** — the dunst DND custom module uses `signal: 8` to refresh; `$mod+Shift+n` in sway sends `pkill -SIGRTMIN+8 waybar` after toggling dunst
 - **cpu module** — click opens btop in kitty
 - **battery module** — click opens the `batt` fish function in kitty
+- **bluetooth module** — click opens `bluetuith` (TUI bluetooth manager) in kitty; installed via `go install`, not packaged for Fedora
 - **custom/power** — removed; power menu is now keyboard-only via `$mod+Esc` in sway
 
 ## Sway Config

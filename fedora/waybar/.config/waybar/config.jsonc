@@ -18,6 +18,7 @@
         "battery",
         "custom/dunst",
         "power-profiles-daemon",
+        "bluetooth",
         "network",
         "clock"
     ],
@@ -87,6 +88,15 @@
         "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
         "tooltip-format": "{timeTo}\n{power:.1f}W",
         "on-click": "kitty --hold fish -c batt"
+    },
+    "bluetooth": {
+        "format": "󰂯",
+        "format-disabled": "󰂲",
+        "format-connected": "󰂱 {num_connections}",
+        "tooltip-format": "{controller_alias}\t{controller_address}",
+        "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+        "on-click": "kitty bluetuith"
     },
     "network": {
         "format-wifi": "{icon}",
