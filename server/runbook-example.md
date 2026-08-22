@@ -881,7 +881,7 @@ Should show a `System Journal ... max 4G` line, not just `Runtime Journal`. See 
 
 ### Daily Health Check (doctor)
 
-`doctor` checks storage, services, VPN tunnel, drive temperature, recent reboots, and Tailscale. Exits 0=ok, 1=warn, 2=crit.
+`doctor` checks storage, services, VPN tunnel, drive temperature, recent reboots, and Tailscale, plus upstream update availability for Jellyfin, NordVPN, Transmission, and Joplin Server (read-only version comparisons; never pulls or installs). Exits 0=ok, 1=warn, 2=crit.
 
 ```sh
 doctor
@@ -889,14 +889,18 @@ doctor
 
 A systemd user timer runs `doctor-check` daily at 6am, caching the result to `~/.local/state/doctor/status`. The fish greeting reads this cache and displays any warnings or criticals on login.
 
-`doctor` requires passwordless sudo for four commands. These are configured in `/etc/sudoers.d/doctor`:
+`doctor` requires passwordless sudo for six commands. These are configured in `/etc/sudoers.d/doctor`:
 
 ```
 <user> ALL=(ALL) NOPASSWD: /usr/bin/podman exec nordvpn nordvpn status
+<user> ALL=(ALL) NOPASSWD: /usr/bin/podman exec nordvpn nordvpn version
+<user> ALL=(ALL) NOPASSWD: /usr/bin/podman exec transmission transmission-daemon --version
 <user> ALL=(ALL) NOPASSWD: /usr/sbin/blkid -U <disk-uuid>
 <user> ALL=(ALL) NOPASSWD: /usr/sbin/smartctl -d sat -l scttemp /dev/sd*
 <user> ALL=(ALL) NOPASSWD: /usr/sbin/smartctl -H -A -d sat /dev/sd*
 ```
+
+Joplin's update check uses `podman inspect joplin` directly, without `sudo` — the Joplin container is rootless (Section 8), unlike NordVPN and Transmission.
 
 To edit:
 ```sh

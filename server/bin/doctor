@@ -52,12 +52,51 @@ else
     criticals=$(( criticals + 1 ))
 fi
 
+# NordVPN client update check — read-only; never installs
+local_version=$(sudo podman exec nordvpn nordvpn version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+latest_version=$(curl -s --max-time 5 "https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/" 2>/dev/null | grep -oE 'nordvpn_[0-9]+\.[0-9]+\.[0-9]+_amd64\.deb' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -1)
+if [[ -z "$local_version" || -z "$latest_version" ]]; then
+    row "nordvpn update" "warn: check failed"
+    warnings=$(( warnings + 1 ))
+elif [[ "$local_version" == "$latest_version" ]]; then
+    row "nordvpn update" "ok (${local_version})"
+else
+    row "nordvpn update" "warn: ${local_version} -> ${latest_version} available"
+    warnings=$(( warnings + 1 ))
+fi
+
 # Transmission service
 if systemctl is-active --quiet transmission.service 2>/dev/null; then
     row "transmission" "ok"
 else
     row "transmission" "CRITICAL: not active"
     criticals=$(( criticals + 1 ))
+fi
+
+# Transmission update check — read-only; never pulls or restarts
+local_version=$(sudo podman exec transmission transmission-daemon --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+latest_version=$(curl -s --max-time 5 https://api.github.com/repos/transmission/transmission/releases/latest 2>/dev/null | grep -oE '"tag_name": *"[0-9.]+"' | grep -oE '[0-9][0-9.]*')
+if [[ -z "$local_version" || -z "$latest_version" ]]; then
+    row "transmission update" "warn: check failed"
+    warnings=$(( warnings + 1 ))
+elif [[ "$local_version" == "$latest_version" ]]; then
+    row "transmission update" "ok (${local_version})"
+else
+    row "transmission update" "warn: ${local_version} -> ${latest_version} available"
+    warnings=$(( warnings + 1 ))
+fi
+
+# Joplin Server update check — read-only; never pulls or restarts
+local_version=$(podman inspect joplin --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' 2>/dev/null)
+latest_version=$(curl -s --max-time 5 "https://hub.docker.com/v2/repositories/joplin/server/tags?page_size=25&ordering=last_updated" 2>/dev/null | grep -oE '"name":"[0-9]+\.[0-9]+\.[0-9]+"' | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+if [[ -z "$local_version" || -z "$latest_version" ]]; then
+    row "joplin update" "warn: check failed"
+    warnings=$(( warnings + 1 ))
+elif [[ "$local_version" == "$latest_version" ]]; then
+    row "joplin update" "ok (${local_version})"
+else
+    row "joplin update" "warn: ${local_version} -> ${latest_version} available"
+    warnings=$(( warnings + 1 ))
 fi
 
 # mintmedia service — must run as eli; --user bus is session-specific
