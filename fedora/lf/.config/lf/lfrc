@@ -8,7 +8,8 @@ map d $trash "$fx"
 map <backspace2> $trash "$fx"
 set shell /usr/bin/fish
 map S shell
-map R reload
+map r reload
+map R rename
 map e $vim "$fx"
 map c copy
 map v paste
@@ -24,8 +25,7 @@ set hidden!
 # --- zoxide integration (fish-compatible) ---
 
 # Teach zoxide about directories visited in lf
-cmd cd ${{
-    command cd -- $argv
+cmd on-cd &{{
     if type -q zoxide
         zoxide add -- $PWD >/dev/null 2>&1
     end
