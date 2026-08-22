@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Sensitive values (tailscale IP, tailnet hostnames, public IP) are redacted
+# below since this snapshot may get pasted elsewhere for review.
+
+if [[ "$EUID" -eq 0 ]]; then
+    echo "snap must be run as eli, not root" >&2
+    exit 1
+fi
+
+if ! command -v fastfetch >/dev/null 2>&1; then
+    echo "snap: fastfetch not found" >&2
+    exit 127
+fi
+
+OUTDIR="${HOME}/dev/snapshots"
+OUTFILE="${OUTDIR}/server-snapshot-$(date +%F).md"
+FSTAB_UUID="d477f156-a70d-4aba-ab3d-5fa6d194e982"
+
+mkdir -p "$OUTDIR"
+snap_verb=created
+[[ -f "$OUTFILE" ]] && snap_verb=updated
+
+ts_ip="$(tailscale ip -4 2>/dev/null || true)"
+errors=()
+
+section_file() {
+    local label="$1" path="$2" lang="$3" use_sudo="${4:-}"
+    echo "### $label"
+    echo
+    if [[ -f "$path" ]]; then
+        [[ -n "$lang" ]] && echo '```'"$lang"
+        local ok=1
+        if [[ "$use_sudo" == "sudo" ]]; then
+            sudo cat -- "$path" || ok=0
+        else
+            cat -- "$path" || ok=0
+        fi
+        [[ -n "$lang" ]] && echo '```'
+        [[ "$ok" -eq 0 ]] && errors+=("$path (unreadable)")
+    else
+        echo "(file not found: $path)"
+        errors+=("$path")
+    fi
+    echo
+    echo "---"
+    echo
+}
+
+sed_args=(
+    -E
+    -e 's/Public IP[^0-9]*[0-9.]+/Public IP: censored/'
+    -e 's/[A-Za-z0-9.-]+\.ts\.net/censored.ts.net/g'
+    -e 's/(tailscale:[[:space:]]+up) \([^)]+\)/\1 (censored)/'
+)
+if [[ -n "$ts_ip" ]]; then
+    sed_args+=(-e "s/${ts_ip//./\\.}/censored/g")
+fi
+
+{
+    echo "# Server snapshot — $(date +%F)"
+    echo
+    echo "Point-in-time recovery/review artifact, not automatically kept in sync."
+    echo
+
+    echo "## System info"
+    echo '```bash'
+    fastfetch --logo none | sed -E 's/\x1b\[[0-9;]*[A-Za-z]//g' | grep -v '█' || true
+    echo '```'
+    echo
+
+    echo "## System state (doctor)"
+    echo '```bash'
+    "${HOME}/bin/doctor" 2>&1 || true
+    echo '```'
+    echo
+
+    echo "## Service files"
+    echo
+
+    section_file "/etc/systemd/system/jellyfin.service" /etc/systemd/system/jellyfin.service ini sudo
+    section_file "/etc/systemd/system/nordvpn.service" /etc/systemd/system/nordvpn.service ini sudo
+    section_file "/etc/systemd/system/transmission.service" /etc/systemd/system/transmission.service ini sudo
+    section_file "/etc/systemd/system/mnt-storage.mount.d/override.conf" /etc/systemd/system/mnt-storage.mount.d/override.conf ini sudo
+
+    echo "### /etc/fstab (mnt-storage entry — mnt-storage.mount is generated from this, not a static unit file)"
+    echo
+    echo '```'
+    sudo grep -- "$FSTAB_UUID" /etc/fstab || echo "(fstab entry not found for UUID $FSTAB_UUID)"
+    echo '```'
+    echo
+    echo "---"
+    echo
+
+    section_file "~/.config/systemd/user/doctor-check.service" "${HOME}/.config/systemd/user/doctor-check.service" ini
+    section_file "~/.config/systemd/user/doctor-check.timer" "${HOME}/.config/systemd/user/doctor-check.timer" ini
+    section_file "~/.config/systemd/user/joplin.service" "${HOME}/.config/systemd/user/joplin.service" ini
+    section_file "~/.config/systemd/user/mintmedia.service" "${HOME}/.config/systemd/user/mintmedia.service" ini
+} | sed "${sed_args[@]}" > "$OUTFILE"
+
+echo "snap: ${snap_verb} ${OUTFILE}"
+
+mapfile -t old_snaps < <(ls -t "${OUTDIR}"/server-snapshot-*.md 2>/dev/null | tail -n +8)
+[[ "${#old_snaps[@]}" -gt 0 ]] && rm -- "${old_snaps[@]}"
+
+if [[ "${#errors[@]}" -gt 0 ]]; then
+    echo "snap: missing/unreadable files:"
+    printf '  %s\n' "${errors[@]}"
+    exit 1
+fi
